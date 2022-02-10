@@ -17,9 +17,34 @@ async function getCurrentRoundNumber() {
 }
 
 /**
+ * Updates an entry in the proposals table
+ */
+async function updateAirtableEntry({
+  recordId,
+  projectName,
+  oneLiner,
+
+  projectCategory,
+  projectEarmark,
+  grantDeliverables,
+
+  fundingRequested,
+  proposalWalletAddress,
+
+  twitterLink,
+  discordLink,
+
+  projectLeadFullName,
+  projectLeadEmail,
+  countryOfResidence,
+
+  proposalUrl,
+}) {}
+
+/**
  * Creates an entry in the proposals table
  */
-async function createProposal({
+async function createAirtableEntry({
   projectName,
   oneLiner,
 
@@ -62,5 +87,6 @@ module.exports = {
   getWalletProposals,
   getProjectUsdLimit,
   getCurrentRoundNumber,
-  createProposal,
+  createAirtableEntry,
+  updateAirtableEntry,
 };

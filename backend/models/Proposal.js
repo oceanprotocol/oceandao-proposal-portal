@@ -10,7 +10,6 @@ const projectSchema = new Schema({
   projectName: {
     type: String,
     required: true,
-    unique: true,
   },
   signer: {
     type: String,

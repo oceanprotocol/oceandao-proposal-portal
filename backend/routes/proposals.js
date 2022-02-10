@@ -3,30 +3,19 @@ var router = express.Router();
 const { getSinger } = require("../utils/ethers/signature");
 const Proposal = require("../models/Proposal");
 const {
+  createDiscoursePost,
+  updateDiscoursePost,
+} = require("../utils/discourse/utils");
+const {
   getProjectUsdLimit,
   getWalletProposals,
-  createProposal,
+  createAirtableEntry,
 } = require("../utils/airtable/utils");
 router.post("/createProposal", checkSigner, async function (req, res) {
-  const {
-    projectName,
-    oneLiner,
-    projectDescription,
-    grantDeliverables,
-    projectCategory,
-    projectEarmark,
-    finalProduct,
-    fundingRequested,
-    proposalWalletAddress,
-    teamWebsite,
-    twitterLink,
-    discordLink,
-    projectLeadFullName,
-    projectLeadEmail,
-    countryOfResidence,
-  } = req.body;
+  const { projectName, fundingRequested } = req.body;
   const signer = res.locals.signer;
-  const proposal = { ...req.body, signer };
+  let proposal = req.body;
+  proposal.signer = signer;
 
   const newProposal = new Proposal(proposal); // ? maybe change this
   const error = newProposal.validateSync();
@@ -41,12 +30,28 @@ router.post("/createProposal", checkSigner, async function (req, res) {
     });
   }
 
-  await newProposal.save((err, proposal) => {});
+  const discoursePostLink = await createDiscoursePost(proposal); // create a new post in the discourse forum
+  proposal.proposalUrl = discoursePostLink;
+
+  await createAirtableEntry(...proposal); // create airtable entry
+
+  await newProposal.save((err, proposal) => {}); // save the proposal to the database
 });
 
 router.post("/updateProposal", checkSigner, function (req, res) {});
 
-router.post("/getProposals", checkSigner, function (req, res) {});
+router.post("/getProposals", checkSigner, function (req, res) {
+  Proposal.find(
+    { signer: res.locals.signer },
+    "projectName oneLiner projectCategory projectEarmark",
+    (err, proposals) => {
+      if (err) {
+        res.status(400).send(err);
+      }
+      res.status(200).send(proposals);
+    }
+  );
+});
 
 function checkSigner(req, res, next) {
   // middleware to check if the user is the signer
