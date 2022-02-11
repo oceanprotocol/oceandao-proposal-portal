@@ -225,6 +225,17 @@ Use the same format as in "Core Team."`,
 
   let fields = [fieldsPart0, fieldsPart1];
 
+  // Add required fields
+  function requiredFields (field) {
+    field.placeHolder = field.title;
+    field.title = field.required ? "* " + field.title : field.title;
+  }
+  fields.map(fieldPart => {
+    fieldPart.map(field => {
+      requiredFields(field)
+    })
+  })
+
   function next() {
     if (part < 2) {
       part = part + 1;
@@ -260,7 +271,7 @@ Use the same format as in "Core Team."`,
         {#if field.type === "text"}
           <TextField
             bind:value={$proposal[field.bindValue]}
-            title={field.required ? "* " + field.title : field.title}
+            title={field.title}
             placeHolder={field.placeHolder}
             disabled={field.disabled}
             wrong={field.wrong}
@@ -272,7 +283,7 @@ Use the same format as in "Core Team."`,
         {#if field.type === "largeText"}
           <LargeTextField
             bind:value={$proposal[field.bindValue]}
-            title={field.required ? "* " + field.title : field.title}
+            title={field.title}
             placeHolder={field.placeHolder}
             disabled={field.disabled}
             wrong={field.wrong}
@@ -283,7 +294,7 @@ Use the same format as in "Core Team."`,
         {#if field.type === "optionSelect"}
           <OptionSelect
             bind:value={$proposal[field.bindValue]}
-            title={field.required ? "* " + field.title : field.title}
+            title={field.title}
             placeHolder={field.placeHolder}
             disabled={field.disabled}
             wrong={field.wrong}
