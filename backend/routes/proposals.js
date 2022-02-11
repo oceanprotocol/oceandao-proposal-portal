@@ -137,6 +137,9 @@ function checkProject(req, res, next) {
     if (!project) {
       res.status(400).send("Project does not exist");
     }
+    if (project.admin !== res.locals.signer) {
+      res.status(401).send("Unauthorized");
+    }
     res.locals.project = project;
     next();
   });
