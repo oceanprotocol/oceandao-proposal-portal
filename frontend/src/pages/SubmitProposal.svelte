@@ -227,7 +227,7 @@ Use the same format as in "Core Team."`,
 
   // Add required fields
   function requiredFields (field) {
-    field.placeHolder = field.title;
+    field.placeHolder = field.placeHolder == null ? field.title : field.placeHolder;
     field.title = field.required ? "* " + field.title : field.title;
   }
   fields.map(fieldPart => {
