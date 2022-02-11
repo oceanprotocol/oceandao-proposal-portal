@@ -16,6 +16,12 @@ const proposalSchema = new Schema({
     required: true,
   },
 
+  projectId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Project",
+    required: true,
+  },
+
   fundingRequested: {
     type: Number,
     required: true,

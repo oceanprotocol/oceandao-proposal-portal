@@ -109,12 +109,11 @@ async function createAirtableEntry({
     "Proposal URL": proposalUrl,
   };
 
-  base.create({
+  const id = base.create({
     fields: proposal,
     tableName: "Proposals",
   });
-
-  // TODO add the proposal to the airtable
+  return id;
 }
 
 module.exports = {
