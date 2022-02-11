@@ -1,5 +1,3 @@
-- [ ]
-
 ### Backend
 
 - [x] Dockerize
