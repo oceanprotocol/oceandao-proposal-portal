@@ -14,6 +14,22 @@ const {
   getCurrentRoundNumber,
 } = require("../utils/airtable/utils");
 
+router.post("/createProject", checkSigner, async (req, res) => {
+  const project = new Project(req.body);
+  project.save((err, project) => {
+    if (err) {
+      res.status(400).send(err);
+    }
+    res.send(project);
+  });
+});
+
+router.post("/myProjects", checkSigner, async (req, res) => {
+  const signer = res.locals.signer;
+  const projects = await Project.find({ signer });
+  res.send(projects);
+});
+
 router.post(
   "/createProposal",
   checkSigner,
@@ -58,16 +74,24 @@ router.post(
     const airtableRecordId = await createAirtableEntry(...proposal); // create airtable entry
     proposal.airtableRecordId = airtableRecordId; // TODO MAKE SURE RECORD ID IS CORRECT
 
+    proposal.message = req.body.message;
+    proposal.signature = req.body.signedMessage;
+
     await newProposal.save((err, proposal) => {}); // save the proposal to the database
   }
 );
 
-router.post("/updateProposal", checkSigner, function (req, res) {});
+router.post(
+  "/updateProposal",
+  checkSigner,
+  checkProject,
+  function (req, res) {}
+);
 
-router.post("/getProposals", checkSigner, function (req, res) {
+router.post("/getProposals", checkSigner, checkProject, function (req, res) {
   Proposal.find(
-    { signer: res.locals.signer },
-    "projectName oneLiner projectCategory projectEarmark",
+    { projectId: res.locals.project._id },
+    "fundingRequested proposalDetails title",
     (err, proposals) => {
       if (err) {
         res.status(400).send(err);

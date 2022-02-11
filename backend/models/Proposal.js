@@ -16,6 +16,10 @@ const proposalSchema = new Schema({
     required: true,
   },
 
+  title: {
+    type: String,
+  },
+
   projectId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Project",
@@ -47,6 +51,13 @@ const proposalSchema = new Schema({
 
   // PART THREE
   proposalDetails: {
+    type: String,
+  },
+
+  message: {
+    type: String,
+  },
+  signature: {
     type: String,
   },
 });
