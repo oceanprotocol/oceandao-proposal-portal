@@ -1,62 +1,91 @@
-// import mongoose from "mongoose";
-// const { Schema } = mongoose;
-// const validator = require("validator");
+import mongoose from "mongoose";
+const { Schema } = mongoose;
+const validator = require("validator");
 
-// const isValidErc20Address = (address) => {
-//   return /^(0x)?[0-9a-f]{40}$/i.test(address);
-// };
+const isValidErc20Address = (address) => {
+  return /^(0x)?[0-9a-f]{40}$/i.test(address);
+};
 
-// const projectSchema = new Schema({
-//   name: String,
-//   walletAddress: {
-//     type: String,
-//     required: true,
-//     validate: [isValidErc20Address, "Please fill a valid wallet address"],
-//   },
-//   projectLeadFullName: {
-//     type: String,
-//     required: true,
-//   },
-//   countryOfResidence: {
-//     type: String,
-//     required: true,
-//   },
-//   projectLeadEmail: {
-//     type: String,
-//     trim: true,
-//     lowercase: true,
-//     unique: true,
-//     required: "Email address is required",
-//     validate: [validator.default.isEmail, "Please fill a valid email address"],
-//   },
-//   teamWebsite: {
-//     type: String,
-//   },
-//   twitterLink: {
-//     type: String,
-//   },
-//   discordLink: {
-//     type: String,
-//   },
+const projectSchema = new Schema({
+  projectName: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  admin: {
+    // admin wallet address
+    type: String,
+    required: true,
+  },
+  oneLiner: {
+    type: String,
+    required: true,
+  },
+  projectLeadFullName: {
+    type: String,
+    required: true,
+  },
+  countryOfResidence: {
+    type: String,
+    required: true,
+  },
+  projectLeadEmail: {
+    type: String,
+    trim: true,
+    lowercase: true,
+    unique: true,
+    required: "Email address is required",
+    validate: [validator.default.isEmail, "Please fill a valid email address"],
+  },
+  teamWebsite: {
+    type: String,
+  },
+  twitterLink: {
+    type: String,
+  },
+  discordLink: {
+    type: String,
+  },
 
-//   projectDescription: {
-//     type: String,
-//     required: true,
-//   },
-//   finalProduct: {
-//     type: String,
-//     required: true,
-//   },
-//   createdAt: {
-//     type: Date,
-//     default: Date.now,
-//   },
-//   updatedAt: {
-//     type: Date,
-//     default: Date.now,
-//   },
-// });
+  projectDescription: {
+    type: String,
+    required: true,
+  },
 
-// const Project = mongoose.model("Project", projectSchema);
+  valueAddCriteria: {
+    type: String,
+    required: true,
+  },
 
-// export default Project;
+  projectCategory: {
+    type: String,
+    required: true,
+    enum: ["build", "outreach", "unleash", "buildcore", "improvedao"],
+  },
+
+  finalProduct: {
+    type: String,
+    required: true,
+  },
+
+  // PART TWO
+  coreTeam: {
+    type: String,
+  },
+  advisors: {
+    type: String,
+  },
+
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+const Project = mongoose.model("Project", projectSchema);
+
+export default Project;

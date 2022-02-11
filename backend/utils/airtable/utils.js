@@ -1,3 +1,32 @@
+require("dotenv").config();
+const base = require("airtable").base(process.env.AIRTABLE_BASEID);
+
+const _getFundingRoundsSelectQuery = async (selectQuery) => {
+  try {
+    return await base("Funding Rounds")
+      .select({
+        view: "Rounds",
+        filterByFormula: selectQuery,
+      })
+      .firstPage();
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const _getProposalsSelectQuery = async (selectQuery) => {
+  try {
+    return await base("Proposals")
+      .select({
+        view: "All Proposals",
+        filterByFormula: selectQuery,
+      })
+      .firstPage();
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 function getWalletProposals() {}
 
 /**
@@ -79,6 +108,11 @@ async function createAirtableEntry({
     "Country of Recipient": countryOfResidence,
     "Proposal URL": proposalUrl,
   };
+
+  base.create({
+    fields: proposal,
+    tableName: "Proposals",
+  });
 
   // TODO add the proposal to the airtable
 }
