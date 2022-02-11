@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-const { getSinger } = require("../utils/ethers/signature");
+const { getSigner } = require("../utils/ethers/signature");
 const Proposal = require("../models/Proposal");
 const Project = require("../models/Project");
 const {
@@ -15,9 +15,17 @@ const {
 } = require("../utils/airtable/utils");
 
 router.post("/createProject", checkSigner, async (req, res) => {
-  const project = new Project(req.body);
+  // create a project
+  let admin = res.locals.signer;
+  let prj = req.body;
+  prj.admin = admin;
+
+  console.log(prj);
+  let project = new Project(prj);
+
   project.save((err, project) => {
     if (err) {
+      console.log(err);
       res.status(400).send(err);
     }
     res.send(project);
@@ -25,8 +33,9 @@ router.post("/createProject", checkSigner, async (req, res) => {
 });
 
 router.post("/myProjects", checkSigner, async (req, res) => {
+  // returns all projects that the user is admin of
   const signer = res.locals.signer;
-  const projects = await Project.find({ signer });
+  const projects = await Project.find({ admin: signer });
   res.send(projects);
 });
 
@@ -35,6 +44,7 @@ router.post(
   checkSigner,
   checkProject,
   async function (req, res) {
+    // create a new proposal
     const { fundingRequested } = req.body;
     const project = res.locals.project;
     const projectName = project.projectName;
@@ -67,7 +77,8 @@ router.post(
     const discoursePostLink = await createDiscoursePost(
       md,
       currentRound,
-      project
+      project,
+      projectName
     ); // create a new post in the discourse forum
     proposal.proposalUrl = discoursePostLink; /// TODO MAKE SURE LINK IS CORRECT
 
@@ -107,10 +118,10 @@ function checkSigner(req, res, next) {
   const message = req.body.message;
   const signedMessage = req.body.signedMessage;
 
-  const realSigner = getSinger(signedMessage, message);
+  const realSigner = getSigner(signedMessage, message);
 
   if (realSigner != signer) {
-    res.status(401).send("Unauthorized");
+    return res.status(401).send("Unauthorized");
   }
   res.locals.signer = signer;
   next();

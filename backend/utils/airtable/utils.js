@@ -1,5 +1,9 @@
 require("dotenv").config();
-const base = require("airtable").base(process.env.AIRTABLE_BASEID);
+const airtable = require("airtable");
+airtable.configure({
+  apiKey: process.env.AIRTABLE_API_KEY,
+});
+const base = airtable.base(process.env.AIRTABLE_BASE_ID);
 
 const _getFundingRoundsSelectQuery = async (selectQuery) => {
   try {

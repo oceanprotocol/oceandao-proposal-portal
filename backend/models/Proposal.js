@@ -15,6 +15,10 @@ const proposalSchema = new Schema({
     type: String,
     required: true,
   },
+  oneLiner: {
+    type: String,
+    required: true,
+  },
 
   title: {
     type: String,
@@ -62,5 +66,5 @@ const proposalSchema = new Schema({
   },
 });
 
-const Proposal = mongoose.model("Project", proposalSchema);
-export default Proposal;
+const Proposal = mongoose.model("Proposal", proposalSchema);
+module.exports = Proposal;

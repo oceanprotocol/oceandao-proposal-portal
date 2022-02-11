@@ -6,7 +6,6 @@ import { terser } from "rollup-plugin-terser";
 import css from "rollup-plugin-css-only";
 import sveltePreprocess from "svelte-preprocess";
 import json from "@rollup/plugin-json";
-
 const production = !process.env.ROLLUP_WATCH;
 
 function serve() {

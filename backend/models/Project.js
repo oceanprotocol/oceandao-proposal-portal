@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const validator = require("validator");
 
@@ -17,10 +17,7 @@ const projectSchema = new Schema({
     type: String,
     required: true,
   },
-  oneLiner: {
-    type: String,
-    required: true,
-  },
+
   projectLeadFullName: {
     type: String,
     required: true,
@@ -76,6 +73,10 @@ const projectSchema = new Schema({
     type: String,
   },
 
+  signer: String,
+  signedMessage: String,
+  message: String,
+
   createdAt: {
     type: Date,
     default: Date.now,
@@ -88,4 +89,4 @@ const projectSchema = new Schema({
 
 const Project = mongoose.model("Project", projectSchema);
 
-export default Project;
+module.exports = Project;

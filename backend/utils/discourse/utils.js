@@ -1,15 +1,8 @@
 const NodeHtmlMarkdown = require("node-html-markdown");
 
-const Discourse = require("discourse-js");
 const userApiKey = process.env.DISCOURSE_API_KEY;
 const apiUsername = process.env.DISCOURSE_USERNAME;
 const baseUrl = process.env.DISCOURSE_BASE_URI;
-const discourse = new Discourse();
-discourse.config({
-  userApiKey: userApiKey,
-  baseUrl: baseUrl,
-  apiUsername: apiUsername,
-});
 
 function getProjectMd(project) {
   const projectMd = [];
@@ -67,15 +60,24 @@ function getMarkdownProposal(md) {
   return post;
 }
 
-async function createDiscoursePost(md, roundCategory, project) {
+async function createDiscoursePost(md, roundCategory, project, title) {
   const post = getMarkdownProposal([...getProjectMd(project), ...md]);
 
-  const created = await discourse.posts.create({
-    topic_id: roundCategory,
-    raw: post,
+  const res = await fetch(`${baseUrl}/posts.json`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Api-Key": userApiKey,
+      "Api-Username": apiUsername,
+    },
+    body: JSON.stringify({
+      raw: post,
+      title: `${title} | Round ${roundCategory}`,
+      category: roundCategory,
+      archetype: "regular",
+    }),
   });
-
-  return created;
+  return await res.json();
 }
 async function updateDiscoursePost(id, proposal) {
   // TODO do something here
