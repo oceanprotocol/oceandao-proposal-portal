@@ -10,9 +10,8 @@
   let part = 0;
 
   const partTitles = [
-    "Part 1 - Proposal Submission (Mandatory)",
-    "Part 2 - Team",
-    "Part 3 - Proposal Details (Recommended)",
+    "Part 1 - Project Details",
+    "Part 2 - Team Details",
   ];
 
   let fieldsPart0 = [
@@ -21,30 +20,6 @@
       title: "Name of Project",
       bindValue: "projectName",
       required: true,
-      wrong: false,
-    },
-    {
-      type: "text",
-      title: "Project in one sentence",
-      bindValue: "oneLiner",
-      required: true,
-      wrong: false,
-    },
-    {
-      type: "largeText",
-      title: "Project Description",
-      bindValue: "projectDescription",
-      required: true,
-      placeHolder: "Description of the project and what problem is it solving",
-      wrong: false,
-    },
-    {
-      type: "largeText",
-      title: "Value add criteria description",
-      bindValue: "valueAddCriteria",
-      required: true,
-      placeHolder:
-        "Description of how the project adds value to Ocean ecosystem",
       wrong: false,
     },
     {
@@ -76,7 +51,14 @@
         },
       ],
     },
-
+    {
+      type: "largeText",
+      title: "Project Description",
+      bindValue: "projectDescription",
+      required: true,
+      placeHolder: "Description of the project and what problem is it solving",
+      wrong: false,
+    },
     {
       type: "largeText",
       title: "What is the final product?",
@@ -84,28 +66,6 @@
       placeHolder: "1-2 sentences describing the final product",
       wrong: false,
       required: true,
-    },
-
-    {
-      type: "text",
-      title: "Team Website (if applicable)",
-      bindValue: "teamWebsite",
-      placeHolder: "URL",
-      wrong: false,
-    },
-    {
-      type: "text",
-      title: "Twitter Website (if applicable)",
-      bindValue: "twitterLink",
-      placeHolder: "URL",
-      wrong: false,
-    },
-    {
-      type: "text",
-      title: "Discord Website (if applicable)",
-      bindValue: "discordLink",
-      placeHolder: "URL",
-      wrong: false,
     },
     {
       type: "text",
@@ -130,6 +90,27 @@
       placeHolder: "USA",
       wrong: false,
       required: true,
+    },
+    {
+      type: "text",
+      title: "Team Website (if applicable)",
+      bindValue: "teamWebsite",
+      placeHolder: "URL",
+      wrong: false,
+    },
+    {
+      type: "text",
+      title: "Twitter Website (if applicable)",
+      bindValue: "twitterLink",
+      placeHolder: "URL",
+      wrong: false,
+    },
+    {
+      type: "text",
+      title: "Discord Website (if applicable)",
+      bindValue: "discordLink",
+      placeHolder: "URL",
+      wrong: false,
     },
   ];
 
@@ -181,17 +162,15 @@
   async function createProject() {
     let project = {
       projectName: $proposal.projectName,
-      oneLiner: $proposal.oneLiner,
-      projectDescription: $proposal.projectDescription,
-      valueAddCriteria: $proposal.valueAddCriteria,
       projectCategory: $proposal.projectCategory,
+      projectDescription: $proposal.projectDescription,
       finalProduct: $proposal.finalProduct,
-      teamWebsite: $proposal.teamWebsite,
-      twitterLink: $proposal.twitterLink,
-      discordLink: $proposal.discordLink,
       projectLeadFullName: $proposal.projectLeadFullName,
       projectLeadEmail: $proposal.projectLeadEmail,
       countryOfResidence: $proposal.countryOfResidence,
+      teamWebsite: $proposal.teamWebsite,
+      twitterLink: $proposal.twitterLink,
+      discordLink: $proposal.discordLink,
       coreTeam: $proposal.coreTeam,
       advisors: $proposal.advisors,
     };

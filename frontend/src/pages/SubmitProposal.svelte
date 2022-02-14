@@ -9,7 +9,7 @@
 
   const partTitles = [
     "Part 1 - Proposal Details",
-    "Part 2 - Team Details",
+    "Congratulations",
   ];
 
   let fieldsPart0 = [
@@ -22,37 +22,8 @@
     },
     {
       type: "optionSelect",
-      title: "Project Category",
-      bindValue: "projectCategory",
-      wrong: false,
-      required: true,
-      options: [
-        {
-          value: "build",
-          text: "Build / improve applications or integrations to Ocean",
-        },
-        {
-          value: "outreach",
-          text: "Outreach / community / spread awareness (grants don't need to be technical in nature)",
-        },
-        {
-          value: "unleash",
-          text: "Unleash data",
-        },
-        {
-          value: "buildcore",
-          text: "Build / improve core software",
-        },
-        {
-          value: "improvedao", //TODO Change these
-          text: "Improvements to OceanDAO",
-        },
-      ],
-    },
-    {
-      type: "optionSelect",
       title: "What Earmark are you applying to?",
-      bindValue: "projectEarmark",
+      bindValue: "proposalEarmark",
       wrong: false,
       required: true,
       options: [
@@ -75,27 +46,18 @@
       ],
     },
     {
-      type: "largeText",
-      title: "Project Description",
-      bindValue: "projectDescription",
-      required: true,
-      placeHolder: "Description of the project and the problem it's solving",
-      wrong: false,
-    },
-    {
-      type: "largeText",
-      title: "What is the final product?",
-      bindValue: "finalProduct",
-      placeHolder: "1-2 sentences describing the final product",
-      wrong: false,
-      required: true,
-    },
-    {
       type: "text",
       title: "Proposal in one sentence",
       bindValue: "oneLiner",
       required: true,
       wrong: false,
+    },
+    {
+      type: "largeText",
+      title: "Proposal Description",
+      bindValue: "proposalDescription",
+      rows: 10,
+      placeHolder: `Description of the proposal.`,
     },
     {
       type: "largeText",
@@ -119,7 +81,7 @@ __(Grant Deliverable 3)__`,
     {
       type: "text",
       title: "Funding Requested (USD)",
-      bindValue: "fundingRequested",
+      bindValue: "proposalFundingRequested",
       wrong: false,
       required: true,
       textFormat: "number",
@@ -136,94 +98,9 @@ __(Grant Deliverable 3)__`,
       importantText:
         "Must have minimum 500 OCEAN in wallet to be eligible. This wallet is where you will receive the grant amount if selected",
     },
-    {
-      type: "text",
-      title: "Project lead full name",
-      bindValue: "projectLeadFullName",
-      placeHolder: "first name last name",
-      wrong: false,
-      required: true,
-    },
-    {
-      type: "text",
-      title: "Project lead email",
-      bindValue: "projectLeadEmail",
-      placeHolder: "example@example.com",
-      wrong: false,
-      required: true,
-    },
-    {
-      type: "text",
-      title: "Country of Residence",
-      bindValue: "countryOfResidence",
-      placeHolder: "USA",
-      wrong: false,
-      required: true,
-    },
-    {
-      type: "text",
-      title: "Team Website",
-      bindValue: "teamWebsite",
-      placeHolder: "URL",
-      wrong: false,
-    },
-    {
-      type: "text",
-      title: "Twitter Website",
-      bindValue: "twitterLink",
-      placeHolder: "URL",
-      wrong: false,
-    },
-    {
-      type: "text",
-      title: "Discord Website",
-      bindValue: "discordLink",
-      placeHolder: "URL",
-      wrong: false,
-    },
   ];
 
-  let fieldsPart1 = [
-    {
-      type: "largeText",
-      title: "Core Team",
-      bindValue: "coreTeam",
-      rows: 15,
-      placeHolder: `John Doe
-Role: developer, UX/UI designer
-Relevant Credentials (e.g.):
-GitHub: https://github.com/johndoe
-LinkedIn: https://linkedin.com/in/johndoe
-Dribble: https://dribbble.com/johndoe
-Upwork: https://upwork.com/o/profiles/users/~johndoe
-Other: ...
-Background/Experience:
-Co-founder at xxx
-Lead developer at yyy
-Creator of xxx.js the official JavaScript library for xxx
-      `,
-    },
-    {
-      type: "largeText",
-      title: "Advisors",
-      bindValue: "advisors",
-      rows: 15,
-      placeHolder: `For each Advisor, give their name, role and background.
-Use the same format as in "Core Team."`,
-    },
-  ];
-
-  let fieldsPart2Raw = [
-    {
-      type: "largeText",
-      title: "Details",
-      bindValue: "proposalDetails",
-      rows: 10,
-      placeHolder: `Details of the proposal`,
-    },
-  ];
-
-  let fields = [fieldsPart0, fieldsPart1];
+  let fields = [fieldsPart0];
 
   // Add required fields
   function requiredFields (field) {
@@ -334,10 +211,10 @@ Use the same format as in "Core Team."`,
             type="button"
           >
             {#if part < 1}
-              Next
+              Submit Proposal
             {/if}
             {#if part == 1}
-              Submit Proposal
+              Congratulations
             {/if}
           </button>
         </div>
