@@ -8,6 +8,7 @@
   import "bytemd/dist/index.min.css";
 
   let part = 0;
+  let errorMessage = null;
 
   const partTitles = [
     "Part 1 - Project Details",
@@ -93,21 +94,21 @@
     },
     {
       type: "text",
-      title: "Team Website (if applicable)",
+      title: "Team Website",
       bindValue: "teamWebsite",
       placeHolder: "URL",
       wrong: false,
     },
     {
       type: "text",
-      title: "Twitter Website (if applicable)",
+      title: "Twitter Website",
       bindValue: "twitterLink",
       placeHolder: "URL",
       wrong: false,
     },
     {
       type: "text",
-      title: "Discord Website (if applicable)",
+      title: "Discord Website",
       bindValue: "discordLink",
       placeHolder: "URL",
       wrong: false,
@@ -121,18 +122,12 @@
       bindValue: "coreTeam",
       rows: 15,
       placeHolder: `John Doe
-  Role: developer, UX/UI designer
-  Relevant Credentials (e.g.):
-  GitHub: https://github.com/johndoe
-  LinkedIn: https://linkedin.com/in/johndoe
-  Dribble: https://dribbble.com/johndoe
-  Upwork: https://upwork.com/o/profiles/users/~johndoe
-  Other: ...
-  Background/Experience:
-  Co-founder at xxx
-  Lead developer at yyy
-  Creator of xxx.js the official JavaScript library for xxx
-        `,
+Role: developer, UX/UI designer
+Relevant Credentials (e.g.):
+GitHub: https://github.com/johndoe
+LinkedIn: https://linkedin.com/in/johndoe
+Background/Experience:
+Co-founder at xxx`,
     },
     {
       type: "largeText",
@@ -144,6 +139,17 @@
   ];
 
   let fields = [fieldsPart0, fieldsPart1];
+
+  // Add required fields
+  function requiredFields (field) {
+    field.placeHolder = field.placeHolder == null ? field.title : field.placeHolder;
+    field.title = field.required ? "* " + field.title : field.title;
+  }
+  fields.map(fieldPart => {
+    fieldPart.map(field => {
+      requiredFields(field)
+    })
+  })
 
   function next() {
     if (part == 1) {
@@ -190,10 +196,21 @@
         message,
       }),
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if(res.status === 200) {
+          return res.json()
+        } else if(res.status === 400) {
+          console.log("Couldn't create project: ", res)
+          errorMessage = "Error creating project. Please check fields.";
+        }
+      })
       .then((data) => {
-        console.log("Project created");
-        console.log(data);
+        if(data !== undefined) {
+          // TODO - Export and add to projects[]
+          console.log("Project created")
+          console.log(data)
+          errorMessage = null
+        }
       })
       .catch((err) => {
         console.log(err);
@@ -204,12 +221,12 @@
 <div class="flex h-screen mt-10 justify-center w-full">
   <div class="w-full max-w-3xl m-auto">
     <p class="text-lg font-bold text-center">
-      Projects must meet the <a
-        class="text-blue-600"
+      Projects must meet the
+      <a class="text-blue-600"
         target="_blank"
-        href="https://github.com/oceanprotocol/oceandao/wiki/project-criteria"
-        >Project Submission Criteria</a
-      >.
+        href="https://github.com/oceanprotocol/oceandao/wiki/project-criteria">
+        Project Submission Criteria
+      </a> .
     </p>
     <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
       <p class="text-xl font-bold mb-2 opacity-90">{partTitles[part]}</p>
@@ -256,7 +273,10 @@
           />
         {/if}
       {/each}
-
+      <p>* Required Fields</p>
+      {#if errorMessage != null}
+        <p class="text-red-500">{errorMessage}</p>
+      {/if}
       <div class="flex items-center justify-between">
         <div class="flex space-x-2">
           {#each Array(2) as _, i}

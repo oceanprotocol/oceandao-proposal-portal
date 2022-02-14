@@ -36,10 +36,6 @@ const projectSchema = new Schema({
     type: String,
     required: true,
   },
-  countryOfResidence: {
-    type: String,
-    required: true,
-  },
   projectLeadEmail: {
     type: String,
     trim: true,
@@ -47,6 +43,10 @@ const projectSchema = new Schema({
     unique: true,
     required: "Email address is required",
     validate: [validator.default.isEmail, "Please fill a valid email address"],
+  },
+  countryOfResidence: {
+    type: String,
+    required: true,
   },
 
   teamWebsite: {

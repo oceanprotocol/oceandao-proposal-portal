@@ -8,9 +8,9 @@
 
   const partTitles = [
     "Part 1 - Proposal Details",
-    "Congratulations",
   ];
 
+  // TODO - Make projectName autofill
   let fieldsPart0 = [
     {
       type: "text",
@@ -74,7 +74,12 @@ __(Grant Deliverable 3)__`,
       bindValue: "valueAddCriteria",
       required: true,
       placeHolder:
-        "Description of how the project adds value to Ocean ecosystem",
+        `Description of how the project and proposal add value to Ocean ecosystem
+
+Usage of Ocean — how well might the project drive usage of Ocean?
+Viability — what is the chance of success of the project?
+Community Engagement — How active is the team in the community?
+Community Value — How does the project add value to the overall Ocean Community / Ecosystem?`,
       wrong: false,
     },
     {
@@ -106,6 +111,7 @@ __(Grant Deliverable 3)__`,
     field.placeHolder = field.placeHolder == null ? field.title : field.placeHolder;
     field.title = field.required ? "* " + field.title : field.title;
   }
+
   fields.map(fieldPart => {
     fieldPart.map(field => {
       requiredFields(field)
@@ -126,6 +132,15 @@ __(Grant Deliverable 3)__`,
 
 <div class="flex h-screen mt-10 justify-center w-full">
   <div class="w-full max-w-3xl m-auto">
+    <p class="text-lg font-bold text-center">
+      Proposals must meet the
+      <a class="text-blue-600"
+         target="_blank"
+         href="https://github.com/oceanprotocol/oceandao/wiki/project-criteria">
+        Project Submission Criteria
+      </a>
+      .
+    </p>
     <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
       <p class="text-xl font-bold mb-2 opacity-90">{partTitles[part]}</p>
       {#each fields[part] as field}
