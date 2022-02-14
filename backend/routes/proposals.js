@@ -112,6 +112,25 @@ router.post("/getProposals", checkSigner, checkProject, function (req, res) {
   );
 });
 
+router.get("/getProjectInfo/:projectId", async (req, res) => {
+  const projectId = req.params.projectId;
+  Proposal.find(
+    { projectId: projectId },
+    "fundingRequested proposalDetails title",
+    (err, proposals) => {
+      Project.findById(projectId, (err, project) => {
+        if (err) {
+          res.status(400).send(err);
+        }
+        res.status(200).send({
+          project,
+          proposals,
+        });
+      });
+    }
+  );
+});
+
 function checkSigner(req, res, next) {
   // middleware to check if the user is the signer
   const signer = req.body.signer;

@@ -3,14 +3,13 @@
   import LargeTextField from "../components/LargeTextField.svelte";
   import OptionSelect from "../components/OptionSelect.svelte";
   import { proposal } from "../store.js";
-  import "bytemd/dist/index.min.css";
 
   let part = 0;
 
   const partTitles = [
-    "Part 1 - Proposal Submission (Mandatory)",
+    "Part 1 - Proposal Submission",
     "Part 2 - Team",
-    "Part 3 - Proposal Details (Recommended)",
+    "Part 3 - Proposal Details",
   ];
 
   let fieldsPart0 = [
@@ -242,14 +241,6 @@ Creator of xxx.js the official JavaScript library for xxx
 
 <div class="flex h-screen mt-10 justify-center w-full">
   <div class="w-full max-w-3xl m-auto">
-    <p class="text-lg font-bold text-center">
-      Projects must meet the <a
-        class="text-blue-600"
-        target="_blank"
-        href="https://github.com/oceanprotocol/oceandao/wiki/project-criteria"
-        >Project Submission Criteria</a
-      >.
-    </p>
     <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
       <p class="text-xl font-bold mb-2 opacity-90">{partTitles[part]}</p>
       {#each fields[part] as field}
