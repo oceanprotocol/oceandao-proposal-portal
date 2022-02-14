@@ -26,7 +26,7 @@ router.post("/createProject", checkSigner, async (req, res) => {
   project.save((err, project) => {
     if (err) {
       console.log(err);
-      res.status(400).send(err);
+      res.status(400).send(err); // ? send validation error to client
     }
     res.send(project);
   });
