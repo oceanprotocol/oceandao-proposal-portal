@@ -6,6 +6,7 @@
   import ConnectWallet from "./pages/ConnectWallet.svelte";
   import HomePage from "./pages/HomePage.svelte";
   import CreateProject from "./pages/CreateProject.svelte";
+  import ProjectPage from "./pages/ProjectPage.svelte";
 
   if ($userConnected && $userAddress === "") {
     connectWallet();
@@ -29,8 +30,12 @@
       <HomePage />
     </Route>
 
-    <Route path="submitProposal">
-      <SubmitProposal />
+    <Route path="project/:projectId" let:params>
+      <ProjectPage projectId={params.projectId} />
+    </Route>
+
+    <Route path="proposal/create/:projectId" let:params>
+      <SubmitProposal projectId={params.projectId} />
     </Route>
 
     <Route path="newProject">

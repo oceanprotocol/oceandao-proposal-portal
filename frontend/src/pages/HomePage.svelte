@@ -2,6 +2,8 @@
   import { userAddress, networkSigner } from "../stores/ethers";
   import Button from "../components/Button.svelte";
   const SERVER_URI = "http://localhost:3000";
+  import ProjectItem from "../components/ProjectItem.svelte";
+  let projects = [];
 
   const signMessage = async (msg) => {
     let hash = await $networkSigner.signMessage(msg);
@@ -28,16 +30,19 @@
         signer: $userAddress,
       }),
     });
-    console.log(res);
 
     const data = await res.json();
-    console.log(data);
+    projects = data;
   }
 </script>
 
 <div class="flex h-screen justify-center">
   <div class="m-auto flex justify-center flex-col">
     <p class="text-lg font-bold">Your projects</p>
+
+    {#each projects as project}
+      <ProjectItem {project} />
+    {/each}
 
     <hr />
 

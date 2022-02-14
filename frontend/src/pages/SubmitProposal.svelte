@@ -3,7 +3,6 @@
   import LargeTextField from "../components/LargeTextField.svelte";
   import OptionSelect from "../components/OptionSelect.svelte";
   import { proposal } from "../store.js";
-  import "bytemd/dist/index.min.css";
 
   let part = 0;
 
@@ -127,14 +126,6 @@ __(Grant Deliverable 3)__`,
 
 <div class="flex h-screen mt-10 justify-center w-full">
   <div class="w-full max-w-3xl m-auto">
-    <p class="text-lg font-bold text-center">
-      Projects must meet the <a
-        class="text-blue-600"
-        target="_blank"
-        href="https://github.com/oceanprotocol/oceandao/wiki/project-criteria"
-        >Project Submission Criteria</a
-      >.
-    </p>
     <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
       <p class="text-xl font-bold mb-2 opacity-90">{partTitles[part]}</p>
       {#each fields[part] as field}
