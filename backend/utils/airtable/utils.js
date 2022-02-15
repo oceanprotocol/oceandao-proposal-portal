@@ -31,6 +31,19 @@ const _getProposalsSelectQuery = async (selectQuery) => {
   }
 };
 
+const _getProjectSummarySelectQuery = async (selectQuery) => {
+  try {
+    return await base("Project Summary")
+      .select({
+        view: "GridView",
+        filterByFormula: selectQuery,
+      })
+      .firstPage();
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 function getWalletProposals() {}
 
 /**
@@ -38,7 +51,10 @@ function getWalletProposals() {}
  * @return {Number} projectUsdLimit
  */
 async function getProjectUsdLimit(projectName) {
-  // TODO get the project usd limit from the airtable - Project Summary table
+  const project = await _getProjectSummarySelectQuery(
+    `{Project Name} = "${projectName}"`
+  );
+  return project[0].fields["Max Funding"];
 }
 
 /**
@@ -46,7 +62,11 @@ async function getProjectUsdLimit(projectName) {
  * @return {Number} current round number
  */
 async function getCurrentRoundNumber() {
-  // TODO get the current round number from the airtable
+  const nowDateString = moment().utc().toISOString();
+  const roundParameters = await _getFundingRoundsSelectQuery(
+    `AND({Start Date} <= "${nowDateString}", {Voting Ends} >= "${nowDateString}", "true")`
+  );
+  return roundParameters[0];
 }
 
 /**
