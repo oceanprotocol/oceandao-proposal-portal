@@ -58,10 +58,10 @@ async function updateAirtableEntry({
   oneLiner,
 
   projectCategory,
-  projectEarmark,
+  proposalEarmark,
   grantDeliverables,
 
-  fundingRequested,
+  proposalFundingRequested,
   proposalWalletAddress,
 
   twitterLink,
@@ -82,10 +82,10 @@ async function createAirtableEntry({
   oneLiner,
 
   projectCategory,
-  projectEarmark,
+  proposalEarmark,
   grantDeliverables,
 
-  fundingRequested,
+  proposalFundingRequested,
   proposalWalletAddress,
 
   twitterLink,
@@ -102,8 +102,8 @@ async function createAirtableEntry({
     "Project Name": projectName,
     "One Liner": oneLiner,
     "Grant Category": projectCategory,
-    Earmarks: projectEarmark,
-    "USD Requested": fundingRequested,
+    Earmarks: proposalEarmark,
+    "USD Requested": proposalFundingRequested,
     "Wallet Address": proposalWalletAddress,
     "Twitter Link": twitterLink,
     "Discord Link": discordLink,

@@ -26,7 +26,7 @@ router.post("/createProject", checkSigner, async (req, res) => {
   project.save((err, project) => {
     if (err) {
       console.log(err);
-      res.status(400).send(err);
+      res.status(400).send(err); // ? send validation error to client
     }
     res.send(project);
   });
@@ -45,7 +45,7 @@ router.post(
   checkProject,
   async function (req, res) {
     // create a new proposal
-    const { fundingRequested } = req.body;
+    const { proposalFundingRequested } = req.body;
     const project = res.locals.project;
     const projectName = project.projectName;
 
@@ -66,7 +66,7 @@ router.post(
     }
 
     const projectUsdLimit = await getProjectUsdLimit(projectName);
-    if (fundingRequested > projectUsdLimit) {
+    if (proposalFundingRequested > projectUsdLimit) {
       return res.status(400).json({
         error: "Your funding request exceeds the project USD limit",
       });
@@ -102,7 +102,7 @@ router.post(
 router.post("/getProposals", checkSigner, checkProject, function (req, res) {
   Proposal.find(
     { projectId: res.locals.project._id },
-    "fundingRequested proposalDetails title",
+    "proposalFundingRequested proposalDescription title",
     (err, proposals) => {
       if (err) {
         res.status(400).send(err);

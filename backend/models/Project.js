@@ -7,22 +7,32 @@ const isValidErc20Address = (address) => {
 };
 
 const projectSchema = new Schema({
-  projectName: {
-    type: String,
-    required: true,
-    unique: true,
-  },
   admin: {
     // admin wallet address
     type: String,
     required: true,
   },
 
-  projectLeadFullName: {
+  projectName: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  projectCategory: {
+    type: String,
+    required: true,
+    enum: ["build", "outreach", "unleash", "buildcore", "improvedao"],
+  },
+  projectDescription: {
     type: String,
     required: true,
   },
-  countryOfResidence: {
+  finalProduct: {
+    type: String,
+    required: true,
+  },
+
+  projectLeadFullName: {
     type: String,
     required: true,
   },
@@ -34,6 +44,11 @@ const projectSchema = new Schema({
     required: "Email address is required",
     validate: [validator.default.isEmail, "Please fill a valid email address"],
   },
+  countryOfResidence: {
+    type: String,
+    required: true,
+  },
+
   teamWebsite: {
     type: String,
   },
@@ -42,27 +57,6 @@ const projectSchema = new Schema({
   },
   discordLink: {
     type: String,
-  },
-
-  projectDescription: {
-    type: String,
-    required: true,
-  },
-
-  valueAddCriteria: {
-    type: String,
-    required: true,
-  },
-
-  projectCategory: {
-    type: String,
-    required: true,
-    enum: ["build", "outreach", "unleash", "buildcore", "improvedao"],
-  },
-
-  finalProduct: {
-    type: String,
-    required: true,
   },
 
   // PART TWO

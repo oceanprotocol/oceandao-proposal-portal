@@ -7,34 +7,44 @@ const isValidErc20Address = (address) => {
 };
 
 const proposalSchema = new Schema({
-  signer: {
-    type: String,
-    required: true,
-  },
-  grantDeliverables: {
-    type: String,
-    required: true,
-  },
-  oneLiner: {
-    type: String,
-    required: true,
-  },
-
-  title: {
-    type: String,
-  },
-
   projectId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Project",
     required: true,
   },
+  signer: {
+    type: String,
+    required: true,
+  },
+  title: {
+    type: String,
+  },
 
-  fundingRequested: {
+  // Proposal Schema
+  proposalEarmark: {
+    type: String,
+    required: true,
+    enum: ["newproject", "newprojectoutreach", "coretech", "general"],
+  },
+  oneLiner: {
+    type: String,
+    required: true,
+  },
+  proposalDescription: {
+    type: String,
+  },
+  grantDeliverables: {
+    type: String,
+    required: true,
+  },
+  valueAddCriteria: {
+    type: String,
+    required: true,
+  },
+  proposalFundingRequested: {
     type: Number,
     required: true,
   },
-
   proposalWalletAddress: {
     type: String,
     required: true,
@@ -44,19 +54,9 @@ const proposalSchema = new Schema({
     ],
   },
 
+  // Exterior refs
   discourseLink: String,
   airtableRecordId: String,
-
-  projectEarmark: {
-    type: String,
-    required: true,
-    enum: ["newproject", "newprojectoutreach", "coretech", "general"],
-  },
-
-  // PART THREE
-  proposalDetails: {
-    type: String,
-  },
 
   message: {
     type: String,
