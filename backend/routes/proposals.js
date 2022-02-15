@@ -19,8 +19,6 @@ router.post("/createProject", checkSigner, async (req, res) => {
   let admin = res.locals.signer;
   let prj = req.body;
   prj.admin = admin;
-
-  console.log(prj);
   let project = new Project(prj);
 
   project.save((err, project) => {
@@ -49,15 +47,9 @@ router.post(
     const project = res.locals.project;
     const projectName = project.projectName;
 
-    proposal.projectId = project._id;
-    const signer = res.locals.signer;
-
-    let md = req.body.md; // markdown part
-
-    delete req.body.md;
-
     let proposal = req.body;
-    proposal.signer = signer;
+    proposal.signer = res.locals.signer; // signer
+    proposal.projectId = project._id; // add projectId to proposal
 
     const newProposal = new Proposal(proposal); // ? maybe change this
     const error = newProposal.validateSync();
@@ -75,7 +67,7 @@ router.post(
     const currentRound = await getCurrentRoundNumber();
 
     const discoursePostLink = await createDiscoursePost(
-      md,
+      proposal,
       currentRound,
       project,
       projectName
@@ -92,12 +84,9 @@ router.post(
   }
 );
 
-router.post(
-  "/updateProposal",
-  checkSigner,
-  checkProject,
-  function (req, res) {}
-);
+router.post("/updateProposal", checkSigner, checkProject, function (req, res) {
+  // return if voting period started
+});
 
 router.post("/getProposals", checkSigner, checkProject, function (req, res) {
   Proposal.find(
@@ -148,8 +137,12 @@ function checkSigner(req, res, next) {
 
 function checkProject(req, res, next) {
   // middleware to check if the user is the signer
+  let s = {};
   const projectName = req.body.projectName;
-  Project.findOne({ projectName }, (err, project) => {
+  const projectId = req.body.projectId;
+  if (projectName) s.projectName = projectName;
+  else if (projectId) s.projectId = projectId;
+  Project.findOne(s, (err, project) => {
     if (err) {
       res.status(400).send(err);
     }

@@ -121,6 +121,7 @@ async function createAirtableEntry({
   const proposal = {
     "Project Name": projectName,
     "One Liner": oneLiner,
+    Round: roundNumber,
     "Grant Category": projectCategory,
     Earmarks: proposalEarmark,
     "USD Requested": proposalFundingRequested,

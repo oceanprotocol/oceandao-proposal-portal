@@ -8,7 +8,7 @@ function getProjectMd(project) {
   const projectMd = [];
   projectMd.push({
     title: "Project Name",
-    body: projectName,
+    body: project.projectName,
   });
   projectMd.push({
     title: "One Liner",
@@ -46,6 +46,38 @@ function getProjectMd(project) {
   return projectMd;
 }
 
+function getProposalMd(proposal) {
+  const proposalMd = [];
+  projectMd.push({
+    title: "Proposal Title",
+    body: proposal.proposalTitle,
+  });
+  projectMd.push({
+    title: "Proposal One Liner",
+    body: proposal.oneLiner,
+  });
+  projectMd.push({
+    title: "Proposal Description",
+    body: proposal.proposalTitle,
+    type: "md",
+  });
+  projectMd.push({
+    title: "Grant Deliverables",
+    body: proposal.grantDeliverables,
+    type: "md",
+  });
+  projectMd.push({
+    title: "Funding Requested",
+    body: proposal.proposalFundingRequested,
+  });
+  projectMd.push({
+    title: "Wallet Address",
+    body: proposal.proposalWalletAddress,
+  });
+
+  return proposalMd;
+}
+
 function getMarkdownProposal(md) {
   // md = {title:"question", body:"answer",type:"md"}
   let post = "";
@@ -60,8 +92,11 @@ function getMarkdownProposal(md) {
   return post;
 }
 
-async function createDiscoursePost(md, roundCategory, project, title) {
-  const post = getMarkdownProposal([...getProjectMd(project), ...md]);
+async function createDiscoursePost(proposal, roundCategory, project, title) {
+  const post = getMarkdownProposal([
+    ...getProjectMd(project),
+    ...getProposalMd(proposal),
+  ]);
 
   const res = await fetch(`${baseUrl}/posts.json`, {
     method: "POST",

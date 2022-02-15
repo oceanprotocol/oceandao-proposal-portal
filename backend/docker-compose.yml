@@ -3,6 +3,8 @@ services:
   node:
     restart: always
     build: .
+    depends_on:
+      - mongo
     ports:
       - 3000:3000
   mongo:
