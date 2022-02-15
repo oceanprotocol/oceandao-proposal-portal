@@ -1,5 +1,7 @@
 require("dotenv").config();
 const airtable = require("airtable");
+const earmarkJson = require("../types/earmark.json");
+const categoryJson = require("../types/grant_category.json");
 airtable.configure({
   apiKey: process.env.AIRTABLE_API_KEY,
 });
@@ -35,7 +37,7 @@ const _getProjectSummarySelectQuery = async (selectQuery) => {
   try {
     return await base("Project Summary")
       .select({
-        view: "GridView",
+        view: "Grid view",
         filterByFormula: selectQuery,
       })
       .firstPage();
@@ -54,19 +56,19 @@ async function getProjectUsdLimit(projectName) {
   const project = await _getProjectSummarySelectQuery(
     `{Project Name} = "${projectName}"`
   );
-  return project[0].fields["Max Funding"];
+  if (!project) return 3000;
+  return project[0] ? project[0].fields["Max Funding"] : 3000;
 }
-
 /**
  * Returns the active round number
  * @return {Number} current round number
  */
 async function getCurrentRoundNumber() {
-  const nowDateString = moment().utc().toISOString();
+  const nowDateString = new Date().toISOString();
   const roundParameters = await _getFundingRoundsSelectQuery(
-    `AND({Start Date} <= "${nowDateString}", {Voting Ends} >= "${nowDateString}", "true")`
+    `AND({Start Date} > "${nowDateString}", "true")`
   );
-  return roundParameters[0];
+  return roundParameters ? roundParameters[0].fields["Round"] : -1;
 }
 
 /**
@@ -122,23 +124,18 @@ async function createAirtableEntry({
     "Project Name": projectName,
     "One Liner": oneLiner,
     Round: roundNumber,
-    "Grant Category": projectCategory,
-    Earmarks: proposalEarmark,
+    "Grant Category": categoryJson[projectCategory],
+    Earmarks: earmarkJson[proposalEarmark],
     "USD Requested": proposalFundingRequested,
     "Wallet Address": proposalWalletAddress,
-    "Twitter Link": twitterLink,
-    "Discord Link": discordLink,
     "Project Lead Full Name": projectLeadFullName,
     "Project Email Address": projectLeadEmail,
     "Country of Recipient": countryOfResidence,
     "Proposal URL": proposalUrl,
   };
 
-  const id = base.create({
-    fields: proposal,
-    tableName: "Proposals",
-  });
-  return id;
+  const id = await base("Proposals").create(proposal);
+  return id.id;
 }
 
 module.exports = {

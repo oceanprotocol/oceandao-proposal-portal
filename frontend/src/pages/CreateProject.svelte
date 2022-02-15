@@ -206,6 +206,8 @@ Co-founder at xxx`,
           // TODO - Export and add to projects[]
           console.log("Project created");
           console.log(data);
+          alert("Project created");
+          window.location.href = "/";
           errorMessage = null;
         }
       })

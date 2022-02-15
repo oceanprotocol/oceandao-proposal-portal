@@ -1,8 +1,10 @@
 <script>
+  import { Link } from "svelte-navigator";
+
   import Button from "../components/Button.svelte";
   export let projectId;
   let project;
-  let proposals;
+  let proposals = [];
   async function loadProject() {
     let res = await fetch(
       `http://localhost:3000/app/getProjectInfo/${projectId}`
@@ -19,11 +21,24 @@
   <div class="m-auto flex justify-center flex-col break-words w-4/5">
     <p class="text-lg font-bold">Project</p>
     <div>{JSON.stringify(project, 0, 2)}</div>
-    <p class="text-lg font-bold">Proposals</p>
-    <div>{JSON.stringify(proposals, 0, 2)}</div>
-
-    <Button text={"Create proposal"} onclick={() => {
-        location.href = "/proposal/create/" + projectId;
-    }} />
+    <div class="mt-5">
+      <p class="text-lg font-bold">Proposals</p>
+      {#each proposals as proposal}
+        <div class="flex justify-between">
+          <Link
+            class="font-bold text-lg text-blue-600"
+            to={`/proposal/view/${proposal._id}`}>{proposal.proposalTitle}</Link
+          >
+        </div>
+      {/each}
+    </div>
+    <div class="mt-5">
+      <Button
+        text={"Create proposal"}
+        onclick={() => {
+          location.href = "/proposal/create/" + projectId;
+        }}
+      />
+    </div>
   </div>
 </div>

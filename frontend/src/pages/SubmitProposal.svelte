@@ -124,6 +124,9 @@ Community Value — How does the project add value to the overall Ocean Communit
     if (part < 2) {
       part = part + 1;
     }
+    if (part === 1) {
+      submitProposal();
+    }
   }
   function back() {
     if (part !== 0) {
@@ -131,7 +134,7 @@ Community Value — How does the project add value to the overall Ocean Communit
     }
   }
 
-  function submitProposal() {
+  async function submitProposal() {
     const proposalObject = {
       proposalTitle: $proposalStore.proposalTitle,
       proposalEarmark: $proposalStore.proposalEarmark,
@@ -143,7 +146,7 @@ Community Value — How does the project add value to the overall Ocean Communit
     };
 
     const proposalJson = JSON.stringify(proposalObject);
-    const signedMessage = signMessage(proposalJson, $networkSigner);
+    const signedMessage = await signMessage(proposalJson, $networkSigner);
     const signer = $userAddress;
 
     fetch(`${SERVER_URI}/app/createProposal`, {
@@ -166,6 +169,7 @@ Community Value — How does the project add value to the overall Ocean Communit
           window.location.href = `/project/${projectId}`;
         } else {
           alert("Error creating proposal");
+          console.error(data);
         }
       })
       .catch((error) => {
@@ -235,7 +239,7 @@ Community Value — How does the project add value to the overall Ocean Communit
       <p>* Required Fields</p>
       <div class="flex items-center justify-between">
         <div class="flex space-x-2">
-          {#each Array(2) as _, i}
+          {#each Array(1) as _, i}
             <div
               style="width:{i === part
                 ? '40px'
@@ -258,16 +262,11 @@ Community Value — How does the project add value to the overall Ocean Communit
             </button>
           {/if}
           <button
-            on:click={next}
+            on:click={() => submitProposal()}
             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             type="button"
           >
-            {#if part < 1}
-              Submit Proposal
-            {/if}
-            {#if part == 1}
-              Congratulations
-            {/if}
+            Submit Proposal
           </button>
         </div>
       </div>
