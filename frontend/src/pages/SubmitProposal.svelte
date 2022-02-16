@@ -136,6 +136,7 @@ Community Value — How does the project add value to the overall Ocean Communit
   }
 
   async function submitProposal() {
+    const nonce = await getNonce($userAddress);
     const proposalObject = {
       proposalTitle: $proposalStore.proposalTitle,
       proposalEarmark: $proposalStore.proposalEarmark,
@@ -146,7 +147,7 @@ Community Value — How does the project add value to the overall Ocean Communit
       proposalWalletAddress: $proposalStore.proposalWalletAddress,
       valueAddCriteria: $proposalStore.valueAddCriteria,
       projectId: projectId,
-      nonce: await getNonce($networkSigner),
+      nonce: nonce,
     };
 
     const proposalJson = JSON.stringify(proposalObject);

@@ -72,6 +72,7 @@ const proposalSchema = new Schema({
   // Exterior refs
   discourseLink: String,
   airtableRecordId: String,
+  discourseId: String,
 
   message: {
     type: String,

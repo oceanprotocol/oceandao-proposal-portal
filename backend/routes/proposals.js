@@ -103,9 +103,10 @@ router.post(
           });
         }
         const slug = discoursePostLink.topic_slug;
-        const URL = `${process.env.DISCOURSE_BASE_URI}/t/${slug}/${postId}`;
+        const URL = `${process.env.DISCOURSE_BASE_URI}/t/${slug}/${discoursePostLink.topic_id}`;
 
         proposal.discourseLink = URL;
+        proposal.discourseId = postId;
 
         const airtableRecordId = await createAirtableEntry({
           projectName: projectName,
@@ -297,21 +298,21 @@ function checkSigner(req, res, next) {
     return res.status(401).send("Unauthorized Signer");
   }
 
-  Signer.findOne({ address: signer }, (err, signer) => {
+  Signer.findOne({ address: signer }, (err, data) => {
     if (err) {
       return res.status(400).send(err);
     }
-    const nonce = signer ? signer.nonce : 0;
-    if (nonce !== jsonMessage.nonce) {
+    const nonce = data ? data.nonce : 0;
+    if (parseInt(nonce) !== parseInt(jsonMessage.nonce)) {
       return res.status(400).send("Invalid nonce");
     }
 
     // increase signer nonce
     Signer.findOneAndUpdate(
-      { address: signer.address },
+      { address: signer },
       { $inc: { nonce: 1 } },
       { upsert: true },
-      (err, signer) => {
+      (err) => {
         if (err) {
           return res.status(400).send(err);
         }
@@ -325,10 +326,11 @@ function checkSigner(req, res, next) {
 function checkProject(req, res, next) {
   // middleware to check if the user is the signer
   let s = {};
-  const projectName = req.body.projectName;
-  const projectId = req.body.projectId;
-  if (projectName) s.projectName = projectName;
-  else if (projectId) s.projectId = projectId;
+  //const projectName = req.body.projectName;
+  const projectId = JSON.parse(req.body.message).projectId;
+  //if (projectName) s.projectName = projectName;
+  //else if (projectId)
+  s._id = projectId;
   Project.findOne(s, (err, project) => {
     if (err) {
       return res.status(400).send(err);
@@ -337,14 +339,6 @@ function checkProject(req, res, next) {
       return res.status(400).send("Project does not exist");
     }
     if (project.admin !== res.locals.signer) {
-      console.error(
-        "Unauthorized",
-        project.admin,
-        res.locals.signer,
-        project,
-        projectId,
-        projectName
-      );
       return res.status(401).send("Unauthorized Project");
     }
     res.locals.project = project;

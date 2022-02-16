@@ -6,6 +6,7 @@
   import { networkSigner, userAddress } from "../stores/ethers";
   import { signMessage } from "../utils/signatures";
   import { getNonce } from "../utils/helpers";
+  import { SERVER_URI } from "../utils/config";
 
   let part = 0;
   let errorMessage = null;
@@ -177,13 +178,13 @@ Co-founder at xxx`,
       discordLink: $projectStore.discordLink,
       coreTeam: $projectStore.coreTeam,
       advisors: $projectStore.advisors,
-      nonce: await getNonce($networkSigner),
+      nonce: await getNonce($userAddress),
     };
     const message = JSON.stringify(projectObject);
     const signedMessage = await signMessage(message, $networkSigner);
     const signer = $userAddress;
 
-    fetch("http://localhost:3000/app/createProject", {
+    fetch(`${SERVER_URI}/app/createProject`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
