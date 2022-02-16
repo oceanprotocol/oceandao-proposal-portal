@@ -8,6 +8,19 @@
   import { getNonce } from "../utils/helpers";
   import { SERVER_URI } from "../utils/config";
 
+  export let projectId;
+  const isUpdating = projectId !== undefined;
+  let loaded = !isUpdating;
+
+  if (isUpdating) {
+    fetch(`${SERVER_URI}/app/getProjectInfo/${projectId}`)
+      .then((res) => res.json())
+      .then((res) => {
+        projectStore.update(() => res.project);
+        loaded = true;
+      });
+  }
+
   let part = 0;
   let errorMessage = null;
 
@@ -20,12 +33,14 @@
       bindValue: "projectName",
       required: true,
       wrong: false,
+      disabled: isUpdating,
     },
     {
       type: "optionSelect",
       title: "Project Category",
       bindValue: "projectCategory",
       wrong: false,
+      disabled: isUpdating,
       required: true,
       options: [
         {
@@ -179,43 +194,78 @@ Co-founder at xxx`,
       coreTeam: $projectStore.coreTeam,
       advisors: $projectStore.advisors,
       nonce: await getNonce($userAddress),
+      projectId: projectId,
     };
     const message = JSON.stringify(projectObject);
     const signedMessage = await signMessage(message, $networkSigner);
     const signer = $userAddress;
 
-    fetch(`${SERVER_URI}/app/createProject`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        signer,
-        signedMessage,
-        message,
-      }),
-    })
-      .then((res) => {
-        if (res.status === 200) {
-          return res.json();
-        } else if (res.status === 400) {
-          console.log("Couldn't create project: ", res);
-          errorMessage = "Error creating project. Please check fields.";
-        }
+    if (isUpdating) {
+      fetch(`${SERVER_URI}/app/updateProject`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          signer,
+          signedMessage,
+          message,
+        }),
       })
-      .then((data) => {
-        if (data !== undefined) {
-          // TODO - Export and add to projects[]
-          console.log("Project created");
-          console.log(data);
-          alert("Project created");
-          window.location.href = "/";
-          errorMessage = null;
-        }
+        .then((res) => {
+          if (res.status === 200) {
+            return res.json();
+          } else if (res.status === 400) {
+            console.log("Couldn't update project: ", res);
+            errorMessage = "Error updating project. Please check fields.";
+          }
+        })
+        .then((data) => {
+          if (data !== undefined) {
+            console.log("Project updated");
+            console.log(data);
+            alert("Project updated");
+            window.location.href = "/";
+            errorMessage = null;
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      fetch(`${SERVER_URI}/app/createProject`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          signer,
+          signedMessage,
+          message,
+        }),
       })
-      .catch((err) => {
-        console.log(err);
-      });
+        .then((res) => {
+          if (res.status === 200) {
+            return res.json();
+          } else if (res.status === 400) {
+            console.log("Couldn't create project: ", res);
+            errorMessage = "Error creating project. Please check fields.";
+          }
+        })
+        .then((data) => {
+          if (data !== undefined) {
+            // TODO - Export and add to projects[]
+            console.log("Project created");
+            console.log(data);
+            alert("Project created");
+            window.location.href = "/";
+            errorMessage = null;
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
   }
 </script>
 
@@ -231,94 +281,96 @@ Co-founder at xxx`,
         Project Submission Criteria
       </a> .
     </p>
-    <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-      <p class="text-xl font-bold mb-2 opacity-90">{partTitles[part]}</p>
-      {#each fields[part] as field}
-        {#if field.type === "title"}
-          <p class="text-lg font-bold mb-2 opacity-90">{field.title}</p>
-        {/if}
-        {#if field.type === "line"}
-          <hr />
-        {/if}
+    {#if loaded}
+      <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <p class="text-xl font-bold mb-2 opacity-90">{partTitles[part]}</p>
+        {#each fields[part] as field}
+          {#if field.type === "title"}
+            <p class="text-lg font-bold mb-2 opacity-90">{field.title}</p>
+          {/if}
+          {#if field.type === "line"}
+            <hr />
+          {/if}
 
-        {#if field.type === "text"}
-          <TextField
-            bind:value={$projectStore[field.bindValue]}
-            title={field.title}
-            placeHolder={field.placeHolder}
-            disabled={field.disabled}
-            wrong={field.wrong}
-            wrongText={field.wrongText}
-            textFormat={field.textFormat}
-            importantText={field.importantText}
-          />
-        {/if}
-        {#if field.type === "largeText"}
-          <LargeTextField
-            bind:value={$projectStore[field.bindValue]}
-            title={field.title}
-            placeHolder={field.placeHolder}
-            disabled={field.disabled}
-            wrong={field.wrong}
-            wrongText={field.wrongText}
-            rows={field.rows}
-          />
-        {/if}
-        {#if field.type === "optionSelect"}
-          <OptionSelect
-            bind:value={$projectStore[field.bindValue]}
-            title={field.title}
-            placeHolder={field.placeHolder}
-            disabled={field.disabled}
-            wrong={field.wrong}
-            wrongText={field.wrongText}
-            options={field.options}
-          />
-        {/if}
-      {/each}
-      <p>* Required Fields</p>
-      {#if errorMessage != null}
-        <p class="text-red-500">{errorMessage}</p>
-      {/if}
-      <div class="flex items-center justify-between">
-        <div class="flex space-x-2">
-          {#each Array(2) as _, i}
-            <div
-              style="width:{i === part
-                ? '40px'
-                : '20px'}; height:5px; background-color: {i < part
-                ? 'rgb(29 78 216)'
-                : i == part
-                ? 'rgb(29 78 216)'
-                : 'grey'}; border-radius:32px"
+          {#if field.type === "text"}
+            <TextField
+              bind:value={$projectStore[field.bindValue]}
+              title={field.title}
+              placeHolder={field.placeHolder}
+              disabled={field.disabled}
+              wrong={field.wrong}
+              wrongText={field.wrongText}
+              textFormat={field.textFormat}
+              importantText={field.importantText}
             />
-          {/each}
-        </div>
-        <div class="flex space-x-2">
-          {#if part > 0}
+          {/if}
+          {#if field.type === "largeText"}
+            <LargeTextField
+              bind:value={$projectStore[field.bindValue]}
+              title={field.title}
+              placeHolder={field.placeHolder}
+              disabled={field.disabled}
+              wrong={field.wrong}
+              wrongText={field.wrongText}
+              rows={field.rows}
+            />
+          {/if}
+          {#if field.type === "optionSelect"}
+            <OptionSelect
+              bind:value={$projectStore[field.bindValue]}
+              title={field.title}
+              placeHolder={field.placeHolder}
+              disabled={field.disabled}
+              wrong={field.wrong}
+              wrongText={field.wrongText}
+              options={field.options}
+            />
+          {/if}
+        {/each}
+        <p>* Required Fields</p>
+        {#if errorMessage != null}
+          <p class="text-red-500">{errorMessage}</p>
+        {/if}
+        <div class="flex items-center justify-between">
+          <div class="flex space-x-2">
+            {#each Array(2) as _, i}
+              <div
+                style="width:{i === part
+                  ? '40px'
+                  : '20px'}; height:5px; background-color: {i < part
+                  ? 'rgb(29 78 216)'
+                  : i == part
+                  ? 'rgb(29 78 216)'
+                  : 'grey'}; border-radius:32px"
+              />
+            {/each}
+          </div>
+          <div class="flex space-x-2">
+            {#if part > 0}
+              <button
+                on:click={back}
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="button"
+              >
+                Back
+              </button>
+            {/if}
             <button
-              on:click={back}
+              on:click={next}
               class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               type="button"
             >
-              Back
+              {#if part < 1}
+                Next
+              {/if}
+              {#if part == 1}
+                {isUpdating ? "Update project" : "Create Project"}
+              {/if}
             </button>
-          {/if}
-          <button
-            on:click={next}
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            type="button"
-          >
-            {#if part < 1}
-              Next
-            {/if}
-            {#if part == 1}
-              Create Project
-            {/if}
-          </button>
+          </div>
         </div>
-      </div>
-    </form>
+      </form>
+    {/if}
   </div>
 </div>
 

@@ -171,7 +171,7 @@ router.post("/updateProject", checkSigner, checkProject, function (req, res) {
 
   updateObject.events = project.events;
   updateObject.events.push({
-    eventType: "projectUpdate",
+    eventType: "update",
     signer: res.locals.signer,
     signedMessage: req.body.signedMessage,
     message: req.body.message,
@@ -234,6 +234,14 @@ router.post("/updateProposal", checkSigner, function (req, res) {
 
       const proposalDiscourseId = data.discourseId;
       const airtableId = data.airtableRecordId;
+
+      update.events = data.events;
+      update.events.push({
+        eventType: "update",
+        signer: res.locals.signer,
+        signedMessage: req.body.signedMessage,
+        message: req.body.message,
+      });
 
       Proposal.findByIdAndUpdate(
         proposalId,
