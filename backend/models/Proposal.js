@@ -14,6 +14,7 @@ const proposalSchema = new Schema({
   proposalTitle: {
     type: String,
     required: true,
+    unique: true,
   },
   signer: {
     type: String,
