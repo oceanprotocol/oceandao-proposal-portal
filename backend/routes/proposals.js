@@ -275,17 +275,42 @@ router.get("/getProjectInfo/:projectId", async (req, res) => {
 
 function checkSigner(req, res, next) {
   // middleware to check if the user is the signer
+
   const signer = req.body.signer;
-  const message = req.body.message;
+  const message = req.body.message; // message is a valid JSON object
   const signedMessage = req.body.signedMessage;
+
+  const jsonMessage = JSON.parse(message);
 
   const realSigner = getSigner(signedMessage, message);
 
   if (realSigner != signer) {
     return res.status(401).send("Unauthorized Signer");
   }
-  res.locals.signer = signer;
-  next();
+
+  Signer.findOne({ address: signer }, (err, signer) => {
+    if (err) {
+      return res.status(400).send(err);
+    }
+    const nonce = signer ? signer.nonce : 0;
+    if (nonce !== jsonMessage.nonce) {
+      return res.status(400).send("Invalid nonce");
+    }
+
+    // increase signer nonce
+    Signer.findOneAndUpdate(
+      { address: signer.address },
+      { $inc: { nonce: 1 } },
+      { upsert: true },
+      (err, signer) => {
+        if (err) {
+          return res.status(400).send(err);
+        }
+        res.locals.signer = signer;
+        next();
+      }
+    );
+  });
 }
 
 function checkProject(req, res, next) {
