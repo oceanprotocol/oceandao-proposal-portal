@@ -5,6 +5,7 @@
   import OptionSelect from "../components/OptionSelect.svelte";
   import { networkSigner, userAddress } from "../stores/ethers";
   import { signMessage } from "../utils/signatures";
+  import { getNonce } from "../utils/helpers";
 
   let part = 0;
   let errorMessage = null;
@@ -176,6 +177,7 @@ Co-founder at xxx`,
       discordLink: $projectStore.discordLink,
       coreTeam: $projectStore.coreTeam,
       advisors: $projectStore.advisors,
+      nonce: await getNonce($networkSigner),
     };
     const message = JSON.stringify(projectObject);
     const signedMessage = await signMessage(message, $networkSigner);
@@ -187,7 +189,6 @@ Co-founder at xxx`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        ...projectObject,
         signer,
         signedMessage,
         message,

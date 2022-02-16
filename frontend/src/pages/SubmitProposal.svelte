@@ -6,6 +6,7 @@
   import { SERVER_URI } from "../utils/config";
   import { signMessage } from "../utils/signatures";
   import { networkSigner, userAddress } from "../stores/ethers";
+  import { getNonce } from "../utils/helpers";
 
   let part = 0;
 
@@ -143,6 +144,9 @@ Community Value — How does the project add value to the overall Ocean Communit
       grantDeliverables: $proposalStore.grantDeliverables,
       proposalFundingRequested: $proposalStore.proposalFundingRequested,
       proposalWalletAddress: $proposalStore.proposalWalletAddress,
+      valueAddCriteria: $proposalStore.valueAddCriteria,
+      projectId: projectId,
+      nonce: await getNonce($networkSigner),
     };
 
     const proposalJson = JSON.stringify(proposalObject);
@@ -155,11 +159,9 @@ Community Value — How does the project add value to the overall Ocean Communit
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        proposal: proposalObject,
+        message: proposalJson,
         signedMessage: signedMessage,
         signer: signer,
-        message: proposalJson,
-        projectId: projectId,
       }),
     })
       .then((response) => response.json())

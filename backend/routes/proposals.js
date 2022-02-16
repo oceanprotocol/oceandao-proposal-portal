@@ -3,6 +3,7 @@ var router = express.Router();
 const { getSigner } = require("../utils/ethers/signature");
 const Proposal = require("../models/Proposal");
 const Project = require("../models/Project");
+const Signer = require("../models/Signer");
 const {
   createDiscoursePost,
   updateDiscoursePost,
@@ -17,10 +18,10 @@ const {
 router.post("/createProject", checkSigner, async (req, res) => {
   // create a project
   let admin = res.locals.signer;
-  let prj = req.body;
+  let prj = JSON.parse(req.body.message);
   prj.admin = admin;
-  let project = new Project(prj);
 
+  let project = new Project(prj);
   project.save((err, project) => {
     if (err) {
       console.log(err);
@@ -50,14 +51,14 @@ router.post(
   checkSigner,
   checkProject,
   async function (req, res) {
+    const proposal = JSON.parse(req.body.message);
     // create a new proposal
     const proposalFundingRequested = parseFloat(
-      req.body.proposal.proposalFundingRequested
+      proposal.proposalFundingRequested
     );
     const project = res.locals.project;
     const projectName = project.projectName;
 
-    let proposal = req.body.proposal;
     proposal.signer = res.locals.signer; // signer
     proposal.projectId = project._id; // add projectId to proposal
 
