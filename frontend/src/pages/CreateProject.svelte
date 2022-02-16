@@ -1,19 +1,15 @@
 <script>
+  import { project as projectStore } from "../stores/project";
   import TextField from "../components/TextField.svelte";
   import LargeTextField from "../components/LargeTextField.svelte";
   import OptionSelect from "../components/OptionSelect.svelte";
   import { networkSigner, userAddress } from "../stores/ethers";
   import { signMessage } from "../utils/signatures";
-  import { proposal } from "../store.js";
-  import "bytemd/dist/index.min.css";
 
   let part = 0;
   let errorMessage = null;
 
-  const partTitles = [
-    "Part 1 - Project Details",
-    "Part 2 - Team Details",
-  ];
+  const partTitles = ["Part 1 - Project Details", "Part 2 - Team Details"];
 
   let fieldsPart0 = [
     {
@@ -141,15 +137,16 @@ Co-founder at xxx`,
   let fields = [fieldsPart0, fieldsPart1];
 
   // Add required fields
-  function requiredFields (field) {
-    field.placeHolder = field.placeHolder == null ? field.title : field.placeHolder;
+  function requiredFields(field) {
+    field.placeHolder =
+      field.placeHolder == null ? field.title : field.placeHolder;
     field.title = field.required ? "* " + field.title : field.title;
   }
-  fields.map(fieldPart => {
-    fieldPart.map(field => {
-      requiredFields(field)
-    })
-  })
+  fields.map((fieldPart) => {
+    fieldPart.map((field) => {
+      requiredFields(field);
+    });
+  });
 
   function next() {
     if (part == 1) {
@@ -166,21 +163,21 @@ Co-founder at xxx`,
   }
 
   async function createProject() {
-    let project = {
-      projectName: $proposal.projectName,
-      projectCategory: $proposal.projectCategory,
-      projectDescription: $proposal.projectDescription,
-      finalProduct: $proposal.finalProduct,
-      projectLeadFullName: $proposal.projectLeadFullName,
-      projectLeadEmail: $proposal.projectLeadEmail,
-      countryOfResidence: $proposal.countryOfResidence,
-      teamWebsite: $proposal.teamWebsite,
-      twitterLink: $proposal.twitterLink,
-      discordLink: $proposal.discordLink,
-      coreTeam: $proposal.coreTeam,
-      advisors: $proposal.advisors,
+    let projectObject = {
+      projectName: $projectStore.projectName,
+      projectCategory: $projectStore.projectCategory,
+      projectDescription: $projectStore.projectDescription,
+      finalProduct: $projectStore.finalProduct,
+      projectLeadFullName: $projectStore.projectLeadFullName,
+      projectLeadEmail: $projectStore.projectLeadEmail,
+      countryOfResidence: $projectStore.countryOfResidence,
+      teamWebsite: $projectStore.teamWebsite,
+      twitterLink: $projectStore.twitterLink,
+      discordLink: $projectStore.discordLink,
+      coreTeam: $projectStore.coreTeam,
+      advisors: $projectStore.advisors,
     };
-    const message = JSON.stringify(project);
+    const message = JSON.stringify(projectObject);
     const signedMessage = await signMessage(message, $networkSigner);
     const signer = $userAddress;
 
@@ -190,26 +187,28 @@ Co-founder at xxx`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        ...project,
+        ...projectObject,
         signer,
         signedMessage,
         message,
       }),
     })
       .then((res) => {
-        if(res.status === 200) {
-          return res.json()
-        } else if(res.status === 400) {
-          console.log("Couldn't create project: ", res)
+        if (res.status === 200) {
+          return res.json();
+        } else if (res.status === 400) {
+          console.log("Couldn't create project: ", res);
           errorMessage = "Error creating project. Please check fields.";
         }
       })
       .then((data) => {
-        if(data !== undefined) {
+        if (data !== undefined) {
           // TODO - Export and add to projects[]
-          console.log("Project created")
-          console.log(data)
-          errorMessage = null
+          console.log("Project created");
+          console.log(data);
+          alert("Project created");
+          window.location.href = "/";
+          errorMessage = null;
         }
       })
       .catch((err) => {
@@ -222,9 +221,11 @@ Co-founder at xxx`,
   <div class="w-full max-w-3xl m-auto">
     <p class="text-lg font-bold text-center">
       Projects must meet the
-      <a class="text-blue-600"
+      <a
+        class="text-blue-600"
         target="_blank"
-        href="https://github.com/oceanprotocol/oceandao/wiki/project-criteria">
+        href="https://github.com/oceanprotocol/oceandao/wiki/project-criteria"
+      >
         Project Submission Criteria
       </a> .
     </p>
@@ -240,7 +241,7 @@ Co-founder at xxx`,
 
         {#if field.type === "text"}
           <TextField
-            bind:value={$proposal[field.bindValue]}
+            bind:value={$projectStore[field.bindValue]}
             title={field.title}
             placeHolder={field.placeHolder}
             disabled={field.disabled}
@@ -252,7 +253,7 @@ Co-founder at xxx`,
         {/if}
         {#if field.type === "largeText"}
           <LargeTextField
-            bind:value={$proposal[field.bindValue]}
+            bind:value={$projectStore[field.bindValue]}
             title={field.title}
             placeHolder={field.placeHolder}
             disabled={field.disabled}
@@ -263,7 +264,7 @@ Co-founder at xxx`,
         {/if}
         {#if field.type === "optionSelect"}
           <OptionSelect
-            bind:value={$proposal[field.bindValue]}
+            bind:value={$projectStore[field.bindValue]}
             title={field.title}
             placeHolder={field.placeHolder}
             disabled={field.disabled}

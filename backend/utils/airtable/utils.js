@@ -1,5 +1,7 @@
 require("dotenv").config();
 const airtable = require("airtable");
+const earmarkJson = require("../types/earmark.json");
+const categoryJson = require("../types/grant_category.json");
 airtable.configure({
   apiKey: process.env.AIRTABLE_API_KEY,
 });
@@ -31,6 +33,19 @@ const _getProposalsSelectQuery = async (selectQuery) => {
   }
 };
 
+const _getProjectSummarySelectQuery = async (selectQuery) => {
+  try {
+    return await base("Project Summary")
+      .select({
+        view: "Grid view",
+        filterByFormula: selectQuery,
+      })
+      .firstPage();
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 function getWalletProposals() {}
 
 /**
@@ -38,15 +53,22 @@ function getWalletProposals() {}
  * @return {Number} projectUsdLimit
  */
 async function getProjectUsdLimit(projectName) {
-  // TODO get the project usd limit from the airtable - Project Summary table
+  const project = await _getProjectSummarySelectQuery(
+    `{Project Name} = "${projectName}"`
+  );
+  if (!project) return 3000;
+  return project[0] ? project[0].fields["Max Funding"] : 3000;
 }
-
 /**
  * Returns the active round number
  * @return {Number} current round number
  */
 async function getCurrentRoundNumber() {
-  // TODO get the current round number from the airtable
+  const nowDateString = new Date().toISOString();
+  const roundParameters = await _getFundingRoundsSelectQuery(
+    `AND({Start Date} > "${nowDateString}", "true")`
+  );
+  return roundParameters ? roundParameters[0].fields["Round"] : -1;
 }
 
 /**
@@ -101,23 +123,19 @@ async function createAirtableEntry({
   const proposal = {
     "Project Name": projectName,
     "One Liner": oneLiner,
-    "Grant Category": projectCategory,
-    Earmarks: proposalEarmark,
+    Round: roundNumber,
+    "Grant Category": categoryJson[projectCategory],
+    Earmarks: earmarkJson[proposalEarmark],
     "USD Requested": proposalFundingRequested,
     "Wallet Address": proposalWalletAddress,
-    "Twitter Link": twitterLink,
-    "Discord Link": discordLink,
     "Project Lead Full Name": projectLeadFullName,
     "Project Email Address": projectLeadEmail,
     "Country of Recipient": countryOfResidence,
     "Proposal URL": proposalUrl,
   };
 
-  const id = base.create({
-    fields: proposal,
-    tableName: "Proposals",
-  });
-  return id;
+  const id = await base("Proposals").create(proposal);
+  return id.id;
 }
 
 module.exports = {

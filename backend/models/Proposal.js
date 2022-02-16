@@ -10,6 +10,9 @@ const proposalSchema = new Schema({
   projectId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Project",
+  },
+  proposalTitle: {
+    type: String,
     required: true,
   },
   signer: {
@@ -37,10 +40,9 @@ const proposalSchema = new Schema({
     type: String,
     required: true,
   },
-  valueAddCriteria: {
-    type: String,
-    required: true,
-  },
+
+  round: Number,
+
   proposalFundingRequested: {
     type: Number,
     required: true,
@@ -52,6 +54,11 @@ const proposalSchema = new Schema({
       isValidErc20Address,
       "Please fill a valid proposal wallet address",
     ],
+  },
+
+  delivered: {
+    description: String,
+    confirmed: Boolean,
   },
 
   // Exterior refs

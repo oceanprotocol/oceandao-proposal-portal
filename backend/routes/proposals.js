@@ -19,8 +19,6 @@ router.post("/createProject", checkSigner, async (req, res) => {
   let admin = res.locals.signer;
   let prj = req.body;
   prj.admin = admin;
-
-  console.log(prj);
   let project = new Project(prj);
 
   project.save((err, project) => {
@@ -45,22 +43,18 @@ router.post(
   checkProject,
   async function (req, res) {
     // create a new proposal
-    const { proposalFundingRequested } = req.body;
+    const proposalFundingRequested = parseFloat(
+      req.body.proposal.proposalFundingRequested
+    );
     const project = res.locals.project;
     const projectName = project.projectName;
 
-    proposal.projectId = project._id;
-    const signer = res.locals.signer;
-
-    let md = req.body.md; // markdown part
-
-    delete req.body.md;
-
-    let proposal = req.body;
-    proposal.signer = signer;
+    let proposal = req.body.proposal;
+    proposal.signer = res.locals.signer; // signer
+    proposal.projectId = project._id; // add projectId to proposal
 
     const newProposal = new Proposal(proposal); // ? maybe change this
-    const error = newProposal.validateSync();
+    let error = newProposal.validateSync();
     if (error) {
       return res.status(400).json({ error: error.toString() });
     }
@@ -74,30 +68,75 @@ router.post(
 
     const currentRound = await getCurrentRoundNumber();
 
-    const discoursePostLink = await createDiscoursePost(
-      md,
-      currentRound,
-      project,
-      projectName
-    ); // create a new post in the discourse forum
-    proposal.proposalUrl = discoursePostLink; /// TODO MAKE SURE LINK IS CORRECT
+    Proposal.findOne(
+      {
+        projectId: project._id,
+        round: currentRound,
+      },
+      async (err, exists) => {
+        if (err) {
+          return res.status(400).send(err);
+        }
+        if (exists) {
+          return res.status(400).send("Proposal already exists for this round");
+        }
 
-    const airtableRecordId = await createAirtableEntry(...proposal); // create airtable entry
-    proposal.airtableRecordId = airtableRecordId; // TODO MAKE SURE RECORD ID IS CORRECT
+        const discoursePostLink = await createDiscoursePost(
+          proposal,
+          currentRound,
+          project,
+          projectName
+        ); // create a new post in the discourse forum
+        const postId = discoursePostLink.id;
+        if (postId === undefined) {
+          return res.status(400).json({
+            error: "Could not create a new post in the discourse forum",
+          });
+        }
+        const slug = discoursePostLink.topic_slug;
+        const URL = `${process.env.DISCOURSE_BASE_URI}/t/${slug}/${postId}`;
 
-    proposal.message = req.body.message;
-    proposal.signature = req.body.signedMessage;
+        proposal.discourseLink = URL;
 
-    await newProposal.save((err, proposal) => {}); // save the proposal to the database
+        const airtableRecordId = await createAirtableEntry({
+          projectName: projectName,
+          projectCategory: project.projectCategory,
+          proposalEarmark: proposal.proposalEarmark,
+          grantDeliverables: proposal.grantDeliverables,
+          proposalFundingRequested: proposalFundingRequested,
+          proposalWalletAddress: proposal.proposalWalletAddress,
+          projectLeadFullName: project.projectLeadFullName,
+          projectLeadEmail: project.projectLeadEmail,
+          countryOfResidence: project.countryOfResidence,
+          proposalUrl: proposal.discourseLink,
+        }); // create airtable entry
+
+        proposal.airtableRecordId = airtableRecordId; // TODO MAKE SURE RECORD ID IS CORRECT
+        proposal.message = req.body.message;
+        proposal.signature = req.body.signedMessage;
+        proposal.round = currentRound;
+
+        const proposalObject = new Proposal(proposal); // ? maybe change this
+        error = proposalObject.validateSync();
+        if (error) {
+          return res.status(400).json({ error: error.toString() });
+        }
+
+        proposalObject.save((err, proposal) => {
+          console.log("proposal created");
+          if (err) {
+            console.log(err);
+            return res.status(400).send(err); // ? send validation error to client
+          } else return res.send({ success: true, proposal });
+        }); // save the proposal to the database
+      }
+    );
   }
 );
 
-router.post(
-  "/updateProposal",
-  checkSigner,
-  checkProject,
-  function (req, res) {}
-);
+router.post("/updateProposal", checkSigner, checkProject, function (req, res) {
+  // return if voting period started
+});
 
 router.post("/getProposals", checkSigner, checkProject, function (req, res) {
   Proposal.find(
@@ -112,11 +151,22 @@ router.post("/getProposals", checkSigner, checkProject, function (req, res) {
   );
 });
 
+router.get("/proposalInfo/:proposalId", async (req, res) => {
+  const proposalId = req.params.proposalId;
+  console.log(proposalId);
+  Proposal.findById(proposalId, (err, proposal) => {
+    if (err) {
+      res.status(400).send(err);
+    }
+    res.status(200).send(proposal);
+  });
+});
+
 router.get("/getProjectInfo/:projectId", async (req, res) => {
   const projectId = req.params.projectId;
   Proposal.find(
     { projectId: projectId },
-    "fundingRequested proposalDetails title",
+    "proposalFundingRequested proposalDescription proposalTitle",
     (err, proposals) => {
       Project.findById(projectId, (err, project) => {
         if (err) {
@@ -140,7 +190,7 @@ function checkSigner(req, res, next) {
   const realSigner = getSigner(signedMessage, message);
 
   if (realSigner != signer) {
-    return res.status(401).send("Unauthorized");
+    return res.status(401).send("Unauthorized Signer");
   }
   res.locals.signer = signer;
   next();
@@ -148,16 +198,28 @@ function checkSigner(req, res, next) {
 
 function checkProject(req, res, next) {
   // middleware to check if the user is the signer
+  let s = {};
   const projectName = req.body.projectName;
-  Project.findOne({ projectName }, (err, project) => {
+  const projectId = req.body.projectId;
+  if (projectName) s.projectName = projectName;
+  else if (projectId) s.projectId = projectId;
+  Project.findOne(s, (err, project) => {
     if (err) {
-      res.status(400).send(err);
+      return res.status(400).send(err);
     }
     if (!project) {
-      res.status(400).send("Project does not exist");
+      return res.status(400).send("Project does not exist");
     }
     if (project.admin !== res.locals.signer) {
-      res.status(401).send("Unauthorized");
+      console.error(
+        "Unauthorized",
+        project.admin,
+        res.locals.signer,
+        project,
+        projectId,
+        projectName
+      );
+      return res.status(401).send("Unauthorized Project");
     }
     res.locals.project = project;
     next();

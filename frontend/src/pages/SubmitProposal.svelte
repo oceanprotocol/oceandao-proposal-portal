@@ -2,20 +2,22 @@
   import TextField from "../components/TextField.svelte";
   import LargeTextField from "../components/LargeTextField.svelte";
   import OptionSelect from "../components/OptionSelect.svelte";
-  import { proposal } from "../store.js";
+  import { proposal as proposalStore } from "../stores/proposal";
+  import { SERVER_URI } from "../utils/config";
+  import { signMessage } from "../utils/signatures";
+  import { networkSigner, userAddress } from "../stores/ethers";
 
   let part = 0;
 
-  const partTitles = [
-    "Part 1 - Proposal Details",
-  ];
+  export let projectId;
 
-  // TODO - Make projectName autofill
+  const partTitles = ["Part 1 - Proposal Details"];
+
   let fieldsPart0 = [
     {
       type: "text",
-      title: "Name of Project",
-      bindValue: "projectName",
+      title: "Proposal Title",
+      bindValue: "proposalTitle",
       required: true,
       wrong: false,
     },
@@ -73,8 +75,7 @@ __(Grant Deliverable 3)__`,
       title: "Value-Add criteria description",
       bindValue: "valueAddCriteria",
       required: true,
-      placeHolder:
-        `Description of how the project and proposal add value to Ocean ecosystem
+      placeHolder: `Description of how the project and proposal add value to Ocean ecosystem
 
 Usage of Ocean — how well might the project drive usage of Ocean?
 Viability — what is the chance of success of the project?
@@ -107,20 +108,24 @@ Community Value — How does the project add value to the overall Ocean Communit
   let fields = [fieldsPart0];
 
   // Add required fields
-  function requiredFields (field) {
-    field.placeHolder = field.placeHolder == null ? field.title : field.placeHolder;
+  function requiredFields(field) {
+    field.placeHolder =
+      field.placeHolder == null ? field.title : field.placeHolder;
     field.title = field.required ? "* " + field.title : field.title;
   }
 
-  fields.map(fieldPart => {
-    fieldPart.map(field => {
-      requiredFields(field)
-    })
-  })
+  fields.map((fieldPart) => {
+    fieldPart.map((field) => {
+      requiredFields(field);
+    });
+  });
 
   function next() {
     if (part < 2) {
       part = part + 1;
+    }
+    if (part === 1) {
+      submitProposal();
     }
   }
   function back() {
@@ -128,15 +133,60 @@ Community Value — How does the project add value to the overall Ocean Communit
       part = part - 1;
     }
   }
+
+  async function submitProposal() {
+    const proposalObject = {
+      proposalTitle: $proposalStore.proposalTitle,
+      proposalEarmark: $proposalStore.proposalEarmark,
+      oneLiner: $proposalStore.oneLiner,
+      proposalDescription: $proposalStore.proposalDescription,
+      grantDeliverables: $proposalStore.grantDeliverables,
+      proposalFundingRequested: $proposalStore.proposalFundingRequested,
+      proposalWalletAddress: $proposalStore.proposalWalletAddress,
+    };
+
+    const proposalJson = JSON.stringify(proposalObject);
+    const signedMessage = await signMessage(proposalJson, $networkSigner);
+    const signer = $userAddress;
+
+    fetch(`${SERVER_URI}/app/createProposal`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        proposal: proposalObject,
+        signedMessage: signedMessage,
+        signer: signer,
+        message: proposalJson,
+        projectId: projectId,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          alert("Proposal created successfully");
+          window.location.href = `/project/${projectId}`;
+        } else {
+          alert("Error creating proposal");
+          console.error(data);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
 </script>
 
 <div class="flex h-screen mt-10 justify-center w-full">
   <div class="w-full max-w-3xl m-auto">
     <p class="text-lg font-bold text-center">
       Proposals must meet the
-      <a class="text-blue-600"
-         target="_blank"
-         href="https://github.com/oceanprotocol/oceandao/wiki/project-criteria">
+      <a
+        class="text-blue-600"
+        target="_blank"
+        href="https://github.com/oceanprotocol/oceandao/wiki/project-criteria"
+      >
         Project Submission Criteria
       </a>
       .
@@ -153,7 +203,7 @@ Community Value — How does the project add value to the overall Ocean Communit
 
         {#if field.type === "text"}
           <TextField
-            bind:value={$proposal[field.bindValue]}
+            bind:value={$proposalStore[field.bindValue]}
             title={field.title}
             placeHolder={field.placeHolder}
             disabled={field.disabled}
@@ -165,7 +215,7 @@ Community Value — How does the project add value to the overall Ocean Communit
         {/if}
         {#if field.type === "largeText"}
           <LargeTextField
-            bind:value={$proposal[field.bindValue]}
+            bind:value={$proposalStore[field.bindValue]}
             title={field.title}
             placeHolder={field.placeHolder}
             disabled={field.disabled}
@@ -176,7 +226,7 @@ Community Value — How does the project add value to the overall Ocean Communit
         {/if}
         {#if field.type === "optionSelect"}
           <OptionSelect
-            bind:value={$proposal[field.bindValue]}
+            bind:value={$proposalStore[field.bindValue]}
             title={field.title}
             placeHolder={field.placeHolder}
             disabled={field.disabled}
@@ -189,7 +239,7 @@ Community Value — How does the project add value to the overall Ocean Communit
       <p>* Required Fields</p>
       <div class="flex items-center justify-between">
         <div class="flex space-x-2">
-          {#each Array(2) as _, i}
+          {#each Array(1) as _, i}
             <div
               style="width:{i === part
                 ? '40px'
@@ -212,16 +262,11 @@ Community Value — How does the project add value to the overall Ocean Communit
             </button>
           {/if}
           <button
-            on:click={next}
+            on:click={() => submitProposal()}
             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             type="button"
           >
-            {#if part < 1}
-              Submit Proposal
-            {/if}
-            {#if part == 1}
-              Congratulations
-            {/if}
+            Submit Proposal
           </button>
         </div>
       </div>
