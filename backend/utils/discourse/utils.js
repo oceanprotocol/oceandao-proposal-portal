@@ -112,9 +112,23 @@ async function createDiscoursePost(proposal, roundCategory, project) {
   });
   return await res.json();
 }
-async function updateDiscoursePost(id, proposal) {
-  // TODO do something here
-  const post = getMarkdownProposal(md);
+async function updateDiscoursePost(id, proposal, project) {
+  const projectMd = getProjectMd(project);
+  const proposalMd = getProposalMd(proposal);
+
+  const post = getMarkdownProposal([...projectMd, ...proposalMd]);
+  const res = await fetch(`${baseUrl}/posts/${id}.json`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Api-Key": userApiKey,
+      "Api-Username": apiUsername,
+    },
+    body: JSON.stringify({
+      raw: post,
+    }),
+  });
+  return await res.json();
 }
 
 module.exports = {
