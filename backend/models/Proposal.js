@@ -60,9 +60,13 @@ const proposalSchema = new Schema({
     ],
   },
 
+  updates: [String],
   delivered: {
     description: String,
-    confirmed: Boolean,
+    confirmed: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   // Exterior refs
