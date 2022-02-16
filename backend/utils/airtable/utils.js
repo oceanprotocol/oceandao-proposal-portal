@@ -74,27 +74,10 @@ async function getCurrentRoundNumber() {
 /**
  * Updates an entry in the proposals table
  */
-async function updateAirtableEntry({
-  recordId,
-  projectName,
-  oneLiner,
-
-  projectCategory,
-  proposalEarmark,
-  grantDeliverables,
-
-  proposalFundingRequested,
-  proposalWalletAddress,
-
-  twitterLink,
-  discordLink,
-
-  projectLeadFullName,
-  projectLeadEmail,
-  countryOfResidence,
-
-  proposalUrl,
-}) {}
+async function updateAirtableEntry(recordId, updateObject) {
+  await base("Proposals").update(recordId, updateObject);
+  return true;
+}
 
 /**
  * Creates an entry in the proposals table
