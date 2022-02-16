@@ -64,6 +64,19 @@ const projectSchema = new Schema({
     type: String,
   },
 
+  events: [
+    {
+      signer: String,
+      signedMessage: String,
+      message: String,
+      date: {
+        type: Date,
+        default: Date.now,
+      },
+      eventType: String,
+    },
+  ],
+
   signer: String,
   signedMessage: String,
   message: String,
