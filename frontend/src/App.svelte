@@ -39,6 +39,10 @@
       <SubmitProposal projectId={params.projectId} />
     </Route>
 
+    <Route path="proposal/update/:proposalId" let:params>
+      <SubmitProposal proposalId={params.proposalId} />
+    </Route>
+
     <Route path="proposal/view/:proposalId" let:params>
       <ProposalPage proposalId={params.proposalId} />
     </Route>

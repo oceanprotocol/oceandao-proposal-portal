@@ -122,7 +122,7 @@ async function updateDiscoursePost(id, proposal, project) {
 
   const post = getMarkdownProposal([...projectMd, ...proposalMd]);
   const res = await fetch(`${baseUrl}/posts/${id}.json`, {
-    method: "POST",
+    method: "PUT",
     headers: {
       "Content-Type": "application/json",
       "Api-Key": userApiKey,

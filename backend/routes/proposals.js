@@ -191,53 +191,66 @@ router.post("/updateProject", checkSigner, checkProject, function (req, res) {
   );
 });
 
-router.post("/updateProposal", checkSigner, checkProject, function (req, res) {
-  // return if voting period started
-  const proposalId = req.body.proposalId;
+router.post("/updateProposal", checkSigner, function (req, res) {
+  const proposal = JSON.parse(req.body.message);
+  const proposalId = proposal.proposalId;
 
-  Proposal.findById(proposalId, async (err, proposalData) => {
-    const proposal = req.body;
-    const project = res.locals.project;
-
-    const update = {};
-
-    if (proposal.proposalFundingRequested) {
-      const projectUsdLimit = await getProjectUsdLimit(project.projectName);
-      if (proposal.proposalFundingRequested > projectUsdLimit) {
-        return res.status(400).json({
-          error: "Your funding request exceeds the project USD limit",
-        });
+  Proposal.findById(proposalId)
+    .populate("projectId")
+    .exec(async (err, data) => {
+      const currentRound = await getCurrentRoundNumber();
+      if (data.round !== currentRound) {
+        // return if voting period started
+        return res.status(400).send("Voting period has already started");
       }
-      update.proposalFundingRequested = proposal.proposalFundingRequested;
-    }
 
-    if (proposal.proposalWalletAddress)
-      update.proposalWalletAddress = proposal.proposalWalletAddress;
+      const project = data.projectId;
+      proposal.proposalFundingRequested = parseFloat(
+        proposal.proposalFundingRequested
+      );
 
-    if (proposal.proposalDescription)
-      update.proposalDescription = proposal.proposalDescription;
+      const update = {};
 
-    if (proposal.grantDeliverables)
-      update.grantDeliverables = proposal.grantDeliverables;
-
-    if (proposal.oneLiner) update.oneLiner = proposal.oneLiner;
-
-    const proposalUrl = proposalData.proposalUrl;
-    const proposalDiscourseId = proposalUrl.split("/")[5];
-    const airtableId = proposalData.airtableRecordId;
-
-    Proposal.findByIdAndUpdate(
-      proposalId,
-      { $set: update },
-      { runValidators: true },
-      async (err, data) => {
-        if (err) return res.status(400).send(err);
-        await updateAirtableEntry(airtableId, update); // update airtable entry
-        await updateDiscoursePost(proposalDiscourseId, data, project); // update the post in the discourse forum
-        return res.send({ success: true });
+      if (proposal.proposalFundingRequested) {
+        const projectUsdLimit = await getProjectUsdLimit(project.projectName);
+        if (proposal.proposalFundingRequested > projectUsdLimit) {
+          return res.status(400).json({
+            error: "Your funding request exceeds the project USD limit",
+          });
+        }
+        update.proposalFundingRequested = proposal.proposalFundingRequested;
       }
-    );
-  });
+
+      if (proposal.proposalWalletAddress)
+        update.proposalWalletAddress = proposal.proposalWalletAddress;
+
+      if (proposal.proposalDescription)
+        update.proposalDescription = proposal.proposalDescription;
+
+      if (proposal.grantDeliverables)
+        update.grantDeliverables = proposal.grantDeliverables;
+
+      if (proposal.oneLiner) update.oneLiner = proposal.oneLiner;
+
+      const proposalDiscourseId = data.discourseId;
+      const airtableId = data.airtableRecordId;
+
+      Proposal.findByIdAndUpdate(
+        proposalId,
+        { $set: update },
+        { runValidators: true },
+        async (err, data) => {
+          if (err) return res.status(400).send(err);
+          await updateAirtableEntry(airtableId, update); // update airtable entry
+          await updateDiscoursePost(
+            proposalDiscourseId,
+            { ...data, ...update },
+            project
+          ); // update the post in the discourse forum
+          return res.send({ success: true });
+        }
+      );
+    });
 });
 
 router.post("/getProposals", checkSigner, checkProject, function (req, res) {

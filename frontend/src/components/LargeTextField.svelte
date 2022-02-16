@@ -1,13 +1,15 @@
 <script>
+  import { onMount } from "svelte";
+
   export let title;
   export let placeHolder;
   export let value = null;
-  //export let disabled = false;
+  export let disabled = false;
   export let wrong = false;
-  //export let rows = 3;
+  export let rows = 3;
   export let wrongText = "";
-  import { quill } from "svelte-quill";
-
+  //  import { quill } from "svelte-quill";
+  let editor;
   const toolbarOptions = [
     ["bold", "italic", "underline", "strike"], // toggled buttons
     ["blockquote", "code-block"],
@@ -17,6 +19,37 @@
 
     ["image"],
   ];
+
+  onMount(async () => {
+    const { default: Quill } = await import("quill");
+
+    let quill = new Quill(editor, {
+      placeholder: placeHolder ?? title,
+      theme: "snow",
+
+      modules: {
+        toolbar: {
+          container: toolbarOptions,
+          handlers: {
+            image: imageHandler,
+          },
+        },
+      },
+    });
+
+    quill.clipboard.dangerouslyPasteHTML(value);
+    const container = editor.getElementsByClassName("ql-editor")[0];
+    quill.on("text-change", function (delta, oldDelta, source) {
+      editor.dispatchEvent(
+        new CustomEvent("text-change", {
+          detail: {
+            html: container.innerHTML,
+            text: quill.getText(),
+          },
+        })
+      );
+    });
+  });
 
   function imageHandler() {
     const tooltip = this.quill.theme.tooltip;
@@ -39,19 +72,6 @@
     tooltip.edit("image");
     tooltip.textbox.placeholder = "Embed URL";
   }
-  let options = {
-    placeholder: placeHolder ?? title,
-    theme: "snow",
-
-    modules: {
-      toolbar: {
-        container: toolbarOptions,
-        handlers: {
-          image: imageHandler,
-        },
-      },
-    },
-  };
 </script>
 
 <svelte:head>
@@ -62,23 +82,13 @@
   <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
     {title}
   </label>
-  <div
-    class="editor"
-    use:quill={options}
-    on:text-change={(e) => {
-      console.log(e.detail.html);
-      value = e.detail.html;
-    }}
-  />
-  <!-- <textarea
-    bind:value
-    {rows}
-    disabled={disabled === true}
-    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline {wrong &&
-      'border-red-500'}"
-    type="text"
-    placeholder={placeHolder ?? title}
-  /> -->
+  <div class="editor-wrapper">
+    <div
+      class="editor"
+      bind:this={editor}
+      on:text-change={(e) => (value = e.detail.html)}
+    />
+  </div>
 
   {#if wrong}
     <p class="text-red-500 text-xs italic">{wrongText}</p>
@@ -86,6 +96,8 @@
 </div>
 
 <style>
+  @import "https://cdn.quilljs.com/1.3.6/quill.snow.css";
+
   .editor {
     border: 1px solid #e2e8f0;
     border-radius: 4px;

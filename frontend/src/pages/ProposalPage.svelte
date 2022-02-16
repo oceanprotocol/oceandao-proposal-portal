@@ -1,6 +1,7 @@
 <script>
   import { SERVER_URI } from "../utils/config";
   export let proposalId;
+  import { Link } from "svelte-navigator";
   let proposal;
   import Button from "../components/Button.svelte";
 
@@ -19,7 +20,11 @@
 
     <div class="flex justify-center space-x-5">
       <Button text={`Deliver a deliverable`} />
-      <Button text={`Update proposal`} />
+      <Button
+        onclick={() =>
+          (window.location.href = `/proposal/update/${proposalId}`)}
+        text={`Update proposal`}
+      />
     </div>
   </div>
 </div>
