@@ -2,17 +2,15 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const validator = require("validator");
 
-const isValidErc20Address = (address) => {
-  return /^(0x)?[0-9a-f]{40}$/i.test(address);
-};
-
 const projectSchema = new Schema({
   admin: {
     // admin wallet address
     type: String,
     required: true,
   },
-
+  valueAddCriteria: {
+    type: String,
+  },
   projectName: {
     type: String,
     required: true,
@@ -31,7 +29,6 @@ const projectSchema = new Schema({
     type: String,
     required: true,
   },
-
   projectLeadFullName: {
     type: String,
     required: true,

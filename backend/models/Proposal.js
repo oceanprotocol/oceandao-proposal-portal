@@ -11,6 +11,9 @@ const proposalSchema = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Project",
   },
+  valueAddCriteria: {
+    type: String,
+  },
   proposalTitle: {
     type: String,
     required: true,
