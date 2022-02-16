@@ -37,6 +37,14 @@ router.post("/myProjects", checkSigner, async (req, res) => {
   res.send(projects);
 });
 
+router.get("/nonce/:address", async (req, res) => {
+  const address = req.params.address;
+  Signer.findOne({ address }, (err, signer) => {
+    if (err) return res.status(400).send(err);
+    res.send({ nonce: signer ? signer.nonce : 0 });
+  });
+});
+
 router.post(
   "/createProposal",
   checkSigner,
