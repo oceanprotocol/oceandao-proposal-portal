@@ -10,6 +10,6 @@ const signerSchema = new Schema({
   },
 });
 
-const Signer = mongoose.model("Project", signerSchema);
+const Signer = mongoose.model("Signer", signerSchema);
 
 module.exports = Signer;

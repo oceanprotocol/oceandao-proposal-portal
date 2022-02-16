@@ -31,10 +31,10 @@ router.post("/createProject", checkSigner, async (req, res) => {
   });
 });
 
-router.post("/myProjects", checkSigner, async (req, res) => {
+router.post("/myProjects", async (req, res) => {
   // returns all projects that the user is admin of
-  const signer = res.locals.signer;
-  const projects = await Project.find({ admin: signer });
+  const address = req.body.address;
+  const projects = await Project.find({ admin: address });
   res.send(projects);
 });
 
@@ -229,7 +229,7 @@ router.post("/updateProposal", checkSigner, checkProject, function (req, res) {
       proposalId,
       { $set: update },
       { runValidators: true },
-      (err, data) => {
+      async (err, data) => {
         if (err) return res.status(400).send(err);
         await updateAirtableEntry(airtableId, update); // update airtable entry
         await updateDiscoursePost(proposalDiscourseId, data, project); // update the post in the discourse forum
