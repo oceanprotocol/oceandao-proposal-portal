@@ -13,5 +13,6 @@
 <style>
   .button {
     background-color: var(--brand-color-primary);
+    font-size: var(--font-size-small);
   }
 </style>

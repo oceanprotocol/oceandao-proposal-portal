@@ -14,7 +14,7 @@
     padding-bottom: var(--spacer);
   }
   .section h2{
-    font-size: 32px;
+    font-size: var(--font-size-large);
     margin: calc(var(--spacer) / 2) 0;
   }
   .sourceContainer{
@@ -22,6 +22,19 @@
     max-height: 55vh;
     overflow-y: scroll;
   }
+  .sourceContainer > p{
+    font-size: var(--font-size-small);
+  }
+  .actionContainer{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+  }
+  .actionContainer:only-child {
+      align-self: flex-end;
+      margin-left: auto;
+  }
+}
 </style>
 
 <div class="section">
@@ -33,6 +46,7 @@
     {/if}
     <slot></slot>
     {#if actions }
+        <div class="actionContainer">
         {#each actions as action}
             <div class="flex mt-5 justify-end">
                 <Button
@@ -41,5 +55,6 @@
                 />
             </div>
         {/each}
+        </div>
     {/if}
 </div>
