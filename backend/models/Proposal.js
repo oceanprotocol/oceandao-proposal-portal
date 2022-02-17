@@ -11,9 +11,13 @@ const proposalSchema = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Project",
   },
+  valueAddCriteria: {
+    type: String,
+  },
   proposalTitle: {
     type: String,
     required: true,
+    unique: true,
   },
   signer: {
     type: String,
@@ -56,14 +60,32 @@ const proposalSchema = new Schema({
     ],
   },
 
+  updates: [String],
   delivered: {
     description: String,
-    confirmed: Boolean,
+    confirmed: {
+      type: Boolean,
+      default: false,
+    },
   },
+
+  events: [
+    {
+      signer: String,
+      signedMessage: String,
+      message: String,
+      date: {
+        type: Date,
+        default: Date.now,
+      },
+      eventType: String,
+    },
+  ],
 
   // Exterior refs
   discourseLink: String,
   airtableRecordId: String,
+  discourseId: String,
 
   message: {
     type: String,

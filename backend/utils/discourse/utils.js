@@ -66,6 +66,10 @@ function getProposalMd(proposal) {
     type: "md",
   });
   proposalMd.push({
+    title: "Value Add Criteria",
+    body: proposal.valueAddCriteria,
+  });
+  proposalMd.push({
     title: "Funding Requested",
     body: proposal.proposalFundingRequested,
   });
@@ -86,7 +90,7 @@ function getMarkdownProposal(md) {
       obj.body = NodeHtmlMarkdown.NodeHtmlMarkdown.translate(obj.body);
     }
     post += `## ${obj.title}`;
-    post += `\n\n${obj.body}\n`;
+    post += `\n${obj.body}\n\n`;
   }
   return post;
 }
@@ -112,9 +116,23 @@ async function createDiscoursePost(proposal, roundCategory, project) {
   });
   return await res.json();
 }
-async function updateDiscoursePost(id, proposal) {
-  // TODO do something here
-  const post = getMarkdownProposal(md);
+async function updateDiscoursePost(id, proposal, project) {
+  const projectMd = getProjectMd(project);
+  const proposalMd = getProposalMd(proposal);
+
+  const post = getMarkdownProposal([...projectMd, ...proposalMd]);
+  const res = await fetch(`${baseUrl}/posts/${id}.json`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Api-Key": userApiKey,
+      "Api-Username": apiUsername,
+    },
+    body: JSON.stringify({
+      raw: post,
+    }),
+  });
+  return await res.json();
 }
 
 module.exports = {

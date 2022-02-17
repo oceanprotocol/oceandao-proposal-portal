@@ -131,4 +131,43 @@ You can only have 1 proposal per project, for each funding round.`
           />
        {/if}
       </Section>
+
+    <div class="section">
+      <h2 class="text-lg font-bold title">Project Proposals</h2>
+      <div class="text-left bg-slate-50">
+          <div>{pageText.proposalDescription}</div>
+      </div>
+      <div class="proposalsContainer">
+      {#each proposals as proposal}
+        <div class="flex justify-between proposalCard">
+          <span>Round {proposal.round}</span>
+          <div class="proposalCardDescription">
+            <span>{proposal.proposalEarmark}</span>
+            <span>{proposal.proposalValue}</span>
+          </div>
+          <Link
+            class="flex justify-center font-bold text-lg text-black-600 bg-white"
+            to={`/proposal/view/${proposal._id}`}>View</Link
+          >
+        </div>
+        {/each}
+      </div>
+      <div class="flex mt-5 justify-end">
+        <Button
+                text={"Create Proposal"}
+                onclick={() => {
+            location.href = "/proposal/create/" + projectId;
+          }}
+        />
+      </div>
+    </div>
+    <div class="mt-5">
+      <Button
+        text={"Project settings"}
+        onclick={() => {
+          location.href = "/project/edit/" + projectId;
+        }}
+      />
+    </div>
+  </div>
 </div>

@@ -6,10 +6,22 @@
   import { SERVER_URI } from "../utils/config";
   import { signMessage } from "../utils/signatures";
   import { networkSigner, userAddress } from "../stores/ethers";
-
-  let part = 0;
+  import { getNonce } from "../utils/helpers";
 
   export let projectId;
+  export let proposalId;
+  const isUpdating = proposalId !== undefined;
+  let loaded = !isUpdating;
+  let part = 0;
+
+  if (isUpdating) {
+    fetch(`${SERVER_URI}/app/proposalInfo/${proposalId}`)
+      .then((res) => res.json())
+      .then((res) => {
+        proposalStore.update(() => res);
+        loaded = true;
+      });
+  }
 
   const partTitles = ["Part 1 - Proposal Details"];
 
@@ -20,6 +32,7 @@
       bindValue: "proposalTitle",
       required: true,
       wrong: false,
+      disabled: isUpdating,
     },
     {
       type: "optionSelect",
@@ -135,6 +148,7 @@ Community Value — How does the project add value to the overall Ocean Communit
   }
 
   async function submitProposal() {
+    const nonce = await getNonce($userAddress);
     const proposalObject = {
       proposalTitle: $proposalStore.proposalTitle,
       proposalEarmark: $proposalStore.proposalEarmark,
@@ -143,38 +157,67 @@ Community Value — How does the project add value to the overall Ocean Communit
       grantDeliverables: $proposalStore.grantDeliverables,
       proposalFundingRequested: $proposalStore.proposalFundingRequested,
       proposalWalletAddress: $proposalStore.proposalWalletAddress,
+      valueAddCriteria: $proposalStore.valueAddCriteria,
+      projectId: projectId,
+      proposalId: proposalId,
+      nonce: nonce,
     };
 
     const proposalJson = JSON.stringify(proposalObject);
     const signedMessage = await signMessage(proposalJson, $networkSigner);
     const signer = $userAddress;
 
-    fetch(`${SERVER_URI}/app/createProposal`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        proposal: proposalObject,
-        signedMessage: signedMessage,
-        signer: signer,
-        message: proposalJson,
-        projectId: projectId,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          alert("Proposal created successfully");
-          window.location.href = `/project/${projectId}`;
-        } else {
-          alert("Error creating proposal");
-          console.error(data);
-        }
+    if (isUpdating) {
+      fetch(`${SERVER_URI}/app/updateProposal`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: proposalJson,
+          signedMessage: signedMessage,
+          signer: signer,
+        }),
       })
-      .catch((error) => {
-        console.log(error);
-      });
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            alert("Proposal updated successfully");
+            window.location.href = `/proposal/view/${proposalId}`;
+          } else {
+            alert("Error updating proposal");
+            console.error(data);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      fetch(`${SERVER_URI}/app/createProposal`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: proposalJson,
+          signedMessage: signedMessage,
+          signer: signer,
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            alert("Proposal created successfully");
+            window.location.href = `/project/${projectId}`;
+          } else {
+            alert("Error creating proposal");
+            console.error(data);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
   }
 </script>
 
@@ -191,86 +234,94 @@ Community Value — How does the project add value to the overall Ocean Communit
       </a>
       .
     </p>
-    <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-      <p class="text-xl font-bold mb-2 opacity-90">{partTitles[part]}</p>
-      {#each fields[part] as field}
-        {#if field.type === "title"}
-          <p class="text-lg font-bold mb-2 opacity-90">{field.title}</p>
-        {/if}
-        {#if field.type === "line"}
-          <hr />
-        {/if}
-
-        {#if field.type === "text"}
-          <TextField
-            bind:value={$proposalStore[field.bindValue]}
-            title={field.title}
-            placeHolder={field.placeHolder}
-            disabled={field.disabled}
-            wrong={field.wrong}
-            wrongText={field.wrongText}
-            textFormat={field.textFormat}
-            importantText={field.importantText}
-          />
-        {/if}
-        {#if field.type === "largeText"}
-          <LargeTextField
-            bind:value={$proposalStore[field.bindValue]}
-            title={field.title}
-            placeHolder={field.placeHolder}
-            disabled={field.disabled}
-            wrong={field.wrong}
-            wrongText={field.wrongText}
-            rows={field.rows}
-          />
-        {/if}
-        {#if field.type === "optionSelect"}
-          <OptionSelect
-            bind:value={$proposalStore[field.bindValue]}
-            title={field.title}
-            placeHolder={field.placeHolder}
-            disabled={field.disabled}
-            wrong={field.wrong}
-            wrongText={field.wrongText}
-            options={field.options}
-          />
-        {/if}
-      {/each}
-      <p>* Required Fields</p>
-      <div class="flex items-center justify-between">
-        <div class="flex space-x-2">
-          {#each Array(1) as _, i}
-            <div
-              style="width:{i === part
-                ? '40px'
-                : '20px'}; height:5px; background-color: {i < part
-                ? 'rgb(29 78 216)'
-                : i == part
-                ? 'rgb(29 78 216)'
-                : 'grey'}; border-radius:32px"
-            />
-          {/each}
+    {#if loaded == false}
+      <div class="text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Loading...</span>
         </div>
-        <div class="flex space-x-2">
-          {#if part > 0}
+      </div>
+    {:else}
+      <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <p class="text-xl font-bold mb-2 opacity-90">{partTitles[part]}</p>
+        {#each fields[part] as field}
+          {#if field.type === "title"}
+            <p class="text-lg font-bold mb-2 opacity-90">{field.title}</p>
+          {/if}
+          {#if field.type === "line"}
+            <hr />
+          {/if}
+
+          {#if field.type === "text"}
+            <TextField
+              bind:value={$proposalStore[field.bindValue]}
+              title={field.title}
+              placeHolder={field.placeHolder}
+              disabled={field.disabled}
+              wrong={field.wrong}
+              wrongText={field.wrongText}
+              textFormat={field.textFormat}
+              importantText={field.importantText}
+            />
+          {/if}
+          {#if field.type === "largeText"}
+            <LargeTextField
+              bind:value={$proposalStore[field.bindValue]}
+              title={field.title}
+              placeHolder={field.placeHolder}
+              disabled={field.disabled}
+              wrong={field.wrong}
+              wrongText={field.wrongText}
+              rows={field.rows}
+            />
+          {/if}
+          {#if field.type === "optionSelect"}
+            <OptionSelect
+              bind:value={$proposalStore[field.bindValue]}
+              title={field.title}
+              placeHolder={field.placeHolder}
+              disabled={field.disabled}
+              wrong={field.wrong}
+              wrongText={field.wrongText}
+              options={field.options}
+            />
+          {/if}
+        {/each}
+        <p>* Required Fields</p>
+        <div class="flex items-center justify-between">
+          <div class="flex space-x-2">
+            {#each Array(1) as _, i}
+              <div
+                style="width:{i === part
+                  ? '40px'
+                  : '20px'}; height:5px; background-color: {i < part
+                  ? 'rgb(29 78 216)'
+                  : i == part
+                  ? 'rgb(29 78 216)'
+                  : 'grey'}; border-radius:32px"
+              />
+            {/each}
+          </div>
+          <div class="flex space-x-2">
+            {#if part > 0}
+              <button
+                on:click={back}
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="button"
+              >
+                Back
+              </button>
+            {/if}
             <button
-              on:click={back}
+              on:click={() => submitProposal()}
               class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               type="button"
             >
-              Back
+              {isUpdating ? "Update Proposal" : "Submit Proposal"}
             </button>
-          {/if}
-          <button
-            on:click={() => submitProposal()}
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            type="button"
-          >
-            Submit Proposal
-          </button>
+          </div>
         </div>
-      </div>
-    </form>
+      </form>
+    {/if}
   </div>
 </div>
 
