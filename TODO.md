@@ -9,10 +9,11 @@
 - [x] Airtable integration - TEST
 - [x] Discourse api integration - TEST
 - [x] DB Models and validations
+- [X] Proposal update endpoint
+- [X] Project update endpoint
 - [ ] More error handling and meaningful error messages
-- [ ] Proposal update endpoint
-- [ ] Project update endpoint
 - [ ] Store each update on DB
+- [ ] Withdraw proposal
 
 ### Frontend
 

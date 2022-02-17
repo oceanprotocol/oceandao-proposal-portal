@@ -74,8 +74,19 @@ async function getCurrentRoundNumber() {
 /**
  * Updates an entry in the proposals table
  */
-async function updateAirtableEntry(recordId, updateObject) {
-  await base("Proposals").update(recordId, updateObject);
+async function updateAirtableEntry(recordId, proposal) {
+  let update = {};
+  if (proposal.proposalFundingRequested)
+    update["USD Requested"] = proposal.proposalFundingRequested;
+
+  if (proposal.proposalWalletAddress)
+    update["Wallet Address"] = proposal.proposalWalletAddress;
+
+  if (proposal.grantDeliverables)
+    update["Grant Deliverables"] = proposal.grantDeliverables;
+
+  if (proposal.oneLiner) update["One Liner"] = proposal.oneLiner;
+  await base("Proposals").update(recordId, update);
   return true;
 }
 
@@ -92,9 +103,6 @@ async function createAirtableEntry({
 
   proposalFundingRequested,
   proposalWalletAddress,
-
-  twitterLink,
-  discordLink,
 
   projectLeadFullName,
   projectLeadEmail,
@@ -115,6 +123,7 @@ async function createAirtableEntry({
     "Project Email Address": projectLeadEmail,
     "Country of Recipient": countryOfResidence,
     "Proposal URL": proposalUrl,
+    "Grant Deliverables": grantDeliverables,
   };
 
   const id = await base("Proposals").create(proposal);

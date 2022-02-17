@@ -66,6 +66,10 @@ function getProposalMd(proposal) {
     type: "md",
   });
   proposalMd.push({
+    title: "Value Add Criteria",
+    body: proposal.valueAddCriteria,
+  });
+  proposalMd.push({
     title: "Funding Requested",
     body: proposal.proposalFundingRequested,
   });
@@ -86,7 +90,7 @@ function getMarkdownProposal(md) {
       obj.body = NodeHtmlMarkdown.NodeHtmlMarkdown.translate(obj.body);
     }
     post += `## ${obj.title}`;
-    post += `\n\n${obj.body}\n`;
+    post += `\n${obj.body}\n\n`;
   }
   return post;
 }
@@ -118,7 +122,7 @@ async function updateDiscoursePost(id, proposal, project) {
 
   const post = getMarkdownProposal([...projectMd, ...proposalMd]);
   const res = await fetch(`${baseUrl}/posts/${id}.json`, {
-    method: "POST",
+    method: "PUT",
     headers: {
       "Content-Type": "application/json",
       "Api-Key": userApiKey,

@@ -40,5 +40,13 @@
         }}
       />
     </div>
+    <div class="mt-5">
+      <Button
+        text={"Project settings"}
+        onclick={() => {
+          location.href = "/project/edit/" + projectId;
+        }}
+      />
+    </div>
   </div>
 </div>

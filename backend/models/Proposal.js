@@ -69,9 +69,23 @@ const proposalSchema = new Schema({
     },
   },
 
+  events: [
+    {
+      signer: String,
+      signedMessage: String,
+      message: String,
+      date: {
+        type: Date,
+        default: Date.now,
+      },
+      eventType: String,
+    },
+  ],
+
   // Exterior refs
   discourseLink: String,
   airtableRecordId: String,
+  discourseId: String,
 
   message: {
     type: String,
