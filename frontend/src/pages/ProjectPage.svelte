@@ -1,25 +1,25 @@
 <script>
   import { Link } from "svelte-navigator";
-  import SvelteMarkdown from 'svelte-markdown';
   import moment from 'moment';
   import grantCategory from '../utils/types/grant_category.json'
-
   import Button from "../components/Button.svelte";
+  import Section from "../components/Section.svelte";
+
   export let projectId;
   let pageText = {
     proposalDescription: `Create and manage proposals below in order to submit them to OceanDAO Seed Grants.
 You can only have 1 proposal per project, for each funding round.`
   }
-  let project;
+  //let project;
   let source;
 
-  // Placeholder Project
-  // let project = {
-  //   projectName: "Monkey",
-  //   projectCategory: "Outreach",
-  //   createdAt: "11.02.2012",
-  //   projectDescription: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim adminim veniam, quis nostrud exercitation ullamco laboris nisi ut."
-  // };
+   //Placeholder Project
+   let project = {
+     projectName: "Monkey",
+     projectCategory: "Outreach",
+     createdAt: "11.02.2012",
+     projectDescription: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim adminim veniam, quis nostrud exercitation ullamco laboris nisi ut. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim adminim veniam, quis nostrud exercitation ullamco laboris nisi ut. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim adminim veniam, quis nostrud exercitation ullamco laboris nisi ut. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim adminim veniam, quis nostrud exercitation ullamco laboris nisi ut. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim adminim veniam, quis nostrud exercitation ullamco laboris nisi ut. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim adminim veniam, quis nostrud exercitation ullamco laboris nisi ut. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim adminim veniam, quis nostrud exercitation ullamco laboris nisi ut. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim adminim veniam, quis nostrud exercitation ullamco laboris nisi ut. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim adminim veniam, quis nostrud exercitation ullamco laboris nisi ut. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim adminim veniam, quis nostrud exercitation ullamco laboris nisi ut. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim adminim veniam, quis nostrud exercitation ullamco laboris nisi ut. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim adminim veniam, quis nostrud exercitation ullamco laboris nisi ut. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim adminim veniam, quis nostrud exercitation ullamco laboris nisi ut. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim adminim veniam, quis nostrud exercitation ullamco laboris nisi ut. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim adminim veniam, quis nostrud exercitation ullamco laboris nisi ut. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim adminim veniam, quis nostrud exercitation ullamco laboris nisi ut."
+   };
 
   // Placeholder Proposals
   let proposals = [
@@ -60,7 +60,11 @@ You can only have 1 proposal per project, for each funding round.`
     }
   ];
 
-  async function loadProject() {
+  function onCreateProposalClick() {
+    location.href = "/proposal/create/" + projectId;
+  }
+
+  /*async function loadProject() {
     let res = await fetch(
       `http://localhost:3000/app/getProjectInfo/${projectId}`
     );
@@ -73,7 +77,7 @@ You can only have 1 proposal per project, for each funding round.`
 
     source = project.projectDescription;
   }
-  loadProject();
+  loadProject();*/
 </script>
 
 <style>
@@ -82,15 +86,6 @@ You can only have 1 proposal per project, for each funding round.`
     max-width: 800px;
     margin: auto;
     padding-top: 60px;
-  }
-  .section{
-    width: 100%;
-    text-align: center;
-    padding-bottom: 100px;
-  }
-  .section h2{
-    font-size: 32px;
-    margin: 40px 0;
   }
   .details{
     display: flex;
@@ -118,8 +113,14 @@ You can only have 1 proposal per project, for each funding round.`
 
 <div class="flex h-screen flex-col justify-center project-container">
     {#if project }
-        <div class="col-start-1 col-span-2 section">
-          <h2 class="text-lg font-bold">{project.projectName}</h2>
+        <Section
+          title={project.projectName}
+          source={project.projectDescription}
+          actions={[{
+            "text": "Update Project",
+            "onClick":  onCreateProposalClick
+          }]}
+        >
           <div class="details bg-slate-200 py-5 px-5">
             <div class="col-start-4 col-span-2 ...">
               <span class="detailName font-bold text-xl">Category</span>
@@ -130,49 +131,30 @@ You can only have 1 proposal per project, for each funding round.`
               <span class="text-lg detailValue">{moment(project.createdAt).format('YYYY-MM-DD')}</span>
             </div>
           </div>
-          {#if source }
-            <div class="bg-slate-50">
-              <SvelteMarkdown {source}/>
-            </div>
-          {/if}
-          <div class="flex mt-5 justify-end">
-            <Button
-                    text={"Update Project"}
-                    onclick={() => {
-              location.href = "/proposal/update/" + projectId;
-            }}
-            />
-          </div>
-        </div>
+      </Section>
     {/if}
-
-    <div class="section">
-      <h2 class="text-lg font-bold title">Project Proposals</h2>
-      <div class="text-left bg-slate-50">
-          <div>{pageText.proposalDescription}</div>
-      </div>
-      <div class="proposalsContainer">
-      {#each proposals as proposal}
-        <div class="flex justify-between proposalCard">
-          <span>Round {proposal.round}</span>
-          <div class="proposalCardDescription">
-            <span>{proposal.proposalEarmark}</span>
-            <span>{proposal.proposalValue}</span>
+      <Section
+          title={project.projectName}
+          source={project.projectDescription}
+          actions={[{
+            "text": "Create Proposal",
+            "onClick":  onCreateProposalClick
+          }]}
+      >
+        <div class="proposalsContainer">
+        {#each proposals as proposal}
+          <div class="flex justify-between proposalCard">
+            <span>Round {proposal.round}</span>
+            <div class="proposalCardDescription">
+              <span>{proposal.proposalEarmark}</span>
+              <span>{proposal.proposalValue}</span>
+            </div>
+            <Link
+              class="flex justify-center font-bold text-lg text-black-600 bg-white"
+              to={`/proposal/view/${proposal._id}`}>View</Link
+            >
           </div>
-          <Link
-            class="flex justify-center font-bold text-lg text-black-600 bg-white"
-            to={`/proposal/view/${proposal._id}`}>View</Link
-          >
-        </div>
         {/each}
-      </div>
-      <div class="flex mt-5 justify-end">
-        <Button
-                text={"Create Proposal"}
-                onclick={() => {
-            location.href = "/proposal/create/" + projectId;
-          }}
-        />
-      </div>
-    </div>
+        </div>
+      </Section>
 </div>
