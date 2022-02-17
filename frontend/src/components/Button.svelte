@@ -14,4 +14,4 @@
   .button {
     background-color: var(--brand-color-primary);
   }
-</button>
+</style>
