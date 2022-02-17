@@ -24,3 +24,6 @@
 - [ ] Project management page
 - [ ] List created proposals on frontend
 - [ ] Proposal management page
+
+- [ ] Errors during 'Create Project" cause data to disappear.
+- [ ] "Update Project" page+router
