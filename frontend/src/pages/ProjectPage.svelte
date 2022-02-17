@@ -147,7 +147,7 @@ You can only have 1 proposal per project, for each funding round.`
     {/if}
 
     <div class="section">
-      <h2 class="text-lg font-bold title text-left">Project Proposals</h2>
+      <h2 class="text-lg font-bold title">Project Proposals</h2>
       <div class="text-left bg-slate-50">
           <div>{pageText.proposalDescription}</div>
       </div>
