@@ -4,6 +4,7 @@
   import grantCategory from '../utils/types/grant_category.json'
   import Button from "../components/Button.svelte";
   import Section from "../components/Section.svelte";
+  import ProposalItemsList from "../components/ProposalItemsList.svelte";
 
   export let projectId;
   let pageText = {
@@ -92,23 +93,6 @@ You can only have 1 proposal per project, for each funding round.`
     align-items: center;
     justify-content: space-between;
   }
-  .proposalsContainer{
-    display: grid;
-    grid-gap: 20px;
-    grid-template-columns: repeat(3, 1fr);
-    background-color: #F8FAFC;
-  }
-  .proposalCard{
-    flex-direction: column;
-    background-color: grey;
-    margin-bottom: 15px;
-    padding: 20px;
-  }
-  .proposalCardDescription{
-    display: flex;
-    justify-content: space-between;
-    margin: 10px 0;
-  }
 </style>
 
 <div class="flex h-screen flex-col justify-center project-container">
@@ -134,27 +118,17 @@ You can only have 1 proposal per project, for each funding round.`
       </Section>
     {/if}
       <Section
-          title={project.projectName}
-          source={project.projectDescription}
+          title={"Proposals"}
+          source={pageText.proposalDescription}
           actions={[{
             "text": "Create Proposal",
             "onClick":  onCreateProposalClick
           }]}
       >
-        <div class="proposalsContainer">
-        {#each proposals as proposal}
-          <div class="flex justify-between proposalCard">
-            <span>Round {proposal.round}</span>
-            <div class="proposalCardDescription">
-              <span>{proposal.proposalEarmark}</span>
-              <span>{proposal.proposalValue}</span>
-            </div>
-            <Link
-              class="flex justify-center font-bold text-lg text-black-600 bg-white"
-              to={`/proposal/view/${proposal._id}`}>View</Link
-            >
-          </div>
-        {/each}
-        </div>
+        {#if proposals }
+          <ProposalItemsList
+            proposals={proposals}
+          />
+       {/if}
       </Section>
 </div>
