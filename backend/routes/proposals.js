@@ -20,7 +20,6 @@ router.post("/createProject", checkSigner, async (req, res) => {
   let admin = res.locals.signer;
   let prj = JSON.parse(req.body.message);
   prj.admin = admin;
-
   let project = new Project(prj);
   project.save((err, project) => {
     if (err) {
@@ -198,16 +197,22 @@ router.post("/updateProposal", checkSigner, function (req, res) {
   Proposal.findById(proposalId)
     .populate("projectId")
     .exec(async (err, data) => {
+      const project = data.projectId;
+      proposal.proposalFundingRequested = parseFloat(
+        proposal.proposalFundingRequested
+      );
+
+      if (project.admin !== res.locals.signer) {
+        return res
+          .status(400)
+          .json({ error: "You are not the admin of this project" });
+      }
+
       const currentRound = await getCurrentRoundNumber();
       if (data.round !== currentRound) {
         // return if voting period started
         return res.status(400).send("Voting period has already started");
       }
-
-      const project = data.projectId;
-      proposal.proposalFundingRequested = parseFloat(
-        proposal.proposalFundingRequested
-      );
 
       const update = {};
 
@@ -261,7 +266,7 @@ router.post("/updateProposal", checkSigner, function (req, res) {
     });
 });
 
-router.post("/getProposals", checkSigner, checkProject, function (req, res) {
+router.post("/getProposals", function (req, res) {
   Proposal.find(
     { projectId: res.locals.project._id },
     "proposalFundingRequested proposalDescription title",
@@ -274,9 +279,40 @@ router.post("/getProposals", checkSigner, checkProject, function (req, res) {
   );
 });
 
+router.post("/proposal/deliver", checkSigner, async (req, res) => {
+  const data = JSON.parse(req.body.message);
+  const proposalId = data.proposalId;
+  const description = data.description;
+
+  Proposal.findById(proposalId)
+    .populate("projectId", "admin")
+    .exec(async (err, data) => {
+      if (data.projectId.admin !== res.locals.signer) {
+        return res
+          .status(400)
+          .json({ error: "You are not the admin of this project" });
+      }
+
+      //TODO return if there is pending delivery??
+
+      Proposal.updateOne(
+        { _id: proposalId },
+        {
+          $set: {
+            "delivered.description": description,
+            "delivered.status": 1,
+          },
+        },
+        (err, proposal) => {
+          if (err) return res.json({ err });
+          return res.json({ success: true });
+        }
+      );
+    });
+});
+
 router.get("/proposalInfo/:proposalId", async (req, res) => {
   const proposalId = req.params.proposalId;
-  console.log(proposalId);
   Proposal.findById(proposalId, (err, proposal) => {
     if (err) {
       res.status(400).send(err);
@@ -289,7 +325,7 @@ router.get("/getProjectInfo/:projectId", async (req, res) => {
   const projectId = req.params.projectId;
   Proposal.find(
     { projectId: projectId },
-    "proposalFundingRequested proposalDescription proposalTitle",
+    "proposalFundingRequested proposalTitle round",
     (err, proposals) => {
       Project.findById(projectId, (err, project) => {
         if (err) {
@@ -347,10 +383,7 @@ function checkSigner(req, res, next) {
 function checkProject(req, res, next) {
   // middleware to check if the user is the signer
   let s = {};
-  //const projectName = req.body.projectName;
   const projectId = JSON.parse(req.body.message).projectId;
-  //if (projectName) s.projectName = projectName;
-  //else if (projectId)
   s._id = projectId;
   Project.findOne(s, (err, project) => {
     if (err) {

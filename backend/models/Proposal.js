@@ -63,9 +63,11 @@ const proposalSchema = new Schema({
   updates: [String],
   delivered: {
     description: String,
-    confirmed: {
-      type: Boolean,
-      default: false,
+    status: {
+      type: Number,
+      enum: [0, 1, 2],
+      default: 0,
+      // 0: not delivered, 1: delivered, 2: delivered and accepted
     },
   },
 
