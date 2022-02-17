@@ -9,9 +9,9 @@ const {
 } = require("../utils/discourse/utils");
 const {
   getProjectUsdLimit,
-  getWalletProposals,
   createAirtableEntry,
   getCurrentRoundNumber,
+  updateAirtableEntry,
 } = require("../utils/airtable/utils");
 
 router.post("/createProject", checkSigner, async (req, res) => {
@@ -109,6 +109,7 @@ router.post(
           projectLeadEmail: project.projectLeadEmail,
           countryOfResidence: project.countryOfResidence,
           proposalUrl: proposal.discourseLink,
+          oneLiner: proposal.oneLiner,
         }); // create airtable entry
 
         proposal.airtableRecordId = airtableRecordId; // TODO MAKE SURE RECORD ID IS CORRECT
@@ -134,8 +135,99 @@ router.post(
   }
 );
 
+router.post("/updateProject", checkSigner, checkProject, function (req, res) {
+  const data = JSON.parse(req.body.message);
+  const project = res.locals.project;
+  const updateObject = {};
+  if (data.valueAddCriteria)
+    updateObject.valueAddCriteria = data.valueAddCriteria;
+  if (data.projectDescription)
+    updateObject.projectDescription = data.projectDescription;
+  if (data.projectCategory) updateObject.projectCategory = data.projectCategory;
+  if (data.projectLeadFullName)
+    updateObject.projectLeadFullName = data.projectLeadFullName;
+  if (data.projectLeadEmail)
+    updateObject.projectLeadEmail = data.projectLeadEmail;
+  if (data.countryOfResidence)
+    updateObject.countryOfResidence = data.countryOfResidence;
+  if (data.finalProduct) updateObject.finalProduct = data.finalProduct;
+
+  if (data.teamWebsite) updateObject.teamWebsite = data.teamWebsite;
+  if (data.twitterLink) updateObject.twitterLink = data.twitterLink;
+  if (data.discordLink) updateObject.discordLink = data.discordLink;
+
+  if (data.coreTeam) updateObject.coreTeam = data.coreTeam;
+  if (data.advisors) updateObject.advisors = data.advisors;
+
+  updateObject.events = project.events;
+  updateObject.events.push({
+    eventType: "projectUpdate",
+    signer: res.locals.signer,
+    signedMessage: req.body.signedMessage,
+    message: req.body.message,
+  });
+
+  Project.findByIdAndUpdate(
+    project._id,
+    { $set: updateObject },
+    { runValidators: true },
+    (err, project) => {
+      if (err) {
+        console.log(err);
+        return res.status(400).send(err);
+      }
+      res.send({ data: project, success: true });
+    }
+  );
+});
+
 router.post("/updateProposal", checkSigner, checkProject, function (req, res) {
   // return if voting period started
+  const proposalId = req.body.proposalId;
+
+  Proposal.findById(proposalId, async (err, proposalData) => {
+    const proposal = req.body;
+    const project = res.locals.project;
+
+    const update = {};
+
+    if (proposal.proposalFundingRequested) {
+      const projectUsdLimit = await getProjectUsdLimit(project.projectName);
+      if (proposal.proposalFundingRequested > projectUsdLimit) {
+        return res.status(400).json({
+          error: "Your funding request exceeds the project USD limit",
+        });
+      }
+      update.proposalFundingRequested = proposal.proposalFundingRequested;
+    }
+
+    if (proposal.proposalWalletAddress)
+      update.proposalWalletAddress = proposal.proposalWalletAddress;
+
+    if (proposal.proposalDescription)
+      update.proposalDescription = proposal.proposalDescription;
+
+    if (proposal.grantDeliverables)
+      update.grantDeliverables = proposal.grantDeliverables;
+
+    if (proposal.oneLiner) update.oneLiner = proposal.oneLiner;
+
+    const proposalUrl = proposalData.proposalUrl;
+    const proposalDiscourseId = proposalUrl.split("/")[5];
+    const airtableId = proposalData.airtableRecordId;
+
+    Proposal.findByIdAndUpdate(
+      proposalId,
+      { $set: update },
+      { runValidators: true },
+      (err, data) => {
+        if (err) return res.status(400).send(err);
+        await updateAirtableEntry(airtableId, update); // update airtable entry
+        await updateDiscoursePost(proposalDiscourseId, data, project); // update the post in the discourse forum
+        return res.send({ success: true });
+      }
+    );
+  });
 });
 
 router.post("/getProposals", checkSigner, checkProject, function (req, res) {
