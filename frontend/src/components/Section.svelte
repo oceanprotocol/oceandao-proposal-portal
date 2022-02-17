@@ -30,11 +30,6 @@
       justify-content: space-between;
       align-items: center;
   }
-  .actionContainer:only-child {
-      align-self: flex-end;
-      margin-left: auto;
-  }
-}
 </style>
 
 <div class="section">
