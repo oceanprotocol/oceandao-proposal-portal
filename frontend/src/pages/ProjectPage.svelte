@@ -86,7 +86,7 @@ You can only have 1 proposal per project, for each funding round.`
     height: 100%;
     max-width: 800px;
     margin: auto;
-    padding-top: 60px;
+    padding-top: var(--spacer);
   }
   .details{
     display: flex;

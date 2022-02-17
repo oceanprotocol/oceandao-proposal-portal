@@ -11,14 +11,14 @@
   .section{
     width: 100%;
     text-align: center;
-    padding-bottom: 100px;
+    padding-bottom: var(--spacer);
   }
   .section h2{
     font-size: 32px;
-    margin: 40px 0;
+    margin: calc(var(--spacer) / 2) 0;
   }
   .sourceContainer{
-    margin-bottom: 40px;
+    margin-bottom: calc(var(--spacer) / 2);
     max-height: 55vh;
     overflow-y: scroll;
   }

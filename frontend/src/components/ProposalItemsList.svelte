@@ -7,7 +7,7 @@
 <style>
   .proposalsContainer{
     display: grid;
-    grid-gap: 20px;
+    grid-gap: calc(var(--spacer) / 3);
     grid-template-columns: repeat(3, 1fr);
     background-color: #F8FAFC;
   }
