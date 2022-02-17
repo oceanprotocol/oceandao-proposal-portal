@@ -175,4 +175,13 @@ You can only have 1 proposal per project, for each funding round.`
         />
       </div>
     </div>
+    <div class="mt-5">
+      <Button
+        text={"Project settings"}
+        onclick={() => {
+          location.href = "/project/edit/" + projectId;
+        }}
+      />
+    </div>
+  </div>
 </div>
