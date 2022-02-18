@@ -5,26 +5,21 @@
   import ProjectItemsList from "../components/ProjectItemsList.svelte";
   import Section from "../components/Section.svelte";
 
-  let projects = [
-    {
-      projectId: 4,
-      projectTitle: 'Test'
-    },
-    {
-      projectId: 3,
-      projectTitle: 'Test'
-    },
-    {
-      projectId: 2,
-      projectTitle: 'Test'
-    },
-    {
-      projectId: 1,
-      projectTitle: 'Test'
-    }
-  ];
+  let projects;
 
-  /*async function fetchProjects() {
+  let pageText = {
+    daoProjTitle: `DAO Projects`,
+    daoProjDescription: `<p>Please use this portal to create projects and submit proposals to the OceanDAO Grants program.</p>
+<br/>
+<p>To submit a project & proposal to OceanDAO:</p>
+<p>1. Creating a new project.</p>
+<p>2. Creating a proposal for your project.</p>
+<br/>
+<p>Please make sure to submit proposals before each deadline.</p>
+<p>You can <a href="https://oceanprotocol.com/dao">find them here</a>`
+  };
+
+  async function fetchProjects() {
     const res = await fetch(`${SERVER_URI}/app/myProjects`, {
       method: "POST",
       headers: {
@@ -37,8 +32,10 @@
 
     const data = await res.json();
     projects = data;
+
+    console.log(projects)
   }
-  fetchProjects();*/
+  fetchProjects();
 
   function onCreateNewProject() {
     location.href = "/newProject";
@@ -56,24 +53,17 @@
 </style>
 
 <div class="flex h-screen home-container">
-  <Section
-    title={"DAO Projects"}
-    description={"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut."}
-  />
-  <Section
-    title={"Your Projects"}
-    description={"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut."}
-  >
+  <Section class="flex text-left bg-grey-200"
+    title={pageText.daoProjTitle}
+    actions={[{
+      "text": "Create Project",
+      "onClick":  onCreateNewProject
+    }]}>
+    <div class="bg-slate-100 text-left">
+      {@html pageText.daoProjDescription}
+    </div>
     {#if projects}
       <ProjectItemsList {projects} />
     {/if}
   </Section>
-  <Section
-    title={"Create Project"}
-    description={"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut."}
-    actions={[{
-      "text": "Create Project",
-      "onClick":  onCreateNewProject
-    }]}
-  />
 </div>

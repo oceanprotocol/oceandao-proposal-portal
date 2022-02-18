@@ -1,6 +1,5 @@
 <script>
   import { Link } from "svelte-navigator";
-
   export let project;
 </script>
 
@@ -8,7 +7,6 @@
   .projectCard{
     flex-direction: column;
     background-color: grey;
-    margin-bottom: 15px;
     padding: 20px;
   }
   .projectCard span{
@@ -29,7 +27,7 @@
 </style>
 
 <div class="flex justify-between projectCard">
-    <span>Round {project.projectTitle}</span>
+    <span>{project.projectName}</span>
     <Link
       class="flex justify-center text-black-600 bg-white projectButton"
       to={`/project/${project._id}`}>View</Link

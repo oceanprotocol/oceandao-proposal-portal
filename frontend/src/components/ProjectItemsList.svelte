@@ -1,6 +1,5 @@
 <script>
   import ProjectItem from "./ProjectItem.svelte";
-
   export let projects;
 </script>
 
