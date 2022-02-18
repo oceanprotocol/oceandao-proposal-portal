@@ -85,6 +85,8 @@ async function updateAirtableEntry(recordId, proposal) {
     update["Grant Deliverables"] = NodeHtmlMarkdown.NodeHtmlMarkdown.translate(
       proposal.grantDeliverables
     );
+  if (proposal.withdrawn) update["Proposal State"] = "Withdrawn";
+  if (proposal.earmark) update["Earmarks"] = earmarkJson[proposal.earmark];
 
   if (proposal.oneLiner) update["One Liner"] = proposal.oneLiner;
   await base("Proposals").update(recordId, update);

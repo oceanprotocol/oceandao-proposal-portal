@@ -7,6 +7,7 @@ const Signer = require("../models/Signer");
 const {
   createDiscoursePost,
   updateDiscoursePost,
+  replyToDiscoursePost,
 } = require("../utils/discourse/utils");
 const {
   getProjectUsdLimit,
@@ -203,6 +204,47 @@ router.post("/updateProject", checkSigner, checkProject, function (req, res) {
   );
 });
 
+router.post("/withdrawProposal", checkSigner, (req, res) => {
+  const data = JSON.parse(req.body.message);
+  const proposalId = data.proposalId;
+  if (data.withdraw != true)
+    return res.status(400).json({ error: "withdraw must be true" });
+  Proposal.findById(proposalId)
+    .populate("projectId")
+    .exec(async (err, data) => {
+      if (data.projectId.admin !== res.locals.signer) {
+        return res
+          .status(400)
+          .json({ error: "You are not the admin of this project" });
+      }
+      const event = {
+        eventType: "withdraw",
+        signer: res.locals.signer,
+        signedMessage: req.body.signedMessage,
+        message: req.body.message,
+      };
+
+      Proposal.findByIdAndUpdate(
+        proposalId,
+        { $push: { events: event }, withdrawn: true },
+        { runValidators: true },
+        async (err, proposal) => {
+          if (err) {
+            console.log(err);
+            return res.status(400).send(err);
+          }
+          await updateAirtableEntry(data.airtableId, { withdrawn: true });
+          await replyToDiscoursePost(
+            "This proposal has been withdrawn",
+            false,
+            proposal.discourseId
+          );
+          res.send({ data: proposal, success: true });
+        }
+      );
+    });
+});
+
 router.post("/updateProposal", checkSigner, function (req, res) {
   const proposal = JSON.parse(req.body.message);
   const proposalId = proposal.proposalId;
@@ -211,16 +253,19 @@ router.post("/updateProposal", checkSigner, function (req, res) {
     .populate("projectId")
     .exec(async (err, data) => {
       const project = data.projectId;
-      if (proposal.proposalFundingRequested)
-        proposal.proposalFundingRequested = parseFloat(
-          proposal.proposalFundingRequested
-        );
+
+      if (data.withdrawn)
+        return res.status(400).json({ error: "Proposal has been withdrawn" });
 
       if (project.admin !== res.locals.signer) {
         return res
           .status(400)
           .json({ error: "You are not the admin of this project" });
       }
+      if (proposal.proposalFundingRequested)
+        proposal.proposalFundingRequested = parseFloat(
+          proposal.proposalFundingRequested
+        );
 
       const currentRound = await getCurrentRoundNumber();
       if (data.round !== currentRound) {
@@ -320,8 +365,7 @@ router.post("/proposal/deliver", checkSigner, async (req, res) => {
         (err, proposal) => {
           if (err) return res.json({ err });
 
-          //TODO reply to the discourse post here
-
+          await replyToDiscoursePost(description, true, data.discourseId);
           return res.json({ success: true });
         }
       );

@@ -46,6 +46,11 @@ const proposalSchema = new Schema({
     required: true,
   },
 
+  withdrawn: {
+    type: Boolean,
+    default: false,
+  },
+
   round: Number,
 
   proposalFundingRequested: {

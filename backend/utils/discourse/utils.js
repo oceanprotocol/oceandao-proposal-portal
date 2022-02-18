@@ -95,6 +95,25 @@ function getMarkdownProposal(md) {
   return post;
 }
 
+async function replyToDiscoursePost(reply, isMarkDown, topicId) {
+  const post = isMarkDown
+    ? reply
+    : NodeHtmlMarkdown.NodeHtmlMarkdown.translate(reply);
+  const res = await fetch(`${baseUrl}/posts.json`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Api-Key": userApiKey,
+      "Api-Username": apiUsername,
+    },
+    body: JSON.stringify({
+      raw: post,
+      topic_id: topicId,
+    }),
+  });
+  return await res.json();
+}
+
 async function createDiscoursePost(proposal, roundCategory, project) {
   const projectMd = getProjectMd(project);
   const proposalMd = getProposalMd(proposal);
@@ -138,4 +157,5 @@ async function updateDiscoursePost(id, proposal, project) {
 module.exports = {
   createDiscoursePost,
   updateDiscoursePost,
+  replyToDiscoursePost,
 };
