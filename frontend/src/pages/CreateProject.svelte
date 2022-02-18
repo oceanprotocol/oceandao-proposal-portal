@@ -217,7 +217,8 @@ Co-founder at xxx`,
             return res.json();
           } else if (res.status === 400) {
             console.log("Couldn't update project: ", res);
-            errorMessage = "Error updating project. Please check fields.";
+            errorMessage =
+              "Error updating project. Please check fields. " + res;
           }
         })
         .then((data) => {

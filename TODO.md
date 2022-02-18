@@ -6,24 +6,27 @@
 - [x] Get proposals by project endpoint
 - [x] Get projects by admin address endpoint
 - [x] Signature verification
-- [x] Airtable integration - TEST
-- [x] Discourse api integration - TEST
+- [x] Airtable integration
+- [x] Discourse api integration
+- [X] Test airtable and discourse
 - [x] DB Models and validations
 - [X] Proposal update endpoint
 - [X] Project update endpoint
 - [ ] More error handling and meaningful error messages
-- [ ] Store each update on DB
-- [ ] Withdraw proposal
+- [X] Store each update on DB
+- [X] Withdraw proposal
+- [X] Proposal earmark handling
 
 ### Frontend
 
 - [x] Web3 wallet connection
 - [x] Create proposal form
 - [x] Create project form
-- [ ] List created projects on frotend
-- [ ] Project management page
-- [ ] List created proposals on frontend
-- [ ] Proposal management page
+- [X] List created projects on frotend
+- [X] Project management page
+- [X] List created proposals on frontend
+- [X] Proposal management page
+- [X] "Update Project" page
+- [X] "Update Proposal" page
 
 - [ ] Errors during 'Create Project" cause data to disappear.
-- [ ] "Update Project" page+router
