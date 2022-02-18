@@ -13,6 +13,7 @@ const {
   createAirtableEntry,
   getCurrentRoundNumber,
   updateAirtableEntry,
+  getFormerProposals,
 } = require("../utils/airtable/utils");
 
 router.post("/createProject", checkSigner, async (req, res) => {
@@ -60,6 +61,18 @@ router.post(
 
     proposal.signer = res.locals.signer; // signer
     proposal.projectId = project._id; // add projectId to proposal
+
+    const formerProposals = await getFormerProposals(projectName);
+    if (formerProposals.length == 0) {
+      if (project.projectCategory === "outreach") {
+        proposal.proposalEarmark = "newprojectoutreach";
+      } else {
+        proposal.proposalEarmark = "newproject";
+      }
+    } else if (proposal.proposalEarmark === "coretech") {
+      proposal.proposalEarmarkRequest = "coretech";
+      proposal.proposalEarmark = "general";
+    }
 
     const newProposal = new Proposal(proposal); // ? maybe change this
     let error = newProposal.validateSync();
@@ -191,8 +204,15 @@ router.post("/updateProject", checkSigner, checkProject, function (req, res) {
 });
 
 router.post("/updateProposal", checkSigner, function (req, res) {
-  const proposal = JSON.parse(req.body.message);
+  const pdata = JSON.parse(req.body.message);
   const proposalId = proposal.proposalId;
+  const {
+    proposalFundingRequested,
+    proposalWalletAddress,
+    proposalDescription,
+    grantDeliverables,
+    oneLiner,
+  } = pdata;
 
   Proposal.findById(proposalId)
     .populate("projectId")
@@ -216,26 +236,24 @@ router.post("/updateProposal", checkSigner, function (req, res) {
 
       const update = {};
 
-      if (proposal.proposalFundingRequested) {
+      if (proposalFundingRequested) {
         const projectUsdLimit = await getProjectUsdLimit(project.projectName);
-        if (proposal.proposalFundingRequested > projectUsdLimit) {
+        if (proposalFundingRequested > projectUsdLimit) {
           return res.status(400).json({
             error: "Your funding request exceeds the project USD limit",
           });
         }
-        update.proposalFundingRequested = proposal.proposalFundingRequested;
+        update.proposalFundingRequested = proposalFundingRequested;
       }
 
-      if (proposal.proposalWalletAddress)
-        update.proposalWalletAddress = proposal.proposalWalletAddress;
+      if (proposalWalletAddress)
+        update.proposalWalletAddress = proposalWalletAddress;
 
-      if (proposal.proposalDescription)
-        update.proposalDescription = proposal.proposalDescription;
+      if (proposalDescription) update.proposalDescription = proposalDescription;
 
-      if (proposal.grantDeliverables)
-        update.grantDeliverables = proposal.grantDeliverables;
+      if (grantDeliverables) update.grantDeliverables = grantDeliverables;
 
-      if (proposal.oneLiner) update.oneLiner = proposal.oneLiner;
+      if (oneLiner) update.oneLiner = oneLiner;
 
       const proposalDiscourseId = data.discourseId;
       const airtableId = data.airtableRecordId;

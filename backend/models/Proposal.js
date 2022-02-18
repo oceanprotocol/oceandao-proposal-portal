@@ -33,6 +33,7 @@ const proposalSchema = new Schema({
     required: true,
     enum: ["newproject", "newprojectoutreach", "coretech", "general"],
   },
+  proposalEarmarkRequest: String,
   oneLiner: {
     type: String,
     required: true,

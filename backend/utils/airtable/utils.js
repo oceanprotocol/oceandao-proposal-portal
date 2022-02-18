@@ -47,8 +47,6 @@ const _getProjectSummarySelectQuery = async (selectQuery) => {
   }
 };
 
-function getWalletProposals() {}
-
 /**
  * @param {String} projectName
  * @return {Number} projectUsdLimit
@@ -93,6 +91,13 @@ async function updateAirtableEntry(recordId, proposal) {
   return true;
 }
 
+async function getFormerProposals(projectName) {
+  const formerProposals = await _getProposalsSelectQuery(
+    `{Project Name} = "${projectName}"`
+  );
+  return formerProposals;
+}
+
 /**
  * Creates an entry in the proposals table
  */
@@ -135,9 +140,9 @@ async function createAirtableEntry({
 }
 
 module.exports = {
-  getWalletProposals,
   getProjectUsdLimit,
   getCurrentRoundNumber,
   createAirtableEntry,
   updateAirtableEntry,
+  getFormerProposals,
 };
