@@ -21,6 +21,14 @@ router.post("/createProject", checkSigner, async (req, res) => {
   // create a project
   let admin = res.locals.signer;
   let prj = JSON.parse(req.body.message);
+  prj.events = [
+    {
+      eventType: "projectCreated",
+      signer: admin,
+      signedMessage: req.body.signedMessage,
+      message: req.body.message,
+    },
+  ];
   prj.admin = admin;
   let project = new Project(prj);
   project.save((err, project) => {
@@ -62,6 +70,14 @@ router.post(
 
     proposal.signer = res.locals.signer; // signer
     proposal.projectId = project._id; // add projectId to proposal
+    proposal.events = [
+      {
+        eventType: "proposalCreated",
+        signer: admin,
+        signedMessage: req.body.signedMessage,
+        message: req.body.message,
+      },
+    ];
 
     const formerProposals = await getFormerProposals(projectName);
     if (formerProposals.length == 0) {
@@ -352,6 +368,13 @@ router.post("/proposal/deliver", checkSigner, async (req, res) => {
           .json({ error: "You are not the admin of this project" });
       }
 
+      const event = {
+        eventType: "deliver",
+        signer: res.locals.signer,
+        signedMessage: req.body.signedMessage,
+        message: req.body.message,
+      };
+
       //TODO return if there is pending delivery??
 
       Proposal.updateOne(
@@ -361,6 +384,7 @@ router.post("/proposal/deliver", checkSigner, async (req, res) => {
             "delivered.description": description,
             "delivered.status": 1,
           },
+          $push: { events: event },
         },
         (err, proposal) => {
           if (err) return res.json({ err });

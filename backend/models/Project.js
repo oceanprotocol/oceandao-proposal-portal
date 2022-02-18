@@ -77,10 +77,6 @@ const projectSchema = new Schema({
     },
   ],
 
-  signer: String,
-  signedMessage: String,
-  message: String,
-
   createdAt: {
     type: Date,
     default: Date.now,
