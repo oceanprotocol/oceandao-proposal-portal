@@ -204,23 +204,17 @@ router.post("/updateProject", checkSigner, checkProject, function (req, res) {
 });
 
 router.post("/updateProposal", checkSigner, function (req, res) {
-  const pdata = JSON.parse(req.body.message);
+  const proposal = JSON.parse(req.body.message);
   const proposalId = proposal.proposalId;
-  const {
-    proposalFundingRequested,
-    proposalWalletAddress,
-    proposalDescription,
-    grantDeliverables,
-    oneLiner,
-  } = pdata;
 
   Proposal.findById(proposalId)
     .populate("projectId")
     .exec(async (err, data) => {
       const project = data.projectId;
-      proposal.proposalFundingRequested = parseFloat(
-        proposal.proposalFundingRequested
-      );
+      if (proposal.proposalFundingRequested)
+        proposal.proposalFundingRequested = parseFloat(
+          proposal.proposalFundingRequested
+        );
 
       if (project.admin !== res.locals.signer) {
         return res
@@ -236,24 +230,26 @@ router.post("/updateProposal", checkSigner, function (req, res) {
 
       const update = {};
 
-      if (proposalFundingRequested) {
+      if (proposal.proposalFundingRequested) {
         const projectUsdLimit = await getProjectUsdLimit(project.projectName);
-        if (proposalFundingRequested > projectUsdLimit) {
+        if (proposal.proposalFundingRequested > projectUsdLimit) {
           return res.status(400).json({
             error: "Your funding request exceeds the project USD limit",
           });
         }
-        update.proposalFundingRequested = proposalFundingRequested;
+        update.proposalFundingRequested = proposal.proposalFundingRequested;
       }
 
-      if (proposalWalletAddress)
-        update.proposalWalletAddress = proposalWalletAddress;
+      if (proposal.proposalWalletAddress)
+        update.proposalWalletAddress = proposal.proposalWalletAddress;
 
-      if (proposalDescription) update.proposalDescription = proposalDescription;
+      if (proposal.proposalDescription)
+        update.proposalDescription = proposal.proposalDescription;
 
-      if (grantDeliverables) update.grantDeliverables = grantDeliverables;
+      if (proposal.grantDeliverables)
+        update.grantDeliverables = proposal.grantDeliverables;
 
-      if (oneLiner) update.oneLiner = oneLiner;
+      if (proposal.oneLiner) update.oneLiner = proposal.oneLiner;
 
       const proposalDiscourseId = data.discourseId;
       const airtableId = data.airtableRecordId;
