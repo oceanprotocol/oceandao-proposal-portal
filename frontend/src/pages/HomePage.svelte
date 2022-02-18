@@ -2,10 +2,29 @@
   import { userAddress, networkSigner } from "../stores/ethers";
   import Button from "../components/Button.svelte";
   import { SERVER_URI } from "../utils/config";
-  import ProjectItem from "../components/ProjectItem.svelte";
-  let projects = [];
+  import ProjectItemsList from "../components/ProjectItemsList.svelte";
+  import Section from "../components/Section.svelte";
 
-  async function fetchProjects() {
+  let projects = [
+    {
+      projectId: 4,
+      projectTitle: 'Test'
+    },
+    {
+      projectId: 3,
+      projectTitle: 'Test'
+    },
+    {
+      projectId: 2,
+      projectTitle: 'Test'
+    },
+    {
+      projectId: 1,
+      projectTitle: 'Test'
+    }
+  ];
+
+  /*async function fetchProjects() {
     const res = await fetch(`${SERVER_URI}/app/myProjects`, {
       method: "POST",
       headers: {
@@ -19,22 +38,42 @@
     const data = await res.json();
     projects = data;
   }
-  fetchProjects();
+  fetchProjects();*/
+
+  function onCreateNewProject() {
+    location.href = "/project/create/";
+  }
 </script>
 
-<div class="flex h-screen justify-center">
-  <div class="m-auto flex justify-center flex-col">
-    <p class="text-lg font-bold">Your projects</p>
+<style>
+  .home-container{
+    height: 100%;
+    max-width: 800px;
+    flex-direction: column;
+    margin: auto;
+    padding-top: var(--spacer);
+  }
+</style>
 
-    {#each projects as project}
-      <ProjectItem {project} />
-    {/each}
-
-    <hr />
-
-    <Button
-      onclick={() => (location.href = "newProject")}
-      text={`Create new project`}
-    />
-  </div>
+<div class="flex h-screen home-container">
+  <Section
+    title={"DAO Projects"}
+    source={"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut."}
+  />
+  <Section
+    title={"Your Projects"}
+    source={"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut."}
+  >
+    {#if projects}
+      <ProjectItemsList {projects} />
+    {/if}
+  </Section>
+  <Section
+    title={"Create Project"}
+    source={"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut."}
+    actions={[{
+      "text": "Create Project",
+      "onClick":  onCreateNewProject
+    }]}
+  />
 </div>
