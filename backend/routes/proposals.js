@@ -305,6 +305,9 @@ router.post("/proposal/deliver", checkSigner, async (req, res) => {
         },
         (err, proposal) => {
           if (err) return res.json({ err });
+
+          //TODO reply to the discourse post here
+
           return res.json({ success: true });
         }
       );
