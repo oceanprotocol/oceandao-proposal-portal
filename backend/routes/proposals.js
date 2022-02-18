@@ -386,7 +386,7 @@ router.post("/proposal/deliver", checkSigner, async (req, res) => {
           },
           $push: { events: event },
         },
-        (err, proposal) => {
+        async (err, proposal) => {
           if (err) return res.json({ err });
 
           await replyToDiscoursePost(description, true, data.discourseId);
