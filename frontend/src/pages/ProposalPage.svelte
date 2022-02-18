@@ -82,7 +82,7 @@
     {#if proposal }
         <Section
           title={proposal.proposalName}
-          source={proposal.proposalDescription}
+          description={proposal.proposalDescription}
           actions={[]}
         >
           <div class="details bg-slate-200 py-5 px-5">
@@ -99,7 +99,7 @@
     {/if}
       <Section
           title={"Manage Proposal"}
-          source={pageText.proposalDescription}
+          description={pageText.proposalDescription}
           actions={[
             {
               "text": "Create Proposal",
@@ -117,7 +117,7 @@
       />
       <Section
           title={"Submit Deliverable"}
-          source={pageText.proposalDescription}
+          description={pageText.proposalDescription}
           actions={[{
             "text": "Submit Deliverable",
             "onClick":  onSubmitDeliverableClick
