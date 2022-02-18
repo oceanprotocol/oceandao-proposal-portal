@@ -1,10 +1,9 @@
 <script>
   import Button from "./Button.svelte";
-  import SvelteMarkdown from 'svelte-markdown';
 
   export let title;
   export let actions;
-  export let source;
+  export let description;
 </script>
 
 <style>
@@ -17,13 +16,12 @@
     font-size: var(--font-size-large);
     margin: calc(var(--spacer) / 2) 0;
   }
-  .sourceContainer{
+  .description{
+    font-size: var(--font-size-small);
     margin-bottom: calc(var(--spacer) / 2);
+    padding: calc(var(--spacer) / 2);
     max-height: 55vh;
     overflow-y: scroll;
-  }
-  .sourceContainer > p{
-    font-size: var(--font-size-small);
   }
   .actionContainer{
       display: flex;
@@ -37,10 +35,8 @@
 
 <div class="section">
     <h2 class="text-lg font-bold title">{title}</h2>
-    {#if source }
-        <div class="bg-slate-50 sourceContainer">
-            <SvelteMarkdown {source}/>
-        </div>
+    {#if description }
+        <p class="bg-slate-50 description">{description}</p>
     {/if}
     <slot></slot>
     {#if actions }

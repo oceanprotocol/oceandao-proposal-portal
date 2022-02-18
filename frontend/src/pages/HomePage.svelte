@@ -41,7 +41,7 @@
   fetchProjects();*/
 
   function onCreateNewProject() {
-    location.href = "/project/create/";
+    location.href = "/newProject";
   }
 </script>
 
@@ -58,11 +58,11 @@
 <div class="flex h-screen home-container">
   <Section
     title={"DAO Projects"}
-    source={"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut."}
+    description={"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut."}
   />
   <Section
     title={"Your Projects"}
-    source={"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut."}
+    description={"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut."}
   >
     {#if projects}
       <ProjectItemsList {projects} />
@@ -70,7 +70,7 @@
   </Section>
   <Section
     title={"Create Project"}
-    source={"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut."}
+    description={"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut."}
     actions={[{
       "text": "Create Project",
       "onClick":  onCreateNewProject

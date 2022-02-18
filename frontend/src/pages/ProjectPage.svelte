@@ -103,7 +103,7 @@ You can only have 1 proposal per project, for each funding round.`,
     {#if project }
         <Section
           title={project.projectName}
-          source={project.projectDescription}
+          description={project.projectDescription}
           actions={[{
             "text": "Update Project",
             "onClick":  onCreateProposalClick
@@ -123,7 +123,7 @@ You can only have 1 proposal per project, for each funding round.`,
     {/if}
       <Section
           title={"Proposals"}
-          source={pageText.proposalDescription}
+          description={pageText.proposalDescription}
           actions={[{
             "text": "Create Proposal",
             "onClick":  onCreateProposalClick
@@ -136,17 +136,3 @@ You can only have 1 proposal per project, for each funding round.`,
        {/if}
       </Section>
 </div>
-
-<style>
-  .project-container {
-    height: 100%;
-    max-width: 800px;
-    margin: auto;
-    padding-top: var(--spacer);
-  }
-  .details {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-</style>
