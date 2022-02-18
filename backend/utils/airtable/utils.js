@@ -1,4 +1,5 @@
 require("dotenv").config();
+const NodeHtmlMarkdown = require("node-html-markdown");
 const airtable = require("airtable");
 const earmarkJson = require("../types/earmark.json");
 const categoryJson = require("../types/grant_category.json");
@@ -83,7 +84,9 @@ async function updateAirtableEntry(recordId, proposal) {
     update["Wallet Address"] = proposal.proposalWalletAddress;
 
   if (proposal.grantDeliverables)
-    update["Grant Deliverables"] = proposal.grantDeliverables;
+    update["Grant Deliverables"] = NodeHtmlMarkdown.NodeHtmlMarkdown.translate(
+      proposal.grantDeliverables
+    );
 
   if (proposal.oneLiner) update["One Liner"] = proposal.oneLiner;
   await base("Proposals").update(recordId, update);
@@ -123,7 +126,8 @@ async function createAirtableEntry({
     "Project Email Address": projectLeadEmail,
     "Country of Recipient": countryOfResidence,
     "Proposal URL": proposalUrl,
-    "Grant Deliverables": grantDeliverables,
+    "Grant Deliverables":
+      NodeHtmlMarkdown.NodeHtmlMarkdown.translate(grantDeliverables),
   };
 
   const id = await base("Proposals").create(proposal);
