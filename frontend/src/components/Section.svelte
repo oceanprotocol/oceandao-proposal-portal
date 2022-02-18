@@ -30,6 +30,9 @@
       justify-content: space-between;
       align-items: center;
   }
+  .actionContainer div:only-child {
+    margin-left: auto;
+  }
 </style>
 
 <div class="section">
@@ -43,7 +46,7 @@
     {#if actions }
         <div class="actionContainer">
         {#each actions as action}
-            <div class="flex mt-5 justify-end">
+            <div class="flex mt-5">
                 <Button
                     text={action.text}
                     onclick={() => action.onClick()}
