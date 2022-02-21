@@ -220,7 +220,7 @@ router.post("/updateProject", checkSigner, checkProject, function (req, res) {
   );
 });
 
-router.post("/withdrawProposal", checkSigner, (req, res) => {
+router.post("/proposal/withdraw", checkSigner, (req, res) => {
   const data = JSON.parse(req.body.message);
   const proposalId = data.proposalId;
   if (data.withdraw != true)
