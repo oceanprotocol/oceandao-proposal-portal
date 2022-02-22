@@ -26,11 +26,11 @@
 <div class="flex justify-between proposalCard">
     <span>Round {proposal.round}</span>
     <div class="proposalCardDescription">
-        <span>{earmarks[proposal.proposalEarmark]}</span>
-        <span>${proposal.proposalFundingRequested}</span>
+      <span>{earmarks[proposal.proposalEarmark]}</span>
+      <span>${proposal.proposalFundingRequested}</span>
     </div>
     <Link
-        class="flex justify-center font-bold text-lg text-black-600 bg-white proposalButton"
-        to={`/proposal/view/${proposal._id}`}>View</Link
+      class="flex justify-center font-bold text-lg text-black-600 bg-white proposalButton"
+      to={`/proposal/view/${proposal._id}`}>View</Link
     >
 </div>

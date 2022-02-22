@@ -56,6 +56,8 @@ You can only have 1 proposal per project, for each funding round.`,
     {#if project }
         <Section
           title={project.projectName}
+          description={project.projectDescription}
+          descriptionBottom
           actions={[{
             "text": "Update Project",
             "onClick":  onUpdateProjectClick
@@ -70,9 +72,6 @@ You can only have 1 proposal per project, for each funding round.`,
               <span class="detailName font-bold">Creation date</span>
               <span class="text-lg detailValue">{moment(project.createdAt).format('YYYY-MM-DD')}</span>
             </div>
-          </div>
-          <div class="bg-slate-100 text-left">
-            {@html project.projectDescription}
           </div>
       </Section>
     {/if}

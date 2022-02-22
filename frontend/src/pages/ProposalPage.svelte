@@ -64,6 +64,7 @@
         <Section
           title={proposal.proposalTitle}
           description={proposal.proposalDescription}
+          descriptionBottom
           actions={[]}
         >
           <div class="details bg-slate-200 py-5 px-5">
