@@ -17,6 +17,10 @@ You can only have 1 proposal per project, for each funding round.`,
     location.href = "/proposal/create/" + projectId;
   }
 
+  function onUpdateProjectClick() {
+    location.href = "/project/edit/" + projectId;
+  }
+
   async function loadProject() {
     let res = await fetch(
       `http://localhost:3000/app/getProjectInfo/${projectId}`
@@ -54,7 +58,7 @@ You can only have 1 proposal per project, for each funding round.`,
           title={project.projectName}
           actions={[{
             "text": "Update Project",
-            "onClick":  onCreateProposalClick
+            "onClick":  onUpdateProjectClick
           }]}
         >
           <div class="details bg-slate-200 py-5 px-5">
