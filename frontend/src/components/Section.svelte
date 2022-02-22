@@ -5,6 +5,7 @@
   export let actions;
   export let description;
   export let descriptionBottom;
+  export let descriptionTextLeft;
 </script>
 
 <style>
@@ -35,13 +36,16 @@
   .topContent{
     margin-bottom: calc(var(--spacer) / 2);
   }
+  .textLeft{
+    text-align: start;
+  }
 </style>
 
 <div class="section">
     <h2 class="text-lg font-bold title">{title}</h2>
     {#if !descriptionBottom}
       {#if description }
-          <p class="bg-slate-50 description">{@html description}</p>
+          <p class="bg-slate-50 description {descriptionTextLeft && "textLeft"}">{@html description}</p>
       {/if}
       <slot></slot>
     {:else}
@@ -49,7 +53,7 @@
         <slot ></slot>
       </div>
       {#if description }
-          <p class="bg-slate-50 description">{@html description}</p>
+          <p class="bg-slate-50 description {descriptionTextLeft && "textLeft"}">{@html description}</p>
       {/if}
     {/if}
     {#if actions }

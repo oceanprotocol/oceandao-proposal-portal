@@ -65,6 +65,7 @@
           title={proposal.proposalTitle}
           description={proposal.proposalDescription}
           descriptionBottom
+          descriptionTextLeft
           actions={[]}
         >
           <div class="details bg-slate-200 py-5 px-5">

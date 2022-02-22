@@ -58,6 +58,7 @@ You can only have 1 proposal per project, for each funding round.`,
           title={project.projectName}
           description={project.projectDescription}
           descriptionBottom
+          descriptionTextLeft
           actions={[{
             "text": "Update Project",
             "onClick":  onUpdateProjectClick

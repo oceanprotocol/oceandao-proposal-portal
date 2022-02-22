@@ -55,13 +55,12 @@
 <div class="flex h-screen home-container">
   <Section class="flex text-left bg-grey-200"
     title={pageText.daoProjTitle}
+    description={pageText.daoProjDescription}
+    descriptionTextLeft
     actions={[{
       "text": "Create Project",
       "onClick":  onCreateNewProject
     }]}>
-    <div class="bg-slate-100 text-left">
-      {@html pageText.daoProjDescription}
-    </div>
     {#if projects}
       <ProjectItemsList {projects} />
     {/if}
