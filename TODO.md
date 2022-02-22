@@ -16,18 +16,25 @@
 - [ ] Withdraw proposal
 
 ### Frontend
-
 - [x] Web3 wallet connection
 - [x] Create proposal form
 - [x] Create project form
 - [x] List created projects on frotend
-- [ ] Project management page
+- [x] Update Project page+router
 - [x] List created proposals on frontend
-- [ ] Proposal management page
-
+- [x] Update Proposal page+router
 - [x] Errors during 'Create Project" cause data to disappear.
-- [x] "Update Project" page+router
-
 - [ ] Better handle errors(ex Create Project, Update Proposal when voting ended)
-- [ ] Create separate pages for Update Project/Proposal"
 - [ ] Add spinners on buttons to update/create
+
+### Future
+- [ ] Final implementation for submit deliverables / complete proposal - A1 (verify on Berkay's PR)
+- [ ] Update Proposal should only be enabled until Proposal Deadline. - A2
+- [ ] Earmarks will change - B1
+- [ ] Withdraw proposal backend + UX/UI
+- [ ] Upserting & completing old proposals. How: A different Discourse Category + link to original post vai Proposal URL.
+
+-- Admin Panel - What's the lowest hanging fruit here. I.E. Gitcoin Django Admin panel.
+- [ ] Admin panel: core-tech & deliverables -> Can we respond w/ a reason?
+- [ ] Visualize the admin stages: "Submit Proposal Deliverables" => "Verifying Proposal Deliverables" (Yellow) => "Accepted Proposal Deliverables" (Green) => "Rejected Proposal Deliverables" (Red)  
+- [ ] Visualize rejection reason (or respond directly in Discourse)

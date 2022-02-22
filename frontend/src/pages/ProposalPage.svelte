@@ -11,8 +11,7 @@
   let proposal;
 
   let pageText = {
-      proposalDescription: `Create and manage proposals below in order to submit them to OceanDAO Seed Grants.
-  You can only have 1 proposal per project, for each funding round.`
+      proposalDescription: `Use the form below to submit your final deliverables and complete your proposal. This enables your project to remain in a good state, and to apply for more grants.`
     }
 
   async function loadData() {
@@ -24,9 +23,6 @@
   }
   loadData();
 
-  function onCreateProposalClick() {
-    location.href = "/proposal/create/" + proposalId;
-  }
 
   function onUpdateProposalClick() {
     location.href = "/proposal/update/" + proposalId;
@@ -65,10 +61,17 @@
           description={proposal.proposalDescription}
           descriptionBottom
           descriptionTextLeft
-          actions={[]}>
+          actions={[
+            {
+              "text": "Withdraw Proposal",
+              "onClick":  onWithdrawProposalClick
+            },{
+              "text": "Update Proposal",
+              "onClick":  onUpdateProposalClick
+            }]}>
           <div class="details bg-slate-200 py-5 px-5">
             <div class="col-start-4 col-span-2 ...">
-              <span class="detailName font-bold">Category</span>
+              <span class="detailName font-bold">Earmarks</span>
               <span class="text-lg detailValue">{earmarks[proposal.proposalEarmark]}</span>
             </div>
             <div class="col-start-7 col-span-2 ...">
@@ -76,36 +79,14 @@
               <span class="text-lg detailValue">{moment(proposal.createdAt).format('YYYY-MM-DD')}</span>
             </div>
           </div>
-          <div class="bg-slate-100 text-left">
-            {@html proposal.proposalDescription}
-          </div>
       </Section>
       <Section
-          title={"Manage Proposal"}
-          description={pageText.proposalDescription}
-          actions={[
-            {
-              "text": "Create Proposal",
-              "onClick":  onCreateProposalClick
-            },
-            {
-              "text": "Update Proposal",
-              "onClick":  onUpdateProposalClick
-            },
-            {
-              "text": "Withdraw Proposal",
-              "onClick":  onWithdrawProposalClick
-            }
-          ]}
-      />
-      <Section
-          title={"Submit Deliverable"}
+          title={"Complete Proposal"}
           description={pageText.proposalDescription}
           actions={[{
-            "text": "Submit Deliverable",
+            "text": "Submit Deliverables",
             "onClick":  onSubmitDeliverableClick
-          }]}
-      >
+          }]}>
         <DeliverablesList deliverables={[proposal.grantDeliverables]}/>
       </Section>
    {/if}
