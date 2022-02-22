@@ -44,6 +44,7 @@
               "Your submission has been sent, it will be visible once it is confirmed by one of the moderators", //TODO CHANGE THIS TEXT
               "success"
             );
+            window.location.href = "/propsal/view/" + proposalId;
           } else {
             Swal.fire("Error!", "Something went wrong", "error");
           }
@@ -53,13 +54,14 @@
   }
 
   export let proposalId;
-  let value;
+  $: value = "";
   let loaded = false;
   const isUpdating = proposalId !== undefined;
   let proposalData;
   fetch(`${SERVER_URI}/app/proposalInfo/${proposalId}`)
     .then((res) => res.json())
     .then((res) => {
+      console.log(res);
       value = res.grantDeliverables;
       proposalData = res;
       loaded = true;
@@ -75,8 +77,12 @@
         </div>
       </div>
     {:else}
-      <LargeTextField placeHolder="Description" title="Deliverables" value />
-      <Button text="Submit" />
+      <LargeTextField
+        placeHolder="Description"
+        title="Deliverables"
+        bind:value
+      />
+      <Button onclick={() => submitDeliverables()} text="Submit" />
     {/if}
   </div>
 </div>
