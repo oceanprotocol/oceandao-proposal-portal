@@ -6,10 +6,6 @@
   import ProposalItemsList from "../components/ProposalItemsList.svelte";
 
   export let projectId;
-  let pageText = {
-    proposalDescription: `Create and manage proposals below in order to submit them to OceanDAO Seed Grants.
-You can only have 1 proposal per project, for each funding round.`,
-  };
   let project;
   let proposals;
 
@@ -74,7 +70,7 @@ You can only have 1 proposal per project, for each funding round.`,
     {/if}
       <Section
           title={"Proposals"}
-          description={pageText.proposalDescription}
+          description={"Create and manage proposals below in order to submit them to OceanDAO Seed Grants. You can only have 1 proposal per project, for each funding round."}
           actions={[{
             "text": "Create Proposal",
             "onClick":  onCreateProposalClick

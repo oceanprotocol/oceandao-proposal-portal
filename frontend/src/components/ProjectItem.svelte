@@ -6,7 +6,7 @@
 <style>
   .projectCard{
     flex-direction: column;
-    background-color: grey;
+    background-color: #E2E8F0;
     padding: 20px;
   }
   .projectCard span{

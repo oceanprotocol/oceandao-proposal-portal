@@ -4,6 +4,7 @@
   export let title;
   export let actions;
   export let description;
+
 </script>
 
 <style>
@@ -21,7 +22,7 @@
     margin-bottom: calc(var(--spacer) / 2);
     padding: calc(var(--spacer) / 2);
     max-height: 55vh;
-    overflow-y: scroll;
+    overflow-y: auto;
   }
   .actionContainer{
       display: flex;

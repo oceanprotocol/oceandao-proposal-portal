@@ -7,7 +7,8 @@
 <style>
   .proposalCard{
     flex-direction: column;
-    background-color: grey;
+    background-color: #E2E8F0;
+    margin-top: 15px;
     margin-bottom: 15px;
     padding: 20px;
   }

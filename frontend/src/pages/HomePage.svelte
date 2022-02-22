@@ -7,18 +7,6 @@
 
   let projects;
 
-  let pageText = {
-    daoProjTitle: `DAO Projects`,
-    daoProjDescription: `<p>Please use this portal to create projects and submit proposals to the OceanDAO Grants program.</p>
-<br/>
-<p>To submit a project & proposal to OceanDAO:</p>
-<p>1. Creating a new project.</p>
-<p>2. Creating a proposal for your project.</p>
-<br/>
-<p>Please make sure to submit proposals before each deadline.</p>
-<p>You can <a href="https://oceanprotocol.com/dao">find them here</a>`
-  };
-
   async function fetchProjects() {
     const res = await fetch(`${SERVER_URI}/app/myProjects`, {
       method: "POST",
@@ -54,14 +42,13 @@
 
 <div class="flex h-screen home-container">
   <Section class="flex text-left bg-grey-200"
-    title={pageText.daoProjTitle}
+    title={"DAO Projects"}
+    description={"Welcome to the OceanDAO Proposal Portal. Create projects, submit proposals, and complete them to access higher funding."}
     actions={[{
       "text": "Create Project",
       "onClick":  onCreateNewProject
-    }]}>
-    <div class="bg-slate-100 text-left">
-      {@html pageText.daoProjDescription}
-    </div>
+    }]}
+    scroll=false>
     {#if projects}
       <ProjectItemsList {projects} />
     {/if}

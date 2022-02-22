@@ -89,7 +89,6 @@ __(Grant Deliverable 3)__`,
       bindValue: "valueAddCriteria",
       required: true,
       placeHolder: `Description of how the project and proposal add value to Ocean ecosystem
-
 Usage of Ocean — how well might the project drive usage of Ocean?
 Viability — what is the chance of success of the project?
 Community Engagement — How active is the team in the community?
