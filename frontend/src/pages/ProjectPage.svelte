@@ -13,6 +13,10 @@
     location.href = "/proposal/create/" + projectId;
   }
 
+  function onUpdateProjectClick() {
+    location.href = "/project/edit/" + projectId;
+  }
+
   async function loadProject() {
     let res = await fetch(
       `http://localhost:3000/app/getProjectInfo/${projectId}`
@@ -48,9 +52,12 @@
     {#if project }
         <Section
           title={project.projectName}
+          description={project.projectDescription}
+          descriptionBottom
+          descriptionTextLeft
           actions={[{
             "text": "Update Project",
-            "onClick":  onCreateProposalClick
+            "onClick":  onUpdateProjectClick
           }]}
         >
           <div class="details bg-slate-200 py-5 px-5">
@@ -62,9 +69,6 @@
               <span class="detailName font-bold">Creation date</span>
               <span class="text-lg detailValue">{moment(project.createdAt).format('YYYY-MM-DD')}</span>
             </div>
-          </div>
-          <div class="bg-slate-100 text-left">
-            {@html project.projectDescription}
           </div>
       </Section>
     {/if}

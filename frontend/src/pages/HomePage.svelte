@@ -44,11 +44,11 @@
   <Section class="flex text-left bg-grey-200"
     title={"DAO Projects"}
     description={"Welcome to the OceanDAO Proposal Portal. Create projects, submit proposals, and complete them to access higher funding."}
+    descriptionTextLeft
     actions={[{
       "text": "Create Project",
       "onClick":  onCreateNewProject
-    }]}
-    scroll=false>
+    }]}>
     {#if projects}
       <ProjectItemsList {projects} />
     {/if}
