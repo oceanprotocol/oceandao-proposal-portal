@@ -27,4 +27,7 @@
 
 - [x] Errors during 'Create Project" cause data to disappear.
 - [x] "Update Project" page+router
+
+- [ ] Better handle errors(ex Create Project, Update Proposal when voting ended)
 - [ ] Create separate pages for Update Project/Proposal"
+- [ ] Add spinners on buttons to update/create
