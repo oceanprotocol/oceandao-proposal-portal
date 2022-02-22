@@ -425,6 +425,67 @@ router.get("/getProjectInfo/:projectId", async (req, res) => {
   );
 });
 
+router.post(
+  "/admin/completeProposal",
+  checkSigner,
+  requirePriv(5),
+
+  async (req, res) => {
+    const data = JSON.parse(req.body.message);
+    let proposalId = data.proposalId;
+    let description = data.earmark;
+    let status = data.status;
+    const obj = {
+      adminDescription: description,
+      status: status,
+      date: new Date(),
+    };
+
+    Proposal.findByIdAndUpdate(
+      proposalId,
+      { $set: { delivered: obj } },
+      { runValidators: true },
+      async (err, data) => {
+        if (err) return res.status(400).send(err);
+        const md = "### Admin:\n" + description;
+        await replyToDiscoursePost(md, false, data.discourseId);
+        return res.send({ success: true });
+      }
+    );
+  }
+);
+
+router.post(
+  "/admin/setProposalEarmark",
+  checkSigner,
+  requirePriv(5),
+  async (req, res) => {
+    const data = JSON.parse(req.body.message);
+    let proposalId = data.proposalId;
+    let earmark = data.earmark;
+
+    Proposal.findByIdAndUpdate(
+      proposalId,
+      { $set: { proposalEarmark: earmark, proposalEarmarkRequest: "" } },
+      { runValidators: true },
+      async (err, proposal) => {
+        if (err) return res.status(400).send(err);
+        await updateAirtableEntry(proposal.airtableRecordId, { earmark });
+        return res.send({ success: true });
+      }
+    );
+  }
+);
+
+function requirePriv(priv) {
+  return function (req, res, next) {
+    if (res.locals.signer.privilege < priv) {
+      return res.status(400).send("You do not have the required privilege");
+    }
+    next();
+  };
+}
+
 function checkSigner(req, res, next) {
   // middleware to check if the user is the signer
 
