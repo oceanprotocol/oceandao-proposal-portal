@@ -425,6 +425,30 @@ router.get("/getProjectInfo/:projectId", async (req, res) => {
   );
 });
 
+router.post("/admin/getCompletedProposals", (req, res) => {
+  Proposal.find(
+    {
+      $or: [
+        {
+          "delivered.status": 1,
+        },
+        {
+          "delivered.status": 3,
+        },
+      ],
+    },
+    (err, proposals) => {
+      if (err) {
+        res.status(400).send(err);
+      }
+      res.status(200).json({
+        proposals,
+        success: true,
+      });
+    }
+  );
+});
+
 router.post("/admin/getProposalEarmarkRequest", (req, res) => {
   // find proposals with proposalEarmarkRequest not null
   Proposal.find(
@@ -438,7 +462,10 @@ router.post("/admin/getProposalEarmarkRequest", (req, res) => {
       if (err) {
         res.status(400).send(err);
       }
-      res.status(200).send(proposals);
+      res.status(200).json({
+        proposals,
+        success: true,
+      });
     }
   );
 });
