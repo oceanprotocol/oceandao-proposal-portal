@@ -74,7 +74,11 @@
           (window.location.href = `/proposal/update/${proposalId}`)}
         text={`Update proposal`}
       />
-      <Button color={"red"} text={`Withdraw proposal`} />
+      <Button
+        onclick={() => withdrawProposal()}
+        color={"red"}
+        text={`Withdraw proposal`}
+      />
     </div>
   </div>
 </div>
