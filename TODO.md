@@ -32,7 +32,7 @@
 ### Future
 - [ ] Final implementation for submit deliverables / complete proposal - A1 (verify on Berkay's PR)
 - [ ] Earmarks will change - B1
-- [ ] Withdraw proposal backend + UX/UI - A2
+- [ ] Withdraw proposal backend + UX/UI - B1
 - [ ] /proposal/update/ view should not enable to submit if post Proposal Dedline - A2
 - [ ] Upserting & completing old proposals. How: A different Discourse Category + link to original post vai Proposal URL.
 
@@ -40,4 +40,4 @@
 - [ ] Admin panel: core-tech & deliverables -> Can we respond w/ a reason?
 - [ ] Visualize the admin stages: "Submit Proposal Deliverables" => "Verifying Proposal Deliverables" (Yellow) => "Accepted Proposal Deliverables" (Green) => "Rejected Proposal Deliverables" (Red)  
 - [ ] Visualize rejection reason (or respond directly in Discourse)
-- [ ] Proposal Page - Submit Deliverable - Update view so users are unable to submit more than once. Users can submit again only if rejected. Reflect/Visualize current state & functionality. - A2
+- [ ] Proposal Page - Submit Deliverable - Update view so users are unable to submit more than once unless rejected. Reflect/Visualize current state & functionality. - A2

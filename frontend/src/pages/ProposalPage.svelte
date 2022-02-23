@@ -101,7 +101,6 @@
             title={proposal.proposalTitle}
             description={proposal.proposalDescription}
             descriptionBottom
-            descriptionTextLeft
             actions={[
             {
               "text": "Withdraw Proposal",

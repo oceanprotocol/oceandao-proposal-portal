@@ -54,7 +54,6 @@
             title={project.projectName}
             description={project.projectDescription}
             descriptionBottom
-            descriptionTextLeft
             actions={[{
             "text": "Update Project",
             "onClick":  onUpdateProjectClick

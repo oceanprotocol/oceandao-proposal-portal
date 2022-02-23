@@ -410,7 +410,7 @@ router.get("/getProjectInfo/:projectId", async (req, res) => {
   const projectId = req.params.projectId;
   Proposal.find(
     { projectId: projectId },
-    "proposalFundingRequested proposalTitle round",
+    "proposalFundingRequested proposalTitle round proposalEarmark",
     (err, proposals) => {
       Project.findById(projectId, (err, project) => {
         if (err) {
