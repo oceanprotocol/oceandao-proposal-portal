@@ -249,7 +249,7 @@ router.post("/proposal/withdraw", checkSigner, (req, res) => {
             console.log(err);
             return res.status(400).send(err);
           }
-          await updateAirtableEntry(data.airtableId, { withdrawn: true });
+          await updateAirtableEntry(data.airtableRecordId, { withdrawn: true });
           await replyToDiscoursePost(
             "This proposal has been withdrawn",
             false,
