@@ -6,19 +6,19 @@
 - [x] Get proposals by project endpoint
 - [x] Get projects by admin address endpoint
 - [x] Signature verification
-- [x] Airtable integration - TEST
-- [x] Discourse api integration - TEST
+- [x] Airtable integration
+- [x] Discourse api integration
+- [X] Test airtable and discourse
 - [x] DB Models and validations
 - [x] Proposal update endpoint
 - [x] Project update endpoint
 - [ ] More error handling and meaningful error messages
-- [ ] Store each update on DB
-- [ ] Withdraw proposal
+- [X] Store each update on DB
+- [X] Withdraw proposal
+- [X] Proposal earmark handling
 
 ### Frontend
 - [x] Web3 wallet connection
-- [x] Create proposal form
-- [x] Create project form
 - [x] List created projects on frotend
 - [x] Update Project page+router
 - [x] List created proposals on frontend
@@ -26,6 +26,7 @@
 - [x] Errors during 'Create Project" cause data to disappear.
 - [ ] Better handle errors(ex Create Project, Update Proposal when voting ended)
 - [ ] Add spinners on buttons to update/create
+- [ ] Proposal Completion "Success" - Swal.Popup() flashes & goes away without user interaction. Looks broken.
 
 ### Future
 - [ ] Final implementation for submit deliverables / complete proposal - A1 (verify on Berkay's PR)

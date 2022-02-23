@@ -132,14 +132,6 @@ Community Value — How does the project add value to the overall Ocean Communit
     });
   });
 
-  function next() {
-    if (part < 2) {
-      part = part + 1;
-    }
-    if (part === 1) {
-      submitProposal();
-    }
-  }
   function back() {
     if (part !== 0) {
       part = part - 1;
@@ -147,6 +139,22 @@ Community Value — How does the project add value to the overall Ocean Communit
   }
 
   async function submitProposal() {
+    fieldsPart0.map((field) => {
+      if (field.required) {
+        if (
+          $proposalStore[field.bindValue] == null ||
+          $proposalStore[field.bindValue] == ""
+        ) {
+          field.wrong = true;
+          field.wrongText = "This field is required";
+        } else {
+          field.wrong = false;
+        }
+      }
+    });
+    fields = [fieldsPart0];
+    if (fieldsPart0.filter((field) => field.wrong).length !== 0) return;
+
     const nonce = await getNonce($userAddress);
     const proposalObject = {
       proposalTitle: $proposalStore.proposalTitle,

@@ -28,9 +28,9 @@
   {#if wrong}
     <p class="text-red-500 text-xs italic">{wrongText}</p>
   {/if}
-  {#if importantText !== ""}
+  {#if importantText !== "" || importantText !== null}
     <p class="text-gray opacity-60 text-xs italic text-left mt-1">
-      {importantText}
+      {importantText ?? ""}
     </p>
   {/if}
 </div>

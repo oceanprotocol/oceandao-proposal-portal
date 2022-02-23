@@ -8,6 +8,10 @@ const signerSchema = new Schema({
     type: Number,
     default: 0,
   },
+  privilege: {
+    type: Number,
+    default: 2, // 5 = admin, 4 = moderator, 3 = contributor, 2 = member, 1 = guest
+  },
 });
 
 const Signer = mongoose.model("Signer", signerSchema);

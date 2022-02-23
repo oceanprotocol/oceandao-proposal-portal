@@ -1,4 +1,5 @@
 require("dotenv").config();
+const NodeHtmlMarkdown = require("node-html-markdown");
 const airtable = require("airtable");
 const earmarkJson = require("../types/earmark.json");
 const categoryJson = require("../types/grant_category.json");
@@ -46,8 +47,6 @@ const _getProjectSummarySelectQuery = async (selectQuery) => {
   }
 };
 
-function getWalletProposals() {}
-
 /**
  * @param {String} projectName
  * @return {Number} projectUsdLimit
@@ -83,11 +82,22 @@ async function updateAirtableEntry(recordId, proposal) {
     update["Wallet Address"] = proposal.proposalWalletAddress;
 
   if (proposal.grantDeliverables)
-    update["Grant Deliverables"] = proposal.grantDeliverables;
+    update["Grant Deliverables"] = NodeHtmlMarkdown.NodeHtmlMarkdown.translate(
+      proposal.grantDeliverables
+    );
+  if (proposal.withdrawn) update["Proposal State"] = "Withdrawn";
+  if (proposal.earmark) update["Earmarks"] = earmarkJson[proposal.earmark];
 
   if (proposal.oneLiner) update["One Liner"] = proposal.oneLiner;
   await base("Proposals").update(recordId, update);
   return true;
+}
+
+async function getFormerProposals(projectName) {
+  const formerProposals = await _getProposalsSelectQuery(
+    `{Project Name} = "${projectName}"`
+  );
+  return formerProposals;
 }
 
 /**
@@ -123,7 +133,8 @@ async function createAirtableEntry({
     "Project Email Address": projectLeadEmail,
     "Country of Recipient": countryOfResidence,
     "Proposal URL": proposalUrl,
-    "Grant Deliverables": grantDeliverables,
+    "Grant Deliverables":
+      NodeHtmlMarkdown.NodeHtmlMarkdown.translate(grantDeliverables),
   };
 
   const id = await base("Proposals").create(proposal);
@@ -131,9 +142,9 @@ async function createAirtableEntry({
 }
 
 module.exports = {
-  getWalletProposals,
   getProjectUsdLimit,
   getCurrentRoundNumber,
   createAirtableEntry,
   updateAirtableEntry,
+  getFormerProposals,
 };

@@ -30,6 +30,7 @@ const proposalSchema = new Schema({
     required: true,
     enum: ["newproject", "newprojectoutreach", "coretech", "general"],
   },
+  proposalEarmarkRequest: String,
   oneLiner: {
     type: String,
     required: true,
@@ -43,6 +44,11 @@ const proposalSchema = new Schema({
   grantDeliverables: {
     type: String,
     required: true,
+  },
+
+  withdrawn: {
+    type: Boolean,
+    default: false,
   },
 
   round: Number,
@@ -60,12 +66,15 @@ const proposalSchema = new Schema({
     ],
   },
 
-  updates: [String],
   delivered: {
     description: String,
-    confirmed: {
-      type: Boolean,
-      default: false,
+    date: Date,
+    adminDescription: String,
+    status: {
+      type: Number,
+      enum: [0, 1, 2, 3],
+      default: 0,
+      // 0: not delivered, 1: delivered, 2: delivered and accepted, 3: delivered and rejected
     },
   },
 
