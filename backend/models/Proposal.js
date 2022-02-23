@@ -11,14 +11,6 @@ const proposalSchema = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Project",
   },
-  valueAddCriteria: {
-    type: String,
-  },
-  proposalTitle: {
-    type: String,
-    required: true,
-    unique: true,
-  },
   signer: {
     type: String,
     required: true,
@@ -28,6 +20,11 @@ const proposalSchema = new Schema({
   },
 
   // Proposal Schema
+  proposalTitle: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   proposalEarmark: {
     type: String,
     required: true,
@@ -39,6 +36,9 @@ const proposalSchema = new Schema({
     required: true,
   },
   proposalDescription: {
+    type: String,
+  },
+  valueAddCriteria: {
     type: String,
   },
   grantDeliverables: {

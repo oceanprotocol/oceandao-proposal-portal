@@ -2,8 +2,10 @@
   import { userAddress, networkSigner } from "../stores/ethers";
   import Button from "../components/Button.svelte";
   import { SERVER_URI } from "../utils/config";
-  import ProjectItem from "../components/ProjectItem.svelte";
-  let projects = [];
+  import ProjectItemsList from "../components/ProjectItemsList.svelte";
+  import Section from "../components/Section.svelte";
+
+  let projects;
 
   async function fetchProjects() {
     const res = await fetch(`${SERVER_URI}/app/myProjects`, {
@@ -18,23 +20,37 @@
 
     const data = await res.json();
     projects = data;
+
+    console.log(projects)
   }
   fetchProjects();
+
+  function onCreateNewProject() {
+    location.href = "/newProject";
+  }
 </script>
 
-<div class="flex h-screen justify-center">
-  <div class="m-auto flex justify-center flex-col">
-    <p class="text-lg font-bold">Your projects</p>
+<style>
+  .home-container{
+    height: 100%;
+    max-width: 800px;
+    flex-direction: column;
+    margin: auto;
+    padding-top: var(--spacer);
+  }
+</style>
 
-    {#each projects as project}
-      <ProjectItem {project} />
-    {/each}
-
-    <hr />
-
-    <Button
-      onclick={() => (location.href = "newProject")}
-      text={`Create new project`}
-    />
-  </div>
+<div class="flex h-screen home-container">
+  <Section class="flex text-left bg-grey-200"
+    title={"DAO Projects"}
+    description={"Welcome to the OceanDAO Proposal Portal. Create projects, submit proposals, and complete them to access higher funding."}
+    descriptionTextLeft
+    actions={[{
+      "text": "Create Project",
+      "onClick":  onCreateNewProject
+    }]}>
+    {#if projects}
+      <ProjectItemsList {projects} />
+    {/if}
+  </Section>
 </div>

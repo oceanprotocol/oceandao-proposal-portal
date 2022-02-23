@@ -1,16 +1,29 @@
 <script>
   import { SERVER_URI } from "../utils/config";
-  export let proposalId;
-  let proposal;
+  import moment from 'moment';
   import { getNonce } from "../utils/helpers";
   import { userAddress, networkSigner } from "../stores/ethers";
-  import Button from "../components/Button.svelte";
   import Swal from "sweetalert2";
   import { signMessage } from "../utils/signatures";
+  import earmarks from '../utils/types/earmark.json'
+  import Section from "../components/Section.svelte";
+  import DeliverablesList from "../components/DeliverablesList.svelte"
+
+  export let proposalId;
+  let proposal;
+
+  let pageText = {
+      proposalDescription: `Use the form below to submit your final deliverables and complete your proposal. This enables your project to remain in a good state, and to apply for more grants.`
+    }
+
   async function loadData() {
     let res = await fetch(`${SERVER_URI}/app/proposalInfo/${proposalId}`);
     proposal = await res.json();
+    console.log(proposal)
+    console.log(proposal.proposalEarmark)
+    console.log(earmarks)
   }
+  loadData();
 
   async function withdrawProposal() {
     Swal.fire({
@@ -56,25 +69,66 @@
     });
   }
 
-  loadData();
+  function onUpdateProposalClick() {
+    location.href = "/proposal/update/" + proposalId;
+  }
+
+  function onSubmitDeliverableClick() {
+    location.href = "/proposal/deliver/" + proposalId;
+  }
 </script>
 
-<div class="flex h-screen justify-center">
-  <div class="m-auto flex justify-center flex-col w-4/5">
-    <p>{JSON.stringify(proposal)}</p>
+<style>
+  .proposal-container{
+    height: 100%;
+    max-width: 800px;
+    margin: auto;
+    padding-top: var(--spacer);
+  }
+  .details{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .detailName, .detailValue{
+    font-size: var(--font-size-normal);
+  }
+</style>
 
-    <div class="flex justify-center space-x-5">
-      <Button
-        onclick={() =>
-          (window.location.href = `/proposal/deliver/${proposalId}`)}
-        text={`Complete proposal`}
-      />
-      <Button
-        onclick={() =>
-          (window.location.href = `/proposal/update/${proposalId}`)}
-        text={`Update proposal`}
-      />
-      <Button color={"red"} text={`Withdraw proposal`} />
-    </div>
-  </div>
+<div class="flex h-screen flex-col justify-center proposal-container">
+  {#if proposal }
+    <Section
+            title={proposal.proposalTitle}
+            description={proposal.proposalDescription}
+            descriptionBottom
+            descriptionTextLeft
+            actions={[
+            {
+              "text": "Withdraw Proposal",
+              "onClick":  withdrawProposal
+            },{
+              "text": "Update Proposal",
+              "onClick":  onUpdateProposalClick
+            }]}>
+      <div class="details bg-slate-200 py-5 px-5">
+        <div class="col-start-4 col-span-2 ...">
+          <span class="detailName font-bold">Earmarks</span>
+          <span class="text-lg detailValue">{earmarks[proposal.proposalEarmark]}</span>
+        </div>
+        <div class="col-start-7 col-span-2 ...">
+          <span class="detailName font-bold">Creation date</span>
+          <span class="text-lg detailValue">{moment(proposal.createdAt).format('YYYY-MM-DD')}</span>
+        </div>
+      </div>
+    </Section>
+    <Section
+            title={"Complete Proposal"}
+            description={pageText.proposalDescription}
+            actions={[{
+            "text": "Submit Deliverables",
+            "onClick":  onSubmitDeliverableClick
+          }]}>
+      <DeliverablesList deliverables={[proposal.grantDeliverables]}/>
+    </Section>
+  {/if}
 </div>

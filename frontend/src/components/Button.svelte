@@ -6,6 +6,13 @@
 
 <button
   on:click={onclick}
-  class={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline`}
+  class="button hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
   type="button">{text}</button
 >
+
+<style>
+  .button {
+    background-color: var(--brand-color-primary);
+    font-size: var(--font-size-small);
+  }
+</style>
