@@ -16,6 +16,7 @@
 - [X] Store each update on DB
 - [X] Withdraw proposal
 - [X] Proposal earmark handling
+- [x] /proposal/update/ should only work until Proposal Deadline.
 
 ### Frontend
 - [x] Web3 wallet connection
@@ -30,12 +31,13 @@
 
 ### Future
 - [ ] Final implementation for submit deliverables / complete proposal - A1 (verify on Berkay's PR)
-- [ ] Update Proposal should only be enabled until Proposal Deadline. - A2
 - [ ] Earmarks will change - B1
-- [ ] Withdraw proposal backend + UX/UI
+- [ ] Withdraw proposal backend + UX/UI - A2
+- [ ] /proposal/update/ view should not enable to submit if post Proposal Dedline - A2
 - [ ] Upserting & completing old proposals. How: A different Discourse Category + link to original post vai Proposal URL.
 
 -- Admin Panel - What's the lowest hanging fruit here. I.E. Gitcoin Django Admin panel.
 - [ ] Admin panel: core-tech & deliverables -> Can we respond w/ a reason?
 - [ ] Visualize the admin stages: "Submit Proposal Deliverables" => "Verifying Proposal Deliverables" (Yellow) => "Accepted Proposal Deliverables" (Green) => "Rejected Proposal Deliverables" (Red)  
 - [ ] Visualize rejection reason (or respond directly in Discourse)
+- [ ] Proposal Page - Submit Deliverable - Update view so users are unable to submit more than once. Users can submit again only if rejected. Reflect/Visualize current state & functionality. - A2
