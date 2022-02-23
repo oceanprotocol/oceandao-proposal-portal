@@ -66,7 +66,6 @@ const proposalSchema = new Schema({
     ],
   },
 
-  updates: [String],
   delivered: {
     description: String,
     date: Date,

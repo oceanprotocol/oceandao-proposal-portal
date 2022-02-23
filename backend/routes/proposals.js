@@ -425,6 +425,24 @@ router.get("/getProjectInfo/:projectId", async (req, res) => {
   );
 });
 
+router.post("/admin/getProposalEarmarkRequest", (req, res) => {
+  // find proposals with proposalEarmarkRequest not null
+  Proposal.find(
+    {
+      proposalEarmarkRequest: {
+        $or: [{ $exists: true }, { $ne: null }, { $ne: "" }],
+      },
+    },
+    "proposalEarmarkRequest",
+    (err, proposals) => {
+      if (err) {
+        res.status(400).send(err);
+      }
+      res.status(200).send(proposals);
+    }
+  );
+});
+
 router.post(
   "/admin/completeProposal",
   checkSigner,
@@ -433,7 +451,7 @@ router.post(
   async (req, res) => {
     const data = JSON.parse(req.body.message);
     let proposalId = data.proposalId;
-    let description = data.description; // ? This looks weird. Should this not be data.description.
+    let description = data.description;
     let status = data.status;
     const obj = {
       adminDescription: description,
@@ -441,9 +459,16 @@ router.post(
       date: new Date(),
     };
 
+    const event = {
+      signer: res.locals.signer,
+      signedMessage: req.body.signedMessage,
+      message: req.body.message,
+      eventType: `setProposalStatus_${status}`,
+    };
+
     Proposal.findByIdAndUpdate(
       proposalId,
-      { $set: { delivered: obj } },
+      { $set: { delivered: obj }, $push: { events: event } },
       { runValidators: true },
       async (err, data) => {
         if (err) return res.status(400).send(err);
@@ -464,9 +489,19 @@ router.post(
     let proposalId = data.proposalId;
     let earmark = data.earmark;
 
+    const event = {
+      signer: res.locals.signer,
+      signedMessage: req.body.signedMessage,
+      message: req.body.message,
+      eventType: `setProposalEarmark`,
+    };
+
     Proposal.findByIdAndUpdate(
       proposalId,
-      { $set: { proposalEarmark: earmark, proposalEarmarkRequest: "" } },
+      {
+        $set: { proposalEarmark: earmark, proposalEarmarkRequest: "" },
+        $push: { events: event },
+      },
       { runValidators: true },
       async (err, proposal) => {
         if (err) return res.status(400).send(err);
