@@ -82,6 +82,14 @@
       required: true,
     },
     {
+      type: "largeText",
+      title: "Value Add Criteria",
+      bindValue: "valueAddCriteria",
+      required: true,
+      placeHolder: "How does the project benefit the Ocean ecosystem?",
+      wrong: false,
+    },
+    {
       type: "text",
       title: "Project lead full name",
       bindValue: "projectLeadFullName",
@@ -167,10 +175,44 @@ Co-founder at xxx`,
 
   function next() {
     if (part == 1) {
-      createProject();
+      fieldsPart1.map((field) => {
+        if (field.required) {
+          if (
+            $projectStore[field.bindValue] == null ||
+            $projectStore[field.bindValue] == ""
+          ) {
+            field.wrong = true;
+            field.wrongText = "This field is required";
+          } else {
+            field.wrong = false;
+          }
+        }
+      });
+      fields = [fieldsPart0, fieldsPart1];
+
+      if (fieldsPart1.filter((field) => field.wrong).length == 0) {
+        createProject();
+      }
     }
     if (part < 1) {
-      part = part + 1;
+      fieldsPart0.map((field) => {
+        if (field.required) {
+          if (
+            $projectStore[field.bindValue] == null ||
+            $projectStore[field.bindValue] == ""
+          ) {
+            field.wrong = true;
+            field.wrongText = "This field is required";
+          } else {
+            field.wrong = false;
+          }
+        }
+      });
+      fields = [fieldsPart0, fieldsPart1];
+
+      if (fieldsPart0.filter((field) => field.wrong).length == 0) {
+        part++;
+      }
     }
   }
   function back() {
@@ -299,8 +341,8 @@ Co-founder at xxx`,
               title={field.title}
               placeHolder={field.placeHolder}
               disabled={field.disabled}
-              wrong={field.wrong}
-              wrongText={field.wrongText}
+              bind:wrong={field.wrong}
+              wrongText={field.wrongText ?? "Please enter a valid value"}
               textFormat={field.textFormat}
               importantText={field.importantText}
             />
@@ -311,8 +353,8 @@ Co-founder at xxx`,
               title={field.title}
               placeHolder={field.placeHolder}
               disabled={field.disabled}
-              wrong={field.wrong}
-              wrongText={field.wrongText}
+              bind:wrong={field.wrong}
+              wrongText={field.wrongText ?? "Please enter a valid value"}
               rows={field.rows}
             />
           {/if}
@@ -322,8 +364,8 @@ Co-founder at xxx`,
               title={field.title}
               placeHolder={field.placeHolder}
               disabled={field.disabled}
-              wrong={field.wrong}
-              wrongText={field.wrongText}
+              bind:wrong={field.wrong}
+              wrongText={field.wrongText ?? "Please enter a valid value"}
               options={field.options}
             />
           {/if}

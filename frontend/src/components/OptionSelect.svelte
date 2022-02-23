@@ -5,6 +5,8 @@
   export let wrong = false;
   export let wrongText = "";
   export let options;
+
+  value = options[0].value;
 </script>
 
 <div class="mb-4">
