@@ -44,7 +44,7 @@
               "Your submission has been sent, it will be visible once it is confirmed by one of the moderators", //TODO CHANGE THIS TEXT
               "success"
             );
-            window.location.href = "/propsal/view/" + proposalId;
+            window.location.href = "/proposal/view/" + proposalId;
           } else {
             Swal.fire("Error!", "Something went wrong", "error");
           }

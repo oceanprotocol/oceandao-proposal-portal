@@ -26,6 +26,7 @@
 - [x] Errors during 'Create Project" cause data to disappear.
 - [ ] Better handle errors(ex Create Project, Update Proposal when voting ended)
 - [ ] Add spinners on buttons to update/create
+- [ ] Proposal Completion "Success" - Swal.Popup() flashes & goes away without user interaction. Looks broken.
 
 ### Future
 - [ ] Final implementation for submit deliverables / complete proposal - A1 (verify on Berkay's PR)

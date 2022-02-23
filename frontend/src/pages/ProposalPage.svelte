@@ -60,7 +60,7 @@
             "Success!",
             "You've successfully withdrawn your proposal",
             "success"
-          );
+          ); // ? Popup flashes & goes away without user interaction. Looks broken. Proposal view does not render.
         } else {
           Swal.fire("Error!", "Something went wrong", "error");
         }
@@ -94,6 +94,7 @@
   }
 </style>
 
+<!-- TODO - Visualize Admin: Is proposal completion submitted? Accepted? Rejected? -->
 <div class="flex h-screen flex-col justify-center proposal-container">
   {#if proposal }
     <Section
