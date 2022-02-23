@@ -5,26 +5,9 @@
   import ProjectItemsList from "../components/ProjectItemsList.svelte";
   import Section from "../components/Section.svelte";
 
-  let projects = [
-    {
-      projectId: 4,
-      projectTitle: 'Test'
-    },
-    {
-      projectId: 3,
-      projectTitle: 'Test'
-    },
-    {
-      projectId: 2,
-      projectTitle: 'Test'
-    },
-    {
-      projectId: 1,
-      projectTitle: 'Test'
-    }
-  ];
+  let projects;
 
-  /*async function fetchProjects() {
+  async function fetchProjects() {
     const res = await fetch(`${SERVER_URI}/app/myProjects`, {
       method: "POST",
       headers: {
@@ -37,8 +20,10 @@
 
     const data = await res.json();
     projects = data;
+
+    console.log(projects)
   }
-  fetchProjects();*/
+  fetchProjects();
 
   function onCreateNewProject() {
     location.href = "/newProject";
@@ -56,24 +41,16 @@
 </style>
 
 <div class="flex h-screen home-container">
-  <Section
+  <Section class="flex text-left bg-grey-200"
     title={"DAO Projects"}
-    description={"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut."}
-  />
-  <Section
-    title={"Your Projects"}
-    description={"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut."}
-  >
+    description={"Welcome to the OceanDAO Proposal Portal. Create projects, submit proposals, and complete them to access higher funding."}
+    descriptionTextLeft
+    actions={[{
+      "text": "Create Project",
+      "onClick":  onCreateNewProject
+    }]}>
     {#if projects}
       <ProjectItemsList {projects} />
     {/if}
   </Section>
-  <Section
-    title={"Create Project"}
-    description={"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut."}
-    actions={[{
-      "text": "Create Project",
-      "onClick":  onCreateNewProject
-    }]}
-  />
 </div>

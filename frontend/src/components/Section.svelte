@@ -4,6 +4,8 @@
   export let title;
   export let actions;
   export let description;
+  export let descriptionBottom;
+  export let descriptionTextLeft;
 </script>
 
 <style>
@@ -21,24 +23,39 @@
     margin-bottom: calc(var(--spacer) / 2);
     padding: calc(var(--spacer) / 2);
     max-height: 55vh;
-    overflow-y: scroll;
+    overflow-y: auto;
   }
   .actionContainer{
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
   .actionContainer div:only-child {
     margin-left: auto;
+  }
+  .topContent{
+    margin-bottom: calc(var(--spacer) / 2);
+  }
+  .textLeft{
+    text-align: start;
   }
 </style>
 
 <div class="section">
     <h2 class="text-lg font-bold title">{title}</h2>
-    {#if description }
-        <p class="bg-slate-50 description">{description}</p>
+    {#if !descriptionBottom}
+      {#if description }
+          <p class="bg-slate-50 description {descriptionTextLeft && "textLeft"}">{@html description}</p>
+      {/if}
+      <slot></slot>
+    {:else}
+      <div class="topContent">
+        <slot ></slot>
+      </div>
+      {#if description }
+          <p class="bg-slate-50 description {descriptionTextLeft && "textLeft"}">{@html description}</p>
+      {/if}
     {/if}
-    <slot></slot>
     {#if actions }
         <div class="actionContainer">
         {#each actions as action}

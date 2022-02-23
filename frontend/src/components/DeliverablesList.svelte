@@ -25,14 +25,15 @@
     text-align: start;
     font-size: var(--font-size-normal);
     font-weight: bold;
+    margin-bottom: calc(var(--spacer) / 4)
   }
 </style>
 
 <div class="deliverablesContainer">
     {#each deliverables as deliverable}
         <div class="deliverable">
-            <span>{deliverable.name}</span>
-            <p>{deliverable.description}</p>
+            <span>Deliverables</span>
+            <p>{@html deliverables}</p>
         </div>
     {/each}
 </div>
