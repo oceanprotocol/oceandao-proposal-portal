@@ -85,10 +85,10 @@ __(Grant Deliverable 3)__`,
     },
     {
       type: "largeText",
-      title: "Value-Add criteria description",
+      title: "Value Add Criteria",
       bindValue: "valueAddCriteria",
       required: true,
-      placeHolder: `Description of how the project and proposal add value to Ocean ecosystem
+      placeHolder: `How does the project and proposal add value to Ocean ecosystem?
 Usage of Ocean — how well might the project drive usage of Ocean?
 Viability — what is the chance of success of the project?
 Community Engagement — How active is the team in the community?

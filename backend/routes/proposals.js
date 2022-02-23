@@ -178,8 +178,6 @@ router.post("/updateProject", checkSigner, checkProject, function (req, res) {
   const data = JSON.parse(req.body.message);
   const project = res.locals.project;
   const updateObject = {};
-  if (data.valueAddCriteria)
-    updateObject.valueAddCriteria = data.valueAddCriteria;
   if (data.projectDescription)
     updateObject.projectDescription = data.projectDescription;
   if (data.projectCategory) updateObject.projectCategory = data.projectCategory;
@@ -300,6 +298,9 @@ router.post("/updateProposal", checkSigner, function (req, res) {
         }
         update.proposalFundingRequested = proposal.proposalFundingRequested;
       }
+
+      if (proposal.valueAddCriteria)
+        update.valueAddCriteria = proposal.valueAddCriteria;
 
       if (proposal.proposalWalletAddress)
         update.proposalWalletAddress = proposal.proposalWalletAddress;
