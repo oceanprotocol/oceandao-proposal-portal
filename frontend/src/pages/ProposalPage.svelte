@@ -26,7 +26,6 @@
         const nonce = await getNonce(signer);
         const message = JSON.stringify({
           proposalId: proposalId,
-          description: text,
           nonce,
           withdraw: true,
         });
