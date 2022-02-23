@@ -433,7 +433,7 @@ router.post(
   async (req, res) => {
     const data = JSON.parse(req.body.message);
     let proposalId = data.proposalId;
-    let description = data.earmark;
+    let description = data.earmark; // ? This looks weird. Should this not be data.description.
     let status = data.status;
     const obj = {
       adminDescription: description,
