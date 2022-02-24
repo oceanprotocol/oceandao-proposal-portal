@@ -24,6 +24,9 @@
     padding: calc(var(--spacer) / 2);
     max-height: 55vh;
     overflow-y: auto;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--brand-grey-lighter);
+    box-shadow: 0 6px 15px 0 rgb(0 0 0 / 5%);
   }
   .actionContainer{
     display: flex;
@@ -45,7 +48,7 @@
     <h2 class="text-lg font-bold title">{title}</h2>
     {#if !descriptionBottom}
       {#if description }
-          <p class="bg-slate-50 description {descriptionTextLeft && "textLeft"}">{@html description}</p>
+          <p class="description {descriptionTextLeft && "textLeft"}">{@html description}</p>
       {/if}
       <slot></slot>
     {:else}
@@ -53,7 +56,7 @@
         <slot ></slot>
       </div>
       {#if description }
-          <p class="bg-slate-50 description {descriptionTextLeft && "textLeft"}">{@html description}</p>
+          <p class="description {descriptionTextLeft && "textLeft"}">{@html description}</p>
       {/if}
     {/if}
     {#if actions }

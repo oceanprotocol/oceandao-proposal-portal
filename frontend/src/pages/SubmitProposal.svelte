@@ -7,6 +7,7 @@
   import { signMessage } from "../utils/signatures";
   import { networkSigner, userAddress } from "../stores/ethers";
   import { getNonce } from "../utils/helpers";
+  import Button from "../components/Button.svelte";
 
   export let projectId;
   export let proposalId;
@@ -233,7 +234,7 @@ Community Value — How does the project add value to the overall Ocean Communit
     <p class="text-lg font-bold text-center">
       Proposals must meet the
       <a
-        class="text-blue-600"
+        class="link"
         target="_blank"
         href="https://github.com/oceanprotocol/oceandao/wiki/project-criteria"
       >
@@ -310,6 +311,10 @@ Community Value — How does the project add value to the overall Ocean Communit
           </div>
           <div class="flex space-x-2">
             {#if part > 0}
+              <Button
+                text="Back"
+                onclick={() => back()}
+              />
               <button
                 on:click={back}
                 class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
@@ -318,13 +323,10 @@ Community Value — How does the project add value to the overall Ocean Communit
                 Back
               </button>
             {/if}
-            <button
-              on:click={() => submitProposal()}
-              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="button"
-            >
-              {isUpdating ? "Update Proposal" : "Submit Proposal"}
-            </button>
+              <Button
+                text={isUpdating ? "Update project" : "Submit Proposal"}
+                onclick={() => submitProposal()}
+              />
           </div>
         </div>
       </form>
@@ -336,4 +338,8 @@ Community Value — How does the project add value to the overall Ocean Communit
   @tailwind base;
   @tailwind components;
   @tailwind utilities;
+
+  .link{
+    color: var(--brand-color-primary);
+  }
 </style>
