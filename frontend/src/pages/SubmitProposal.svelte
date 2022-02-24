@@ -42,14 +42,6 @@
       required: true,
       options: [
         {
-          value: "newproject",
-          text: "New Project",
-        },
-        {
-          value: "newprojectoutreach",
-          text: "New Project Outreach",
-        },
-        {
           value: "coretech",
           text: "Core-Tech",
         },
