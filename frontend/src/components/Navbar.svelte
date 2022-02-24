@@ -13,12 +13,18 @@
   .navbarItem:hover{
     color: var(--brand-color-primary);
   }
-  .navbarLink > :global(a){
+  .navbarItem > :global(a){
     text-transform: uppercase;
-    font-size: var(--font-size-normal);
+    font-size: var(--font-size-small);
+
   }
   .walletAddress{
     cursor: default;
+  }
+  .logoText{
+    color: var(--brand-black);
+    margin-left: calc(var(--spacer) / 4);
+    font-size: var(--font-size-normal);
   }
 </style>
 
@@ -27,9 +33,9 @@
 >
   <div class="container flex flex-wrap justify-between items-center mx-auto">
     <a href="/" class="flex">
-      <img class="inline h-16 w-16" src="/favicon.png"/>
+      <img class="inline h-12 w-12" src="/favicon.png"/>
       <span
-        class="self-center text-lg font-semibold whitespace-nowrap dark:text-white"
+        class="self-center text-lg font-semibold whitespace-nowrap dark:text-white logoText"
         >OceanDao Seed Grants</span
       >
     </a>
