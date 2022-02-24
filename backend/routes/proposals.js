@@ -73,7 +73,7 @@ router.post(
     proposal.events = [
       {
         eventType: "proposalCreated",
-        signer: admin,
+        signer: req.body.signer,
         signedMessage: req.body.signedMessage,
         message: req.body.message,
       },
