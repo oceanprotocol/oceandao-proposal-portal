@@ -242,7 +242,7 @@ router.post("/proposal/withdraw", checkSigner, (req, res) => {
 
       Proposal.findByIdAndUpdate(
         proposalId,
-        { $push: { events: event }, withdrawn: true },
+        { $push: { events: event }, $set: { withdrawn: true } },
         { runValidators: true },
         async (err, proposal) => {
           if (err) {
@@ -251,7 +251,7 @@ router.post("/proposal/withdraw", checkSigner, (req, res) => {
           }
           await updateAirtableEntry(data.airtableRecordId, { withdrawn: true });
           await replyToDiscoursePost(
-            "This proposal has been withdrawn",
+            "**This proposal has been withdrawn**",
             false,
             proposal.discourseId
           );
@@ -388,8 +388,9 @@ router.post("/proposal/deliver", checkSigner, async (req, res) => {
         },
         async (err, proposal) => {
           if (err) return res.json({ err });
+          const md = "### Project submitted deliverables:\n" + description;
 
-          await replyToDiscoursePost(description, true, data.discourseId);
+          await replyToDiscoursePost(md, true, data.discourseId);
           return res.json({ success: true });
         }
       );
@@ -500,7 +501,7 @@ router.post(
       async (err, data) => {
         if (err) return res.status(400).send(err);
         const md = "### Admin:\n" + description;
-        await replyToDiscoursePost(md, false, data.discourseId);
+        await replyToDiscoursePost(md, true, data.discourseId);
         return res.send({ success: true });
       }
     );
