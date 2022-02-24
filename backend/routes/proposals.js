@@ -368,6 +368,11 @@ router.post("/proposal/deliver", checkSigner, async (req, res) => {
           .json({ error: "You are not the admin of this project" });
       }
 
+      if (data.delivered.status === 1 || data.delivered.status === 2)
+        return res
+          .status(400)
+          .json({ error: "Proposal has already been delivered" });
+
       const event = {
         eventType: "deliver",
         signer: res.locals.signer,
