@@ -253,7 +253,7 @@ router.post("/proposal/withdraw", checkSigner, (req, res) => {
           await replyToDiscoursePost(
             "**This proposal has been withdrawn**",
             false,
-            proposal.discourseId
+            getTopicId(data.discourseLink)
           );
           res.send({ data: proposal, success: true });
         }
@@ -390,7 +390,7 @@ router.post("/proposal/deliver", checkSigner, async (req, res) => {
           if (err) return res.json({ err });
           const md = "### Project submitted deliverables:\n" + description;
 
-          await replyToDiscoursePost(md, true, data.discourseId);
+          await replyToDiscoursePost(md, true, getTopicId(data.discourseLink));
           return res.json({ success: true });
         }
       );
@@ -501,7 +501,7 @@ router.post(
       async (err, data) => {
         if (err) return res.status(400).send(err);
         const md = "### Admin:\n" + description;
-        await replyToDiscoursePost(md, true, data.discourseId);
+        await replyToDiscoursePost(md, true, getTopicId(data.discourseLink));
         return res.send({ success: true });
       }
     );
@@ -588,6 +588,8 @@ function checkSigner(req, res, next) {
     );
   });
 }
+
+const getTopicId = (url) => url.split("/").pop();
 
 function checkProject(req, res, next) {
   // middleware to check if the user is the signer

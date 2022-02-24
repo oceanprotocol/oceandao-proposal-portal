@@ -97,8 +97,9 @@ function getMarkdownProposal(md) {
 
 async function replyToDiscoursePost(reply, isMarkDown, topicId) {
   const post = isMarkDown
-    ? reply
-    : NodeHtmlMarkdown.NodeHtmlMarkdown.translate(reply);
+    ? NodeHtmlMarkdown.NodeHtmlMarkdown.translate(reply)
+    : reply;
+
   const res = await fetch(`${baseUrl}/posts.json`, {
     method: "POST",
     headers: {
@@ -107,7 +108,7 @@ async function replyToDiscoursePost(reply, isMarkDown, topicId) {
       "Api-Username": apiUsername,
     },
     body: JSON.stringify({
-      raw: post,
+      raw: post.replace(/\\/g, ""),
       topic_id: topicId,
     }),
   });
