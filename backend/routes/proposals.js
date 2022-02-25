@@ -80,7 +80,7 @@ router.post(
     ];
 
     const formerProposals = await getFormerProposals(projectName);
-    if (formerProposals.length == 0) {
+    if (formerProposals.length == 0) { // ? triple === no?
       if (project.projectCategory === "outreach") {
         proposal.proposalEarmark = "newprojectoutreach";
       } else {

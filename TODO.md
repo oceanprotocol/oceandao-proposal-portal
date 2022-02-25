@@ -25,19 +25,15 @@
 - [x] List created proposals on frontend
 - [x] Update Proposal page+router
 - [x] Errors during 'Create Project" cause data to disappear.
+- [x] Visualize "Proposal Deliverable Status" inside ProposalPage - B1
 - [ ] Better handle errors(ex Create Project, Update Proposal when voting ended)
-- [ ] Add spinners on buttons to update/create
-- [ ] Proposal Completion "Success" - Swal.Popup() flashes & goes away without user interaction. Looks broken.
+- [ ] Proposal Completion "Success" - Swal.Popup() flashes & goes away without user interaction. Remove or improve. Looks janky.
 
-### Future
-- [ ] Final implementation for submit deliverables / complete proposal - A1 (verify on Berkay's PR)
-- [ ] Earmarks will change - B1
-- [ ] Withdraw proposal backend + UX/UI - B1
-- [ ] /proposal/update/ view should not enable to submit if post Proposal Dedline - A2
+### Future 
+- [ ] New proposal app -> discourse account.
 - [ ] Upserting & completing old proposals. How: A different Discourse Category + link to original post vai Proposal URL.
-
--- Admin Panel - What's the lowest hanging fruit here. I.E. Gitcoin Django Admin panel.
+    - This impacts our Ops & automation.
+- [ ] Earmarks will change - B1
+- [ ] Add spinners on buttons to update/create
 - [ ] Admin panel: core-tech & deliverables -> Can we respond w/ a reason?
-- [ ] Visualize the admin stages: "Submit Proposal Deliverables" => "Verifying Proposal Deliverables" (Yellow) => "Accepted Proposal Deliverables" (Green) => "Rejected Proposal Deliverables" (Red)  
-- [ ] Visualize rejection reason (or respond directly in Discourse)
 - [ ] Proposal Page - Submit Deliverable - Update view so users are unable to submit more than once unless rejected. Reflect/Visualize current state & functionality. - A2
