@@ -26,6 +26,7 @@
 - [x] Update Proposal page+router
 - [x] Errors during 'Create Project" cause data to disappear.
 - [x] Visualize "Proposal Deliverable Status" inside ProposalPage - B1
+- [x] Add view for Proposal Rejection - rejectionDescription - B1
 - [ ] Better handle errors(ex Create Project, Update Proposal when voting ended)
 - [ ] Proposal Completion "Success" - Swal.Popup() flashes & goes away without user interaction. Remove or improve. Looks janky.
 
@@ -34,6 +35,7 @@
 - [ ] Upserting & completing old proposals. How: A different Discourse Category + link to original post vai Proposal URL.
     - This impacts our Ops & automation.
 - [ ] Earmarks will change - B1
-- [ ] Add spinners on buttons to update/create
-- [ ] Admin panel: core-tech & deliverables -> Can we respond w/ a reason?
+- [ ] Make "Withdraw Proposal" button contextual to state - B1
+- [ ] Add spinners on buttons to update/create - C1
+- [ ] Admin panel: core-tech & deliverables -> Can we add a response field
 - [ ] Proposal Page - Submit Deliverable - Update view so users are unable to submit more than once unless rejected. Reflect/Visualize current state & functionality. - A2
