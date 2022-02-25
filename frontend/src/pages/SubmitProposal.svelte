@@ -3,11 +3,10 @@
   import LargeTextField from "../components/LargeTextField.svelte";
   import OptionSelect from "../components/OptionSelect.svelte";
   import { proposal as proposalStore } from "../stores/proposal";
-  import { SERVER_URI } from "../utils/config";
+  import { SERVER_URI, RECAPTCHA_KEY } from "../utils/config";
   import { signMessage } from "../utils/signatures";
   import { networkSigner, userAddress } from "../stores/ethers";
   import { getNonce } from "../utils/helpers";
-
   export let projectId;
   export let proposalId;
   const isUpdating = proposalId !== undefined;
@@ -129,8 +128,21 @@ Community Value — How does the project add value to the overall Ocean Communit
       part = part - 1;
     }
   }
+  async function getCaptcha() {
+    return new Promise((res) => {
+      grecaptcha.ready(function () {
+        grecaptcha
+          .execute(RECAPTCHA_KEY, { action: "submit" })
+          .then(function (t) {
+            console.log(t);
+          });
+      });
+    });
+  }
 
   async function submitProposal() {
+    const ctoken = await getCaptcha();
+    console.log(ctoken);
     fieldsPart0.map((field) => {
       if (field.required) {
         if (
@@ -176,6 +188,7 @@ Community Value — How does the project add value to the overall Ocean Communit
           message: proposalJson,
           signedMessage: signedMessage,
           signer: signer,
+          ctoken,
         }),
       })
         .then((response) => response.json())
@@ -220,6 +233,13 @@ Community Value — How does the project add value to the overall Ocean Communit
   }
 </script>
 
+<svelte:head>
+  <script
+    src={`https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_KEY}`}
+    async
+    defer></script>
+</svelte:head>
+
 <div class="flex h-screen mt-10 justify-center w-full">
   <div class="w-full max-w-3xl m-auto">
     <p class="text-lg font-bold text-center">
@@ -233,6 +253,7 @@ Community Value — How does the project add value to the overall Ocean Communit
       </a>
       .
     </p>
+
     {#if loaded == false}
       <div class="text-center">
         <div class="spinner-border text-primary" role="status">
@@ -240,7 +261,11 @@ Community Value — How does the project add value to the overall Ocean Communit
         </div>
       </div>
     {:else}
-      <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+      <form
+        id="proposalForm"
+        data-sitekey={RECAPTCHA_KEY}
+        class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 g-recaptcha"
+      >
         <p class="text-xl font-bold mb-2 opacity-90">{partTitles[part]}</p>
         {#each fields[part] as field}
           {#if field.type === "title"}
@@ -312,7 +337,7 @@ Community Value — How does the project add value to the overall Ocean Communit
             {/if}
             <button
               on:click={() => submitProposal()}
-              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline "
               type="button"
             >
               {isUpdating ? "Update Proposal" : "Submit Proposal"}
