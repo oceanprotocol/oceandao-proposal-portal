@@ -107,3 +107,10 @@ Then, from within your project folder:
 npm run build
 surge public my-project.surge.sh
 ```
+
+### Discourse categories
+You can find this by looking at the last numbers in the url.  
+`https://port.oceanprotocol.com/c/oceandao/round-15/75`
+
+You can also CURL and look at the data.  
+`curl -X GET "https://port.oceanprotocol.com/categories.json" -H "Content-Type: application/json" |  jq '. | .category_list.categories[]'`
