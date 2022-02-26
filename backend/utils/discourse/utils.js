@@ -130,8 +130,7 @@ async function createDiscoursePost(proposal, roundCategory, project) {
     body: JSON.stringify({
       raw: post,
       title: `${proposal.proposalTitle} | Round ${roundCategory}`,
-      category: 15, // roundCategory,
-      //topic_id: 15,
+      category: 15, // ? Setup DEV/PROD env configurations + get value from inside Airtable
     }),
   });
   return await res.json();
