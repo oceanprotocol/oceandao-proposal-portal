@@ -6,9 +6,6 @@
 
 <div class="deliverableStatus">
   <div class="justify-center text-center bg-slate-50">
-    {#if deliverableStatus === 0}
-      <p class="bg-slate-50 p-4">Please submit deliverables.</p>
-    {/if}
     {#if deliverableStatus === 1}
       <p class="bg-yellow-50 p-4">Deliverables submitted. In review.</p>
     {/if}
