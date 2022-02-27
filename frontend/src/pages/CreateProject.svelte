@@ -7,6 +7,7 @@
   import { signMessage } from "../utils/signatures";
   import { getNonce } from "../utils/helpers";
   import { SERVER_URI } from "../utils/config";
+  import Button from "../components/Button.svelte";
 
   export let projectId;
   const isUpdating = projectId !== undefined;
@@ -317,7 +318,7 @@ Co-founder at xxx`,
     <p class="text-lg font-bold text-center">
       Projects must meet the
       <a
-        class="text-blue-600"
+        class="link"
         target="_blank"
         href="https://github.com/oceanprotocol/oceandao/wiki/project-criteria"
       >
@@ -390,26 +391,15 @@ Co-founder at xxx`,
           </div>
           <div class="flex space-x-2">
             {#if part > 0}
-              <button
-                on:click={back}
-                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                type="button"
-              >
-                Back
-              </button>
+              <Button
+                text="Back"
+                onclick={() => back()}
+              />
             {/if}
-            <button
-              on:click={next}
-              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="button"
-            >
-              {#if part < 1}
-                Next
-              {/if}
-              {#if part == 1}
-                {isUpdating ? "Update project" : "Create Project"}
-              {/if}
-            </button>
+              <Button
+                text={ part < 1 ? "Next" : isUpdating ? "Update project" : "Create Project"}
+                onclick={() => next()}
+              />
           </div>
         </div>
       </form>
@@ -421,4 +411,8 @@ Co-founder at xxx`,
   @tailwind base;
   @tailwind components;
   @tailwind utilities;
+
+  .link{
+    color: var(--brand-color-primary);
+  }
 </style>

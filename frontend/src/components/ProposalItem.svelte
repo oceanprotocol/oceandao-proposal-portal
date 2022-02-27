@@ -1,8 +1,12 @@
 <script>
-  import { Link } from "svelte-navigator";
+  import Button from "./Button.svelte";
   import earmarks from '../utils/types/earmark.json'
 
   export let proposal;
+
+  function onButtonClick() {
+    location.href = `/proposal/view/${proposal._id}`;
+  }
 </script>
 
 <style>
@@ -12,26 +16,39 @@
     margin-top: 15px;
     margin-bottom: 15px;
     padding: 20px;
+    background-color: var(--brand-grey-dimmed);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--brand-grey-lighter);
+    box-shadow: 0 6px 15px 0 rgb(0 0 0 / 5%);
+  }
+  .title{
+    font-weight: bold;
   }
   .proposalCardDescription{
     display: flex;
     justify-content: space-between;
     margin: 20px 0;
   }
-  .proposalButton{
-      width: 50%;
-      margin: 0 auto;
+  .buttonContainer{
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
   }
 </style>
 
 <div class="flex justify-between proposalCard">
-    <span>Round {proposal.round}</span>
+    <span class="title">Round {proposal.round}</span>
     <div class="proposalCardDescription">
       <span>{earmarks[proposal.proposalEarmark]}</span>
       <span>${proposal.proposalFundingRequested}</span>
     </div>
-    <Link
-      class="flex justify-center font-bold text-lg text-black-600 bg-white proposalButton"
-      to={`/proposal/view/${proposal._id}`}>View</Link
-    >
+    <div class="buttonContainer">
+      <Button
+        text="View"
+        secondary
+        onclick={() => onButtonClick()}
+      />
+    </div>
 </div>
