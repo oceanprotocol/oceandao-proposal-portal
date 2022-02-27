@@ -6,6 +6,7 @@
   import { getNonce } from "../utils/helpers";
   import Button from "../components/Button.svelte";
   import Swal from "sweetalert2";
+  import Section from "../components/Section.svelte";
 
   async function submitDeliverables() {
     Swal.fire({
@@ -43,8 +44,9 @@
               "Success!",
               "Your submission has been sent, it will be visible once it is confirmed by one of the moderators", //TODO CHANGE THIS TEXT
               "success"
-            );
-            window.location.href = "/proposal/view/" + proposalId;
+            ).then(() => {
+              window.location.href = "/";
+            });
           } else {
             Swal.fire("Error!", "Something went wrong", "error");
           }
@@ -68,21 +70,35 @@
     });
 </script>
 
-<div class="flex h-screen mt-10 justify-center w-full">
-  <div class="w-full max-w-3xl m-auto">
-    {#if loaded == false}
-      <div class="text-center">
-        <div class="spinner-border text-primary" role="status">
-          <span class="sr-only">Loading...</span>
+<style>
+  .deliverables-container{
+    height: 100%;
+    max-width: 800px;
+    flex-direction: column;
+    margin: auto;
+    padding-top: var(--spacer);
+  }
+</style>
+
+<div class="deliverables-container">
+  <Section class="flex text-left bg-grey-200"
+    title={"Deliverables"}
+    descriptionTextLeft
+    actions={[{
+      "text": "Submit",
+      "onClick": {submitDeliverables}
+    }]}>
+      {#if loaded == false}
+        <div class="text-center">
+          <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
         </div>
-      </div>
-    {:else}
-      <LargeTextField
-        placeHolder="Description"
-        title="Deliverables"
-        bind:value
-      />
-      <Button onclick={() => submitDeliverables()} text="Submit" />
-    {/if}
-  </div>
+      {:else}
+        <LargeTextField
+          placeHolder="Description"
+          bind:value
+        />
+      {/if}
+  </Section>
 </div>

@@ -101,6 +101,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    background-color: var(--background-grey-dimmed);
   }
   .detailName, .detailValue{
     font-size: var(--font-size-normal);
@@ -122,7 +123,7 @@
               "text": "Update Proposal",
               "onClick":  onUpdateProposalClick
             }]}>
-      <div class="details bg-slate-200 py-5 px-5">
+      <div class="details py-5 px-5">
         <div class="col-start-4 col-span-2 ...">
           <span class="detailName font-bold">Earmarks</span>
           <span class="text-lg detailValue">{earmarks[proposal.proposalEarmark]}</span>

@@ -93,8 +93,9 @@ function getMarkdownProposal(md) {
 
 async function replyToDiscoursePost(reply, isMarkDown, topicId) {
   const post = isMarkDown
-    ? reply
-    : NodeHtmlMarkdown.NodeHtmlMarkdown.translate(reply);
+    ? NodeHtmlMarkdown.NodeHtmlMarkdown.translate(reply)
+    : reply;
+
   const res = await fetch(`${baseUrl}/posts.json`, {
     method: "POST",
     headers: {
@@ -103,7 +104,7 @@ async function replyToDiscoursePost(reply, isMarkDown, topicId) {
       "Api-Username": apiUsername,
     },
     body: JSON.stringify({
-      raw: post,
+      raw: post.replace(/\\/g, ""),
       topic_id: topicId,
     }),
   });
@@ -124,9 +125,8 @@ async function createDiscoursePost(proposal, roundCategory, project) {
     },
     body: JSON.stringify({
       raw: post,
-      title: `${proposal.proposalTitle} | Round ${roundCategory}`,
-      category: 15, // roundCategory,
-      //topic_id: 15,
+      title: `${project.projectName} | ${proposal.proposalTitle}`,
+      category: 15, // ? Setup DEV/PROD env configurations + get value from inside Airtable
     }),
   });
   return await res.json();

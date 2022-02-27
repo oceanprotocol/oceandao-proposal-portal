@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-size-small: 0.8rem;
+  --font-size-normal: 1rem;
+  --font-size-large: 1.5rem;
+
+  --text-color-primary: black;
+  --text-color-secondary: white;
+
+  --background-color-primary: black;
+  --background-color-secondary: white;
+
+  --brand-color-primary: blue;
+  --brand-color-secondary: yellow;
+
+  --spacer: 4rem;
+}
