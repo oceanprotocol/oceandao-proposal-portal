@@ -14,10 +14,6 @@ function getProjectMd(project) {
     title: "Project Name",
     body: project.projectName,
   });
-  // projectMd.push({ //TODO UNDEFINED
-  //   title: "One Liner",
-  //   body: project.oneLiner,
-  // });
   projectMd.push({
     title: "Project Description",
     body: project.projectDescription,

@@ -1,24 +1,37 @@
 <script>
-  import { SERVER_URI } from "../utils/config";
+  import {SERVER_URI} from "../utils/config";
   import moment from 'moment';
-  import { getNonce } from "../utils/helpers";
-  import { userAddress, networkSigner } from "../stores/ethers";
+  import {getNonce} from "../utils/helpers";
+  import {userAddress, networkSigner} from "../stores/ethers";
   import Swal from "sweetalert2";
-  import { signMessage } from "../utils/signatures";
+  import {signMessage} from "../utils/signatures";
   import earmarks from '../utils/types/earmark.json'
   import Section from "../components/Section.svelte";
-  import DeliverablesList from "../components/DeliverablesList.svelte"
+  import AdminEarmarkStatus from "../components/AdminEarmarkStatus.svelte";
+  import AdminDeliverableStatus from "../components/AdminDeliverableStatus.svelte";
 
   export let proposalId;
   let proposal;
+  let deliverableActions = []
 
   let pageText = {
-      proposalDescription: `Use the form below to submit your final deliverables and complete your proposal. This enables your project to remain in a good state, and to apply for more grants.`
-    }
+    proposalDescription: `Use the form below to submit your final deliverables and complete your proposal. This enables your project to remain in a good state, and to apply for more grants.`,
+    submissionDescription: `Thank you for submitting your deliverables. Our admins are reviewing your update, and will provide an update soon.`
+  }
 
   async function loadData() {
     let res = await fetch(`${SERVER_URI}/app/proposalInfo/${proposalId}`);
     proposal = await res.json();
+
+    if( proposal ) {
+      if( proposal.delivered.status === 0 || proposal.delivered.status === 2 ) {
+        deliverableActions = [{
+          "text": "Submit Deliverables",
+          "onClick": onSubmitDeliverableClick
+        }]
+      }
+    }
+
     console.log(proposal)
     console.log(proposal.proposalEarmark)
     console.log(earmarks)
@@ -57,9 +70,9 @@
         const json = await res.json();
         if (json.success === true) {
           Swal.fire(
-            "Success!",
-            "You've successfully withdrawn your proposal",
-            "success"
+                  "Success!",
+                  "You've successfully withdrawn your proposal",
+                  "success"
           ); // ? Popup flashes & goes away without user interaction. Looks broken. Proposal view does not render.
         } else {
           Swal.fire("Error!", "Something went wrong", "error");
@@ -120,15 +133,17 @@
           <span class="text-lg detailValue">{moment(proposal.createdAt).format('YYYY-MM-DD')}</span>
         </div>
       </div>
+      <AdminEarmarkStatus proposalEarmarkRequest={proposal.proposalEarmarkRequest}/>
     </Section>
+  {/if}
+  {#if proposal}
     <Section
             title={"Complete Proposal"}
             description={pageText.proposalDescription}
-            actions={[{
-            "text": "Submit Deliverables",
-            "onClick":  onSubmitDeliverableClick
-          }]}>
-      <DeliverablesList deliverables={[proposal.grantDeliverables]}/>
+            actions={deliverableActions}>
+      <AdminDeliverableStatus
+            deliverableStatus={proposal.delivered.status}
+            adminDescription={proposal.delivered.adminDescription} />
     </Section>
   {/if}
 </div>

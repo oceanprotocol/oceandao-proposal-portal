@@ -83,14 +83,6 @@
       required: true,
     },
     {
-      type: "largeText",
-      title: "Value Add Criteria",
-      bindValue: "valueAddCriteria",
-      required: true,
-      placeHolder: "How does the project benefit the Ocean ecosystem?",
-      wrong: false,
-    },
-    {
       type: "text",
       title: "Project lead full name",
       bindValue: "projectLeadFullName",
