@@ -58,7 +58,7 @@
                             <Button
                                 text={action.fieldName ? proposal[actions.fieldName] : action.text}
                                 secondary={action.secondary ? true : false}
-                                onclick={() => action.onClick()}
+                                onclick={() => action.onClick(proposal._id)}
                             />
                         </div>
                     {/each}

@@ -40,8 +40,8 @@
   fetchUnacceptedProposals();
   fetchCoreTechUnacceptedProposals();
 
-  function onReviewProposalClick() {
-    location.href = "/newProject";
+  function onReviewProposalClick(proposalId) {
+    location.href = `/admin/acceptProposal/${proposalId}`;
   }
   function onReviewCoreTechClick() {
     location.href = "/newProject";
@@ -69,7 +69,7 @@
         actions={[
             {
                 "text": "Review",
-                "onClick": {onReviewProposalClick}
+                "onClick": onReviewProposalClick
             }
         ]}
     />
@@ -87,7 +87,7 @@
                 "secondary": true,
                 "disabled": true,
                 "fieldName": "proposalEarmark",
-                "onClick": () => {}
+                "onClick": {}
             },
             {
                 "text": "Review",
