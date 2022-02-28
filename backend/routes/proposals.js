@@ -456,6 +456,27 @@ router.post("/admin/getCompletedProposals", (req, res) => {
   );
 });
 
+router.get("/admin/getUnacceptedProposals", (req, res) => {
+  Proposal.find(
+    {
+      $or: [
+        {
+          "delivered.status": 1,
+        }
+      ],
+    },
+    (err, proposals) => {
+      if (err) {
+        res.status(400).send(err);
+      }
+      res.status(200).json({
+        proposals,
+        success: true,
+      });
+    }
+  );
+});
+
 router.post("/admin/getProposalEarmarkRequest", (req, res) => {
   // find proposals with proposalEarmarkRequest not null
   Proposal.find(
