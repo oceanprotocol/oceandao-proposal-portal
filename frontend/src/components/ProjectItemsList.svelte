@@ -8,7 +8,6 @@
     display: grid;
     grid-gap: calc(var(--spacer) / 3);
     grid-template-columns: repeat(3, 1fr);
-    background-color: #F8FAFC;
   }
 </style>
 

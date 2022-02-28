@@ -44,7 +44,7 @@
         },
       ]}
     >
-      <div class="details bg-slate-200 py-5 px-5">
+      <div class="details py-5 px-5">
         <div class="col-start-4 col-span-2 ...">
           <span class="detailName font-bold">Category</span>
           <span class="text-lg detailValue"

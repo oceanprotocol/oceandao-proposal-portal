@@ -65,7 +65,7 @@ async function getProjectUsdLimit(projectName) {
 async function getCurrentRoundNumber() {
   const nowDateString = new Date().toISOString();
   const roundParameters = await _getFundingRoundsSelectQuery(
-    `AND({Start Date} > "${nowDateString}", "true")`
+    `AND({Voting Starts} > "${nowDateString}", "true")`
   );
   return roundParameters ? roundParameters[0].fields["Round"] : -1;
 }

@@ -3,14 +3,39 @@
   export let userAddress;
 </script>
 
+<style>
+  nav{
+    background-color: var(--brand-white);
+  }
+  .navbarItem{
+    color: var(--brand-black);
+  }
+  .navbarItem:hover{
+    color: var(--brand-color-primary);
+  }
+  .navbarItem > :global(a){
+    text-transform: uppercase;
+    font-size: var(--font-size-small);
+
+  }
+  .walletAddress{
+    cursor: default;
+  }
+  .logoText{
+    color: var(--brand-black);
+    margin-left: calc(var(--spacer) / 4);
+    font-size: var(--font-size-normal);
+  }
+</style>
+
 <nav
   class="bg-white border-gray-200 px-2 sm:px-4 py-2.5 rounded dark:bg-gray-800"
 >
   <div class="container flex flex-wrap justify-between items-center mx-auto">
     <a href="/" class="flex">
-      <img class="inline h-16 w-16" src="/favicon.png"/>
+      <img class="inline h-12 w-12" src="/favicon.png"/>
       <span
-        class="self-center text-lg font-semibold whitespace-nowrap dark:text-white"
+        class="self-center text-lg font-semibold whitespace-nowrap dark:text-white logoText"
         >OceanDao Seed Grants</span
       >
     </a>
@@ -49,23 +74,23 @@
       <ul
         class="flex flex-col mt-4 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium"
       >
-        <li>
+        <li class="navbarItem">
           <Link
             to="/"
-            class="block py-2 pr-4 pl-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white"
+            class="navbarLink"
             aria-current="page">Home</Link
           >
         </li>
-        <li>
+        <li class="navbarItem">
           <Link
             to="about"
-            class="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+            class="navbarLink"
             >About</Link
           >
         </li>
 
         {#if userAddress}
-          <p class="font-bold">
+          <p class="font-bold walletAddress">
             {userAddress.substr(0, 5)}...{userAddress.substr(
               userAddress.length - 5
             )}

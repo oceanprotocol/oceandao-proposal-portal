@@ -8,9 +8,6 @@ const projectSchema = new Schema({
     type: String,
     required: true,
   },
-  valueAddCriteria: {
-    type: String,
-  },
   projectName: {
     type: String,
     required: true,

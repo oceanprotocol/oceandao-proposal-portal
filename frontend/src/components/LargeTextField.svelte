@@ -79,9 +79,11 @@
 </svelte:head>
 
 <div class="mb-8">
-  <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
-    {title}
-  </label>
+  {#if title}
+    <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+      {title}
+    </label>
+  {/if}
   <div class="editor-wrapper">
     <div
       class="editor"
