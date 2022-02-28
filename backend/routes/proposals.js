@@ -16,29 +16,35 @@ const {
   updateAirtableEntry,
   getFormerProposals,
 } = require("../utils/airtable/utils");
+const { verifyRecaptcha } = require("../utils/recaptcha/recaptcha");
 
-router.post("/createProject", checkSigner, async (req, res) => {
-  // create a project
-  let admin = res.locals.signer;
-  let prj = JSON.parse(req.body.message);
-  prj.events = [
-    {
-      eventType: "projectCreated",
-      signer: admin,
-      signedMessage: req.body.signedMessage,
-      message: req.body.message,
-    },
-  ];
-  prj.admin = admin;
-  let project = new Project(prj);
-  project.save((err, project) => {
-    if (err) {
-      console.log(err);
-      res.status(400).send(err); // ? send validation error to client
-    }
-    res.send(project);
-  });
-});
+router.post(
+  "/createProject",
+  recaptchaCheck(0.6),
+  checkSigner,
+  async (req, res) => {
+    // create a project
+    let admin = res.locals.signer;
+    let prj = JSON.parse(req.body.message);
+    prj.events = [
+      {
+        eventType: "projectCreated",
+        signer: admin,
+        signedMessage: req.body.signedMessage,
+        message: req.body.message,
+      },
+    ];
+    prj.admin = admin;
+    let project = new Project(prj);
+    project.save((err, project) => {
+      if (err) {
+        console.log(err);
+        res.status(400).send(err); // ? send validation error to client
+      }
+      res.send(project);
+    });
+  }
+);
 
 router.post("/myProjects", async (req, res) => {
   // returns all projects that the user is admin of
@@ -57,6 +63,7 @@ router.get("/nonce/:address", async (req, res) => {
 
 router.post(
   "/createProposal",
+  recaptchaCheck(0.5),
   checkSigner,
   checkProject,
   async function (req, res) {
@@ -80,7 +87,8 @@ router.post(
     ];
 
     const formerProposals = await getFormerProposals(projectName);
-    if (formerProposals.length == 0) { // ? triple === no?
+    if (formerProposals.length == 0) {
+      // ? triple === no?
       if (project.projectCategory === "outreach") {
         proposal.proposalEarmark = "newprojectoutreach";
       } else {
@@ -174,49 +182,56 @@ router.post(
   }
 );
 
-router.post("/updateProject", checkSigner, checkProject, function (req, res) {
-  const data = JSON.parse(req.body.message);
-  const project = res.locals.project;
-  const updateObject = {};
-  if (data.projectDescription)
-    updateObject.projectDescription = data.projectDescription;
-  if (data.projectCategory) updateObject.projectCategory = data.projectCategory;
-  if (data.projectLeadFullName)
-    updateObject.projectLeadFullName = data.projectLeadFullName;
-  if (data.projectLeadEmail)
-    updateObject.projectLeadEmail = data.projectLeadEmail;
-  if (data.countryOfResidence)
-    updateObject.countryOfResidence = data.countryOfResidence;
-  if (data.finalProduct) updateObject.finalProduct = data.finalProduct;
+router.post(
+  "/updateProject",
+  recaptchaCheck(0.5),
+  checkSigner,
+  checkProject,
+  function (req, res) {
+    const data = JSON.parse(req.body.message);
+    const project = res.locals.project;
+    const updateObject = {};
+    if (data.projectDescription)
+      updateObject.projectDescription = data.projectDescription;
+    if (data.projectCategory)
+      updateObject.projectCategory = data.projectCategory;
+    if (data.projectLeadFullName)
+      updateObject.projectLeadFullName = data.projectLeadFullName;
+    if (data.projectLeadEmail)
+      updateObject.projectLeadEmail = data.projectLeadEmail;
+    if (data.countryOfResidence)
+      updateObject.countryOfResidence = data.countryOfResidence;
+    if (data.finalProduct) updateObject.finalProduct = data.finalProduct;
 
-  if (data.teamWebsite) updateObject.teamWebsite = data.teamWebsite;
-  if (data.twitterLink) updateObject.twitterLink = data.twitterLink;
-  if (data.discordLink) updateObject.discordLink = data.discordLink;
+    if (data.teamWebsite) updateObject.teamWebsite = data.teamWebsite;
+    if (data.twitterLink) updateObject.twitterLink = data.twitterLink;
+    if (data.discordLink) updateObject.discordLink = data.discordLink;
 
-  if (data.coreTeam) updateObject.coreTeam = data.coreTeam;
-  if (data.advisors) updateObject.advisors = data.advisors;
+    if (data.coreTeam) updateObject.coreTeam = data.coreTeam;
+    if (data.advisors) updateObject.advisors = data.advisors;
 
-  updateObject.events = project.events;
-  updateObject.events.push({
-    eventType: "update",
-    signer: res.locals.signer,
-    signedMessage: req.body.signedMessage,
-    message: req.body.message,
-  });
+    updateObject.events = project.events;
+    updateObject.events.push({
+      eventType: "update",
+      signer: res.locals.signer,
+      signedMessage: req.body.signedMessage,
+      message: req.body.message,
+    });
 
-  Project.findByIdAndUpdate(
-    project._id,
-    { $set: updateObject },
-    { runValidators: true },
-    (err, project) => {
-      if (err) {
-        console.log(err);
-        return res.status(400).send(err);
+    Project.findByIdAndUpdate(
+      project._id,
+      { $set: updateObject },
+      { runValidators: true },
+      (err, project) => {
+        if (err) {
+          console.log(err);
+          return res.status(400).send(err);
+        }
+        res.send({ data: project, success: true });
       }
-      res.send({ data: project, success: true });
-    }
-  );
-});
+    );
+  }
+);
 
 router.post("/proposal/withdraw", checkSigner, (req, res) => {
   const data = JSON.parse(req.body.message);
@@ -259,88 +274,93 @@ router.post("/proposal/withdraw", checkSigner, (req, res) => {
     });
 });
 
-router.post("/updateProposal", checkSigner, function (req, res) {
-  const proposal = JSON.parse(req.body.message);
-  const proposalId = proposal.proposalId;
+router.post(
+  "/updateProposal",
+  recaptchaCheck(0.5),
+  checkSigner,
+  function (req, res) {
+    const proposal = JSON.parse(req.body.message);
+    const proposalId = proposal.proposalId;
 
-  Proposal.findById(proposalId)
-    .populate("projectId")
-    .exec(async (err, data) => {
-      const project = data.projectId;
+    Proposal.findById(proposalId)
+      .populate("projectId")
+      .exec(async (err, data) => {
+        const project = data.projectId;
 
-      if (data.withdrawn)
-        return res.status(400).json({ error: "Proposal has been withdrawn" });
+        if (data.withdrawn)
+          return res.status(400).json({ error: "Proposal has been withdrawn" });
 
-      if (project.admin !== res.locals.signer) {
-        return res
-          .status(400)
-          .json({ error: "You are not the admin of this project" });
-      }
-      if (proposal.proposalFundingRequested)
-        proposal.proposalFundingRequested = parseFloat(
-          proposal.proposalFundingRequested
+        if (project.admin !== res.locals.signer) {
+          return res
+            .status(400)
+            .json({ error: "You are not the admin of this project" });
+        }
+        if (proposal.proposalFundingRequested)
+          proposal.proposalFundingRequested = parseFloat(
+            proposal.proposalFundingRequested
+          );
+
+        const currentRound = await getCurrentRoundNumber();
+        if (data.round !== currentRound) {
+          // return if voting period started
+          return res.status(400).send("Voting period has already started");
+        }
+
+        const update = {};
+
+        if (proposal.proposalFundingRequested) {
+          const projectUsdLimit = await getProjectUsdLimit(project.projectName);
+          if (proposal.proposalFundingRequested > projectUsdLimit) {
+            return res.status(400).json({
+              error: "Your funding request exceeds the project USD limit",
+            });
+          }
+          update.proposalFundingRequested = proposal.proposalFundingRequested;
+        }
+
+        if (proposal.valueAddCriteria)
+          update.valueAddCriteria = proposal.valueAddCriteria;
+
+        if (proposal.proposalWalletAddress)
+          update.proposalWalletAddress = proposal.proposalWalletAddress;
+
+        if (proposal.proposalDescription)
+          update.proposalDescription = proposal.proposalDescription;
+
+        if (proposal.grantDeliverables)
+          update.grantDeliverables = proposal.grantDeliverables;
+
+        if (proposal.oneLiner) update.oneLiner = proposal.oneLiner;
+
+        const proposalDiscourseId = data.discourseId;
+        const airtableId = data.airtableRecordId;
+
+        update.events = data.events;
+        update.events.push({
+          eventType: "update",
+          signer: res.locals.signer,
+          signedMessage: req.body.signedMessage,
+          message: req.body.message,
+        });
+
+        Proposal.findByIdAndUpdate(
+          proposalId,
+          { $set: update },
+          { runValidators: true },
+          async (err, data) => {
+            if (err) return res.status(400).send(err);
+            await updateAirtableEntry(airtableId, update); // update airtable entry
+            await updateDiscoursePost(
+              proposalDiscourseId,
+              { ...data, ...update },
+              project
+            ); // update the post in the discourse forum
+            return res.send({ success: true });
+          }
         );
-
-      const currentRound = await getCurrentRoundNumber();
-      if (data.round !== currentRound) {
-        // return if voting period started
-        return res.status(400).send("Voting period has already started");
-      }
-
-      const update = {};
-
-      if (proposal.proposalFundingRequested) {
-        const projectUsdLimit = await getProjectUsdLimit(project.projectName);
-        if (proposal.proposalFundingRequested > projectUsdLimit) {
-          return res.status(400).json({
-            error: "Your funding request exceeds the project USD limit",
-          });
-        }
-        update.proposalFundingRequested = proposal.proposalFundingRequested;
-      }
-
-      if (proposal.valueAddCriteria)
-        update.valueAddCriteria = proposal.valueAddCriteria;
-
-      if (proposal.proposalWalletAddress)
-        update.proposalWalletAddress = proposal.proposalWalletAddress;
-
-      if (proposal.proposalDescription)
-        update.proposalDescription = proposal.proposalDescription;
-
-      if (proposal.grantDeliverables)
-        update.grantDeliverables = proposal.grantDeliverables;
-
-      if (proposal.oneLiner) update.oneLiner = proposal.oneLiner;
-
-      const proposalDiscourseId = data.discourseId;
-      const airtableId = data.airtableRecordId;
-
-      update.events = data.events;
-      update.events.push({
-        eventType: "update",
-        signer: res.locals.signer,
-        signedMessage: req.body.signedMessage,
-        message: req.body.message,
       });
-
-      Proposal.findByIdAndUpdate(
-        proposalId,
-        { $set: update },
-        { runValidators: true },
-        async (err, data) => {
-          if (err) return res.status(400).send(err);
-          await updateAirtableEntry(airtableId, update); // update airtable entry
-          await updateDiscoursePost(
-            proposalDiscourseId,
-            { ...data, ...update },
-            project
-          ); // update the post in the discourse forum
-          return res.send({ success: true });
-        }
-      );
-    });
-});
+  }
+);
 
 router.post("/getProposals", function (req, res) {
   Proposal.find(
@@ -596,6 +616,18 @@ function checkSigner(req, res, next) {
 }
 
 const getTopicId = (url) => url.split("/").pop();
+
+function recaptchaCheck(scoreMin = 0.5) {
+  return async function (req, res, next) {
+    const recaptchaToken = req.body.recaptchaToken;
+    const resp = await verifyRecaptcha(recaptchaToken);
+    if (resp.score && resp.score >= scoreMin) {
+      next();
+    } else {
+      res.status(400).send("Recaptcha failed");
+    }
+  };
+}
 
 function checkProject(req, res, next) {
   // middleware to check if the user is the signer
