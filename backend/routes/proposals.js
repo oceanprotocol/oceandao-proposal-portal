@@ -620,8 +620,8 @@ const getTopicId = (url) => url.split("/").pop();
 function recaptchaCheck(scoreMin = 0.5) {
   return async function (req, res, next) {
     const recaptchaToken = req.body.recaptchaToken;
-    const res = await verifyRecaptcha(recaptchaToken);
-    if (res.score && res.score >= scoreMin) {
+    const resp = await verifyRecaptcha(recaptchaToken);
+    if (resp.score && resp.score >= scoreMin) {
       next();
     } else {
       res.status(400).send("Recaptcha failed");
