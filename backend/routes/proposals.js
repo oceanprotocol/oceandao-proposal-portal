@@ -477,15 +477,16 @@ router.get("/admin/getUnacceptedProposals", (req, res) => {
   );
 });
 
-router.post("/admin/getProposalEarmarkRequest", (req, res) => {
+router.get("/admin/getProposalEarmarkRequest", (req, res) => {
   // find proposals with proposalEarmarkRequest not null
   Proposal.find(
     {
       proposalEarmarkRequest: {
-        $or: [{ $exists: true }, { $ne: null }, { $ne: "" }],
-      },
+        $exists: true,
+        $ne: "",
+        $ne: null
+      }
     },
-    "proposalEarmarkRequest",
     (err, proposals) => {
       if (err) {
         res.status(400).send(err);

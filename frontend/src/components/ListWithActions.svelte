@@ -38,27 +38,35 @@
     align-items: center;
   }
   .action{
-      margin-left: 20px;
+    margin-left: 20px;
+  }
+  .text{
+    font-size: var(--font-size-normal);
+    padding: calc(var(--spacer) / 4)
   }
 </style>
 
 <div class="listContainer">
-    {#each proposals as proposal}
-        <div class="item">
-            <span>{proposal.proposalTitle}</span>
-            {#if actions }
-                <div class="actionContainer">
-                {#each actions as action}
-                    <div class="action">
-                        <Button
-                            text={action.text}
-                            action?.secondary && secondary
-                            onclick={() => action.onClick()}
-                        />
+    {#if proposals.length > 0}
+        {#each proposals as proposal}
+            <div class="item">
+                <span>{proposal.proposalTitle}</span>
+                {#if actions }
+                    <div class="actionContainer">
+                    {#each actions as action}
+                        <div class="action">
+                            <Button
+                                text={action.fieldName ? proposal[actions.fieldName] : action.text}
+                                secondary={action.secondary ? true : false}
+                                onclick={() => action.onClick()}
+                            />
+                        </div>
+                    {/each}
                     </div>
-                {/each}
-                </div>
-            {/if}
-        </div>
-    {/each}
+                {/if}
+            </div>
+        {/each}
+    {:else}
+        <div class="text">No Proposals</div>
+    {/if}
 </div>

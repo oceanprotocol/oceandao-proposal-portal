@@ -6,7 +6,8 @@
   import Section from "../components/Section.svelte";
   import ListWithActions from "../components/ListWithActions.svelte";
 
-  let proposals;
+  let unacceptedProposals;
+  let unacceptedCoreTechProposals;
 
   async function fetchUnacceptedProposals() {
     const res = await fetch(`${SERVER_URI}/app/admin/getUnacceptedProposals`, {
@@ -17,11 +18,27 @@
       }
     });
     const data = await res.json();
-    proposals = data.proposals;
+    unacceptedProposals = data.proposals;
 
-    console.log(proposals)
+    console.log(unacceptedProposals)
   }
+
+  async function fetchCoreTechUnacceptedProposals() {
+    const res = await fetch(`${SERVER_URI}/app/admin/getProposalEarmarkRequest`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        'Accept': 'application/json'
+      }
+    });
+    const data = await res.json();
+    unacceptedCoreTechProposals = data.proposals;
+
+    console.log(unacceptedCoreTechProposals)
+  }
+
   fetchUnacceptedProposals();
+  fetchCoreTechUnacceptedProposals();
 
   function onReviewProposalClick() {
     location.href = "/newProject";
@@ -46,9 +63,9 @@
     title={"Completed Proposals"}
     description={"Below are all the proposals that completed. Admins must mark them as reviewed before projects make it into the next funding round. This needs to be accepted by an admin before Voting Starts."}
     >
-    {#if proposals}
+    {#if unacceptedProposals}
       <ListWithActions 
-        {proposals} 
+        proposals={unacceptedProposals} 
         actions={[
             {
                 "text": "Review",
@@ -62,14 +79,14 @@
     title={"Core-Tech Earmarks"}
     description={"All Proposals that apply to the Core-Tech Earmark must receive clearance by the Core-Tech WG. This needs to be accepted by an Admin before Voting Starts."}
     >
-    {#if proposals}
+    {#if unacceptedCoreTechProposals}
       <ListWithActions 
-        {proposals}
+        proposals={unacceptedCoreTechProposals}
         actions={[
             {
-                "text": "Review",
                 "secondary": true,
                 "disabled": true,
+                "fieldName": "proposalEarmark",
                 "onClick": () => {}
             },
             {
