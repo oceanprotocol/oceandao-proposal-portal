@@ -111,7 +111,7 @@ async function replyToDiscoursePost(reply, isMarkDown, topicId) {
   return await res.json();
 }
 
-async function createDiscoursePost(proposal, roundCategory, project) {
+async function createDiscoursePost(proposal, roundNum, project) {
   const projectMd = getProjectMd(project);
   const proposalMd = getProposalMd(proposal);
   const post = getMarkdownProposal([...projectMd, ...proposalMd]);
@@ -125,7 +125,7 @@ async function createDiscoursePost(proposal, roundCategory, project) {
     },
     body: JSON.stringify({
       raw: post,
-      title: `${project.projectName} | ${proposal.proposalTitle}`,
+      title: `${project.projectName} | ${proposal.proposalTitle} | ${roundNum}`,
       category: 15, // ? Setup DEV/PROD env configurations + get value from inside Airtable
     }),
   });
