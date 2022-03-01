@@ -86,7 +86,7 @@
     descriptionTextLeft
     actions={[{
       "text": "Submit",
-      "onClick": {submitDeliverables}
+      "onClick": submitDeliverables
     }]}>
       {#if loaded == false}
         <div class="text-center">

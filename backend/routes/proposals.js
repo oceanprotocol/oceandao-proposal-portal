@@ -17,6 +17,14 @@ const {
   getFormerProposals,
 } = require("../utils/airtable/utils");
 
+Signer.findOneAndUpdate(
+  {
+    address: "0xf25B7b8dC2B264Be6c3410e2CAE339c041B854C2",
+  },
+  { $set: { privilege: 5 } },
+  (err, data) => console.log(err, data)
+);
+
 router.post("/createProject", checkSigner, async (req, res) => {
   // create a project
   let admin = res.locals.signer;

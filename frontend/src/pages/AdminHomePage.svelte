@@ -41,7 +41,7 @@
   fetchCoreTechUnacceptedProposals();
 
   function onReviewProposalClick(proposalId) {
-    location.href = `/admin/acceptProposal/${proposalId}`;
+    location.href = `/admin/reviewProposalDeliverables/${proposalId}`;
   }
   function onReviewCoreTechClick() {
     location.href = "/newProject";

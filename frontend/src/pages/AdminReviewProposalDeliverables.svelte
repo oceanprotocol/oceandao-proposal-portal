@@ -10,10 +10,12 @@
   import AdminEarmarkStatus from "../components/AdminEarmarkStatus.svelte";
   import AdminDeliverableStatus from "../components/AdminDeliverableStatus.svelte";
   import DeliverablesList from "../components/DeliverablesList.svelte";
+  import CustomInput from "../components/CustomInput.svelte";
 
   export let proposalId;
   let proposal;
   let deliverableActions = []
+  let adminDescription;
 
   let pageText = {
     proposalDescription: `Use the form below to submit your final deliverables and complete your proposal. This enables your project to remain in a good state, and to apply for more grants.`,
@@ -35,10 +37,10 @@
   }
   loadData();
 
-  async function acceptProposal() {
+  async function completeProposal(proposalStatus) {
     Swal.fire({
       title: "Are you sure?",
-      text: "You will not be able to bla bla bla",
+      text: `You will ${proposalStatus===2 ? 'Accept' : 'Reject'} this proposal`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Proceed!",
@@ -49,8 +51,9 @@
         const nonce = await getNonce(signer);
         const message = JSON.stringify({
           proposalId: proposalId,
+          description: adminDescription,
           nonce,
-          withdraw: true,
+          status: proposalStatus,
         });
         const signedMessage = await signMessage(message, $networkSigner);
         const res = await fetch(`${SERVER_URI}/app/admin/completeProposal`, {
@@ -70,7 +73,9 @@
                   "Success!",
                   "You've successfully withdrawn your proposal",
                   "success"
-          ); // ? Popup flashes & goes away without user interaction. Looks broken. Proposal view does not render.
+          ).then(() => {
+            location.href = "/admin/home"
+          }); // ? Popup flashes & goes away without user interaction. Looks broken. Proposal view does not render.
         } else {
           Swal.fire("Error!", "Something went wrong", "error");
         }
@@ -78,8 +83,16 @@
     });
   }
 
-  function onUpdateProposalClick() {
-    location.href = "/proposal/update/" + proposalId;
+  function acceptProposalDeliverables() {
+    completeProposal(2);
+  }
+
+  function rejectProposalDeliverables() {
+    completeProposal(3);
+  }
+
+  function handleChange(value) {
+    adminDescription = value;
   }
 </script>
 
@@ -111,10 +124,10 @@
             actions={[
             {
               "text": "Accept",
-              "onClick":  acceptProposal
+              "onClick":  acceptProposalDeliverables
             },{
               "text": "Reject",
-              "onClick":  onUpdateProposalClick
+              "onClick":  rejectProposalDeliverables
             }]}>
       <div class="details py-5 px-5">
         <div class="col-start-4 col-span-2 ...">
@@ -127,7 +140,11 @@
         </div>
       </div>
       <DeliverablesList deliverables={[proposal.grantDeliverables]}/>
-      <AdminEarmarkStatus proposalEarmarkRequest={proposal.proposalEarmarkRequest}/>
+      <CustomInput
+        label="Review Description"
+        placeholder="Describe your review"
+        onChange=handleChange
+      />
     </Section>
   {/if}
 </div>

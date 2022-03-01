@@ -10,7 +10,7 @@
   import ProposalPage from "./pages/ProposalPage.svelte";
   import GrantDeliverable from "./pages/GrantDeliverable.svelte";
   import AdminHomePage from "./pages/AdminHomePage.svelte";
-  import AdminAcceptProposal from "./pages/AdminAcceptProposal.svelte";
+  import AdminReviewProposalDeliverables from "./pages/AdminReviewProposalDeliverables.svelte";
 
   if ($userConnected && $userAddress === "") {
     connectWallet();
@@ -66,8 +66,8 @@
       <AdminHomePage/>
     </Route>
 
-    <Route path="admin/acceptProposal/:proposalId" let:params>
-      <AdminAcceptProposal proposalId={params.proposalId}/>
+    <Route path="admin/reviewProposalDeliverables/:proposalId" let:params>
+      <AdminReviewProposalDeliverables proposalId={params.proposalId}/>
     </Route>
   </main>
 </Router>
