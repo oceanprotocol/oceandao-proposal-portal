@@ -28,6 +28,10 @@ router.post("/withdraw", checkSigner, (req, res) => {
           .status(400)
           .json({ error: "You are not the admin of this project" });
       }
+      if (data.withdrawn) {
+        return res.status(400).json({ error: "Proposal has been withdrawn" });
+      }
+
       const event = {
         eventType: "withdraw",
         signer: res.locals.signer,
@@ -151,6 +155,10 @@ router.post("/deliver", checkSigner, async (req, res) => {
         return res
           .status(400)
           .json({ error: "You are not the admin of this project" });
+      }
+
+      if (data.withdrawn) {
+        return res.status(400).json({ error: "Proposal has been withdrawn" });
       }
 
       if (data.delivered.status === 1 || data.delivered.status === 2)
