@@ -4,8 +4,6 @@ const userApiKey = process.env.DISCOURSE_API_KEY;
 const apiUsername = process.env.DISCOURSE_USERNAME;
 const baseUrl = process.env.DISCOURSE_BASE_URI;
 const fetch = require("node-fetch");
-const earmarkJson = require("../types/earmark.json");
-const categoryJson = require("../types/grant_category.json");
 
 function getProjectMd(project) {
   // TODO include value add criteria

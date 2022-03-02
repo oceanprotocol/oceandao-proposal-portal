@@ -16,7 +16,7 @@
   let recaptcha;
 
   if (isUpdating) {
-    fetch(`${SERVER_URI}/app/getProjectInfo/${projectId}`)
+    fetch(`${SERVER_URI}/app/project/info/${projectId}`)
       .then((res) => res.json())
       .then((res) => {
         projectStore.update(() => res.project);
@@ -240,7 +240,7 @@ Co-founder at xxx`,
     const signer = $userAddress;
 
     if (isUpdating) {
-      fetch(`${SERVER_URI}/app/updateProject`, {
+      fetch(`${SERVER_URI}/app/project/update`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -273,7 +273,7 @@ Co-founder at xxx`,
           console.log(err);
         });
     } else {
-      fetch(`${SERVER_URI}/app/createProject`, {
+      fetch(`${SERVER_URI}/app/project/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
