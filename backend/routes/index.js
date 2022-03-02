@@ -12,3 +12,5 @@ router.use("/app/project", projectRoute);
 router.use("/app/proposal", proposalRoute);
 router.use("/app/", signerRoute);
 router.use("/", webRoute);
+
+module.exports = router;

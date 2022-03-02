@@ -247,3 +247,5 @@ router.get("/info/:projectId", async (req, res) => {
     }
   );
 });
+
+module.exports = router;

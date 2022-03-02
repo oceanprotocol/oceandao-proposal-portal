@@ -198,3 +198,5 @@ router.get("/info/:proposalId", async (req, res) => {
 });
 
 const getTopicId = (url) => url.split("/").pop();
+
+module.exports = router;

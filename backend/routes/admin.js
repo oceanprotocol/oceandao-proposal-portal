@@ -160,3 +160,5 @@ router.post(
 );
 
 const getTopicId = (url) => url.split("/").pop();
+
+module.exports = router;
