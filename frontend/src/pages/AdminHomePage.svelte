@@ -86,7 +86,7 @@
             {
                 "secondary": true,
                 "disabled": true,
-                "fieldName": "proposalEarmark",
+                "text": "Core Tech",
                 "onClick": {}
             },
             {

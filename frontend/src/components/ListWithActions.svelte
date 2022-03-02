@@ -56,7 +56,7 @@
                     {#each actions as action}
                         <div class="action">
                             <Button
-                                text={action.fieldName ? proposal[actions.fieldName] : action.text}
+                                text={action.text}
                                 secondary={action.secondary ? true : false}
                                 onclick={() => action.onClick(proposal._id)}
                             />
