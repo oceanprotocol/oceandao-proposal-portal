@@ -2,7 +2,10 @@ const express = require("express");
 const router = express.Router();
 const Proposal = require("../models/Proposal");
 const { checkSigner, requirePriv } = require("./middlewares");
-const { replyToDiscoursePost } = require("../utils/discourse/utils");
+const {
+  replyToDiscoursePost,
+  updateDiscoursePost,
+} = require("../utils/discourse/utils");
 const { updateAirtableEntry } = require("../utils/airtable/utils");
 
 router.post("/getCompletedProposals", (req, res) => {
@@ -156,6 +159,28 @@ router.post(
         return res.send({ success: true });
       }
     );
+  }
+);
+
+router.post(
+  "/updateAllPosts",
+  checkSigner,
+  requirePriv(5),
+  async (req, res) => {
+    Proposal.find({})
+      .populate("projectId")
+      .exec(async (err, proposals) => {
+        if (err) return res.status(400).send(err);
+        for (let proposal of proposals) {
+          await updateAirtableEntry(proposal.airtableRecordId, proposal); // update airtable entry
+          await updateDiscoursePost(
+            proposal.discourseId, // post id
+            proposal, // proposal object
+            proposal.projectId // project object
+          );
+        }
+        return res.send({ success: true });
+      });
   }
 );
 
