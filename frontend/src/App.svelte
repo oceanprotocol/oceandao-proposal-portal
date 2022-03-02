@@ -11,6 +11,7 @@
   import GrantDeliverable from "./pages/GrantDeliverable.svelte";
   import AdminHomePage from "./pages/AdminHomePage.svelte";
   import AdminReviewProposalDeliverables from "./pages/AdminReviewProposalDeliverables.svelte";
+  import AdminReviewProposalEarmark from "./pages/AdminReviewProposalEarmark.svelte";
 
   if ($userConnected && $userAddress === "") {
     connectWallet();
@@ -68,6 +69,10 @@
 
     <Route path="admin/reviewProposalDeliverables/:proposalId" let:params>
       <AdminReviewProposalDeliverables proposalId={params.proposalId}/>
+    </Route>
+
+    <Route path="admin/reviewProposalEarmark/:proposalId" let:params>
+      <AdminReviewProposalEarmark proposalId={params.proposalId}/>
     </Route>
   </main>
 </Router>

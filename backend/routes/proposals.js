@@ -492,7 +492,7 @@ router.get("/admin/getProposalEarmarkRequest", (req, res) => {
       proposalEarmarkRequest: {
         $exists: true,
         $ne: "",
-        $ne: null
+        $ne: ''
       }
     },
     (err, proposals) => {

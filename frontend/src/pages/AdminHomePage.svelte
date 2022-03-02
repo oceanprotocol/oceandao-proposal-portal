@@ -43,8 +43,8 @@
   function onReviewProposalClick(proposalId) {
     location.href = `/admin/reviewProposalDeliverables/${proposalId}`;
   }
-  function onReviewCoreTechClick() {
-    location.href = "/newProject";
+  function onReviewCoreTechClick(proposalId) {
+    location.href = `/admin/reviewProposalEarmark/${proposalId}`;
   }
 </script>
 
@@ -92,7 +92,7 @@
             {
                 "text": "Review",
                 "disabled": false,
-                "onClick": {onReviewCoreTechClick}
+                "onClick": onReviewCoreTechClick
             }
         ]}
        />
