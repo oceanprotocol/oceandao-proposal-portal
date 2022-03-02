@@ -5,7 +5,7 @@ const { checkSigner, requirePriv } = require("./middlewares");
 const { replyToDiscoursePost } = require("../utils/discourse/utils");
 const { updateAirtableEntry } = require("../utils/airtable/utils");
 
-router.post("/admin/getCompletedProposals", (req, res) => {
+router.post("/getCompletedProposals", (req, res) => {
   Proposal.find(
     {
       "delivered.status": 1,
