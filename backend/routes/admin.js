@@ -70,27 +70,6 @@ router.post("/getCompletedProposals", (req, res) => {
   );
 });
 
-router.post("/getProposalEarmarkRequest", (req, res) => {
-  // find proposals with proposalEarmarkRequest not null
-  Proposal.find(
-    {
-      proposalEarmarkRequest: {
-        $or: [{ $exists: true }, { $ne: null }, { $ne: "" }],
-      },
-    },
-    "proposalEarmarkRequest",
-    (err, proposals) => {
-      if (err) {
-        res.status(400).send(err);
-      }
-      res.status(200).json({
-        proposals,
-        success: true,
-      });
-    }
-  );
-});
-
 /// -------------------------------------------------
 
 router.post(

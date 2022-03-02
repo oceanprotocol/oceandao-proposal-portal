@@ -118,6 +118,7 @@ router.post(
         ); // create a new post in the discourse forum
         const postId = discoursePostLink.id;
         if (postId === undefined) {
+          console.error("Error creating post in discourse", discoursePostLink);
           return res.status(400).json({
             error: "Could not create a new post in the discourse forum",
           });
