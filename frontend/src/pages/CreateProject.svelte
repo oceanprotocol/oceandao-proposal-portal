@@ -249,6 +249,7 @@ Co-founder at xxx`,
           signer,
           signedMessage,
           message,
+          recaptchaToken,
         }),
       })
         .then((res) => {
