@@ -17,23 +17,10 @@
   let deliverableActions = []
   let adminDescription;
 
-  let pageText = {
-    proposalDescription: `Use the form below to submit your final deliverables and complete your proposal. This enables your project to remain in a good state, and to apply for more grants.`,
-    submissionDescription: `Thank you for submitting your deliverables. Our admins are reviewing your update, and will provide an update soon.`
-  }
-
   async function loadData() {
     let res = await fetch(`${SERVER_URI}/app/proposalInfo/${proposalId}`);
     proposal = await res.json();
-
-    if( proposal ) {
-      if( proposal.delivered.status === 0 || proposal.delivered.status === 2 ) {
-        deliverableActions = [{
-          "text": "Submit Deliverables",
-          "onClick": onSubmitDeliverableClick
-        }]
-      }
-    }
+    console.log(proposal)
   }
   loadData();
 
@@ -112,6 +99,14 @@
   .detailName, .detailValue{
     font-size: var(--font-size-normal);
   }
+  .deliverablesComparationContainer{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+  :global(.deliverablesComparationContainer > div){
+    flex-basis: 49%;
+  }
 </style>
 
 <!-- TODO - Visualize Admin: Is proposal completion submitted? Accepted? Rejected? -->
@@ -119,7 +114,7 @@
   {#if proposal }
     <Section
             title={proposal.proposalTitle}
-            description={"Above are all the proposals deliverables Admins must mark them as reviewed before projects make it into the next funding round. This needs to be accepted by an admin before Voting Starts."}
+            description={proposal.proposalDescription}
             descriptionBottom
             actions={[
             {
@@ -139,7 +134,10 @@
           <span class="text-lg detailValue">{moment(proposal.createdAt).format('YYYY-MM-DD')}</span>
         </div>
       </div>
-      <DeliverablesList deliverables={[proposal.grantDeliverables]}/>
+      <div class="deliverablesComparationContainer">
+        <DeliverablesList deliverables={[proposal.grantDeliverables]} title="Initial Deliverables"/>
+        <DeliverablesList deliverables={[proposal.delivered.description]} title="Delivered"/>
+      </div>
       <CustomInput
         label="Review Description"
         placeholder="Describe your review"

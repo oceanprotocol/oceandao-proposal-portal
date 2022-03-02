@@ -1,5 +1,6 @@
 <script>
   export let deliverables;
+  export let title;
 </script>
 
 <style>
@@ -35,7 +36,7 @@
 <div class="deliverablesContainer">
     {#each deliverables as deliverable}
         <div class="deliverable">
-            <span>Deliverables</span>
+            <span>{title || Deliverables}</span>
             <p>{@html deliverables}</p>
         </div>
     {/each}
