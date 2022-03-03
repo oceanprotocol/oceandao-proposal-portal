@@ -4,8 +4,6 @@ const userApiKey = process.env.DISCOURSE_API_KEY;
 const apiUsername = process.env.DISCOURSE_USERNAME;
 const baseUrl = process.env.DISCOURSE_BASE_URI;
 const fetch = require("node-fetch");
-const earmarkJson = require("../types/earmark.json");
-const categoryJson = require("../types/grant_category.json");
 
 function getProjectMd(project) {
   // TODO include value add criteria
@@ -125,8 +123,8 @@ async function createDiscoursePost(proposal, roundCategory, project) {
     },
     body: JSON.stringify({
       raw: post,
-      title: `${project.projectName} | ${proposal.proposalTitle}`,
-      category: 15, // ? Setup DEV/PROD env configurations + get value from inside Airtable
+      title: `${project.projectName} | ${proposal.proposalTitle} | Round ${roundCategory}`,
+      category: 75, // ? Setup DEV/PROD env configurations + get value from inside Airtable
     }),
   });
   return await res.json();

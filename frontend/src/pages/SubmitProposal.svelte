@@ -18,7 +18,7 @@
   let recaptcha;
 
   if (isUpdating) {
-    fetch(`${SERVER_URI}/app/proposalInfo/${proposalId}`)
+    fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`)
       .then((res) => res.json())
       .then((res) => {
         proposalStore.update(() => res);
@@ -171,7 +171,7 @@ Community Value — How does the project add value to the overall Ocean Communit
     const signer = $userAddress;
 
     if (isUpdating) {
-      fetch(`${SERVER_URI}/app/updateProposal`, {
+      fetch(`${SERVER_URI}/app/proposal/update`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -197,7 +197,7 @@ Community Value — How does the project add value to the overall Ocean Communit
           console.log(error);
         });
     } else {
-      fetch(`${SERVER_URI}/app/createProposal`, {
+      fetch(`${SERVER_URI}/app/project/createProposal`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

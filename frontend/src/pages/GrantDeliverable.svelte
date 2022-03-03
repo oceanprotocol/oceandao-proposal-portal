@@ -60,7 +60,7 @@
   let loaded = false;
   const isUpdating = proposalId !== undefined;
   let proposalData;
-  fetch(`${SERVER_URI}/app/proposalInfo/${proposalId}`)
+  fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`)
     .then((res) => res.json())
     .then((res) => {
       console.log(res);
@@ -70,8 +70,32 @@
     });
 </script>
 
+<div class="deliverables-container">
+  <Section
+    class="flex text-left bg-grey-200"
+    title={"Deliverables"}
+    descriptionTextLeft
+    actions={[
+      {
+        text: "Submit",
+        onClick: submitDeliverables,
+      },
+    ]}
+  >
+    {#if loaded == false}
+      <div class="text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+    {:else}
+      <LargeTextField placeHolder="Description" bind:value />
+    {/if}
+  </Section>
+</div>
+
 <style>
-  .deliverables-container{
+  .deliverables-container {
     height: 100%;
     max-width: 800px;
     flex-direction: column;
@@ -79,26 +103,3 @@
     padding-top: var(--spacer);
   }
 </style>
-
-<div class="deliverables-container">
-  <Section class="flex text-left bg-grey-200"
-    title={"Deliverables"}
-    descriptionTextLeft
-    actions={[{
-      "text": "Submit",
-      "onClick": {submitDeliverables}
-    }]}>
-      {#if loaded == false}
-        <div class="text-center">
-          <div class="spinner-border text-primary" role="status">
-            <span class="sr-only">Loading...</span>
-          </div>
-        </div>
-      {:else}
-        <LargeTextField
-          placeHolder="Description"
-          bind:value
-        />
-      {/if}
-  </Section>
-</div>

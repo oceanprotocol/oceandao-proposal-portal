@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
-const validator = require("validator");
 
 const isValidErc20Address = (address) => {
   return /^(0x)?[0-9a-f]{40}$/i.test(address);

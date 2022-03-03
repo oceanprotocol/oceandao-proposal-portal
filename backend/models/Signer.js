@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
-const validator = require("validator");
 
 const signerSchema = new Schema({
   address: String,
