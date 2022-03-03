@@ -78,7 +78,7 @@
     actions={[
       {
         text: "Submit",
-        onClick: { submitDeliverables },
+        onClick: submitDeliverables,
       },
     ]}
   >
