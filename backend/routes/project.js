@@ -110,57 +110,67 @@ router.post(
           return res.status(400).send("Proposal already exists for this round");
         }
 
-        const discoursePostLink = await createDiscoursePost(
-          proposal,
-          currentRound,
-          project,
-          projectName
-        ); // create a new post in the discourse forum
-        const postId = discoursePostLink.id;
-        if (postId === undefined) {
-          console.error("Error creating post in discourse", discoursePostLink);
-          return res.status(400).json({
-            error: "Could not create a new post in the discourse forum",
-          });
-        }
-        const slug = discoursePostLink.topic_slug;
-        const URL = `${process.env.DISCOURSE_BASE_URI}/t/${slug}/${discoursePostLink.topic_id}`;
-
-        proposal.discourseLink = URL;
-        proposal.discourseId = postId;
-
-        const airtableRecordId = await createAirtableEntry({
-          projectName: projectName,
-          projectCategory: project.projectCategory,
-          proposalEarmark: proposal.proposalEarmark,
-          grantDeliverables: "[ ] " + proposal.grantDeliverables,
-          proposalFundingRequested: proposalFundingRequested,
-          proposalWalletAddress: proposal.proposalWalletAddress,
-          projectLeadFullName: project.projectLeadFullName,
-          projectLeadEmail: project.projectLeadEmail,
-          countryOfResidence: project.countryOfResidence,
-          proposalUrl: proposal.discourseLink,
-          oneLiner: proposal.oneLiner,
-        }); // create airtable entry
-
-        proposal.airtableRecordId = airtableRecordId; // TODO MAKE SURE RECORD ID IS CORRECT
-        proposal.message = req.body.message;
-        proposal.signature = req.body.signedMessage;
-        proposal.round = currentRound;
-
-        const proposalObject = new Proposal(proposal); // ? maybe change this
-        error = proposalObject.validateSync();
-        if (error) {
-          return res.status(400).json({ error: error.toString() });
-        }
-
-        proposalObject.save((err, proposal) => {
-          console.log("proposal created");
+        newProposal.save(async (err, createdProposal) => {
           if (err) {
-            console.log(err);
-            return res.status(400).send(err); // ? send validation error to client
-          } else return res.send({ success: true, proposal });
-        }); // save the proposal to the database
+            console.error(err);
+            res.status(400).send(err);
+          }
+
+          const discoursePostLink = await createDiscoursePost(
+            proposal,
+            currentRound,
+            project,
+            projectName
+          ); // create a new post in the discourse forum
+          const postId = discoursePostLink.id;
+          if (postId === undefined) {
+            console.error(
+              "Error creating post in discourse",
+              discoursePostLink
+            );
+            return res.status(400).json({
+              error: "Could not create a new post in the discourse forum",
+            });
+          }
+          const slug = discoursePostLink.topic_slug;
+          const URL = `${process.env.DISCOURSE_BASE_URI}/t/${slug}/${discoursePostLink.topic_id}`;
+
+          proposal.discourseLink = URL;
+          proposal.discourseId = postId;
+
+          const airtableRecordId = await createAirtableEntry({
+            projectName: projectName,
+            projectCategory: project.projectCategory,
+            proposalEarmark: proposal.proposalEarmark,
+            grantDeliverables: "[ ] " + proposal.grantDeliverables,
+            proposalFundingRequested: proposalFundingRequested,
+            proposalWalletAddress: proposal.proposalWalletAddress,
+            projectLeadFullName: project.projectLeadFullName,
+            projectLeadEmail: project.projectLeadEmail,
+            countryOfResidence: project.countryOfResidence,
+            proposalUrl: proposal.discourseLink,
+            oneLiner: proposal.oneLiner,
+          }); // create airtable entry
+
+          proposal.airtableRecordId = airtableRecordId; // TODO MAKE SURE RECORD ID IS CORRECT
+          proposal.message = req.body.message;
+          proposal.signature = req.body.signedMessage;
+          proposal.round = currentRound;
+
+          // update saved proposal
+          Proposal.findByIdAndUpdate(
+            createdProposal._id,
+            proposal,
+            { runValidators: true },
+            (err, proposal) => {
+              if (err) {
+                console.error(err);
+                return res.status(400).send(err);
+              }
+              res.send({ success: true, proposal });
+            }
+          );
+        });
       }
     );
   }
