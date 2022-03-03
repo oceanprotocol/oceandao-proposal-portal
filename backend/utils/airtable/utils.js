@@ -81,6 +81,8 @@ async function updateAirtableEntry(recordId, proposal) {
   if (proposal.proposalWalletAddress)
     update["Wallet Address"] = proposal.proposalWalletAddress;
 
+  if (proposal.proposalTitle) update["Proposal Title"] = proposal.proposalTitle;
+
   if (proposal.grantDeliverables)
     update["Grant Deliverables"] = NodeHtmlMarkdown.NodeHtmlMarkdown.translate(
       proposal.grantDeliverables
