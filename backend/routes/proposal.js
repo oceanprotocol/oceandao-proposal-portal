@@ -83,7 +83,7 @@ router.post("/update", recaptchaCheck(0.5), checkSigner, function (req, res) {
         );
 
       const currentRound = await getCurrentRoundNumber();
-      if (data.round !== currentRound) {
+      if (data.round != currentRound) {
         // return if voting period started
         return res.status(400).send("Voting period has already started");
       }
