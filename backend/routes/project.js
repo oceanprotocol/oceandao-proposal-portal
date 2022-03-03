@@ -133,7 +133,7 @@ router.post(
           projectName: projectName,
           projectCategory: project.projectCategory,
           proposalEarmark: proposal.proposalEarmark,
-          grantDeliverables: proposal.grantDeliverables,
+          grantDeliverables: "[ ] " + proposal.grantDeliverables,
           proposalFundingRequested: proposalFundingRequested,
           proposalWalletAddress: proposal.proposalWalletAddress,
           projectLeadFullName: project.projectLeadFullName,
