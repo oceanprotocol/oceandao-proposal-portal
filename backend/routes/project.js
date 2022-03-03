@@ -45,7 +45,7 @@ router.post("/list", async (req, res) => {
 });
 
 router.post(
-  "/proposal/create",
+  "/createProposal",
   recaptchaCheck(0.5),
   checkSigner,
   checkProject,

@@ -197,7 +197,7 @@ Community Value — How does the project add value to the overall Ocean Communit
           console.log(error);
         });
     } else {
-      fetch(`${SERVER_URI}/app/project/proposal/create`, {
+      fetch(`${SERVER_URI}/app/project/createProposal`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
