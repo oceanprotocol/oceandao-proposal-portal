@@ -12,6 +12,7 @@ const {
   createAirtableEntry,
   getCurrentRoundNumber,
   getFormerProposals,
+  getCurrentCategoryId,
 } = require("../utils/airtable/utils");
 
 router.post("/create", recaptchaCheck(0.5), checkSigner, async (req, res) => {
@@ -110,6 +111,11 @@ router.post(
           return res.status(400).send("Proposal already exists for this round");
         }
 
+        const categoryId = await getCurrentCategoryId();
+        if (categoryId == null || categoryId == undefined) {
+          return res.status(400).send("No category id found");
+        }
+
         newProposal.save(async (err, createdProposal) => {
           if (err) {
             console.error(err);
@@ -120,7 +126,7 @@ router.post(
             proposal,
             currentRound,
             project,
-            projectName
+            categoryId
           ); // create a new post in the discourse forum
           const postId = discoursePostLink.id;
           if (postId === undefined) {
