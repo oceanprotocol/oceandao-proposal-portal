@@ -42,10 +42,6 @@ function getProjectMd(project) {
 function getProposalMd(proposal) {
   const proposalMd = [];
   proposalMd.push({
-    title: "Proposal Title",
-    body: proposal.proposalTitle,
-  });
-  proposalMd.push({
     title: "Proposal One Liner",
     body: proposal.oneLiner,
   });
@@ -124,7 +120,7 @@ async function createDiscoursePost(proposal, roundCategory, project) {
     body: JSON.stringify({
       raw: post,
       title: `${project.projectName} | ${proposal.proposalTitle} | Round ${roundCategory}`,
-      category: 75, // ? Setup DEV/PROD env configurations + get value from inside Airtable
+      category: 15, // ? Setup DEV/PROD env configurations + get value from inside Airtable
     }),
   });
   return await res.json();
