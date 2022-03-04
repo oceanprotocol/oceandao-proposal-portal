@@ -17,7 +17,7 @@
 - [X] Withdraw proposal
 - [X] Proposal earmark handling
 - [x] /proposal/update/ should only work until Proposal Deadline.
-- [ ] do not allow updates in the proposal if proposal is withdrawn. (proposal updates and deliverables) - A2
+- [X] do not allow updates in the proposal if proposal is withdrawn. (proposal updates and deliverables) - A2
 - [x] Setup dev/prod environment configurations. Handle: SERVER_URI, DISCORD CATEGORY.
 
 ### Frontend
