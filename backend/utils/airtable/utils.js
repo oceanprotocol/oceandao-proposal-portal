@@ -139,7 +139,7 @@ async function createAirtableEntry({
     "Proposal URL": proposalUrl,
     "Proposal Title": proposalTitle,
     "Grant Deliverables":
-      NodeHtmlMarkdown.NodeHtmlMarkdown.translate(grantDeliverables),
+      "[ ] " + NodeHtmlMarkdown.NodeHtmlMarkdown.translate(grantDeliverables),
   };
 
   const id = await base("Proposals").create(proposal);
