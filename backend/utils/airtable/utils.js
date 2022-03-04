@@ -81,7 +81,8 @@ async function updateAirtableEntry(recordId, proposal) {
   if (proposal.proposalWalletAddress)
     update["Wallet Address"] = proposal.proposalWalletAddress;
 
-  if (proposal.proposalTitle) update["Proposal Title"] = proposal.proposalTitle;
+  // uncomment me if you want to make proposal title updateable
+  //if (proposal.proposalTitle) update["Proposal Title"] = proposal.proposalTitle;
 
   if (proposal.grantDeliverables)
     update["Grant Deliverables"] = NodeHtmlMarkdown.NodeHtmlMarkdown.translate(
@@ -121,6 +122,7 @@ async function createAirtableEntry({
   countryOfResidence,
 
   proposalUrl,
+  proposalTitle,
 }) {
   const roundNumber = await getCurrentRoundNumber();
   const proposal = {
@@ -135,6 +137,7 @@ async function createAirtableEntry({
     "Project Email Address": projectLeadEmail,
     "Country of Recipient": countryOfResidence,
     "Proposal URL": proposalUrl,
+    "Proposal Title": proposalTitle,
     "Grant Deliverables":
       NodeHtmlMarkdown.NodeHtmlMarkdown.translate(grantDeliverables),
   };
