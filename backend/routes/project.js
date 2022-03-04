@@ -12,7 +12,7 @@ const {
   createAirtableEntry,
   getCurrentRoundNumber,
   getFormerProposals,
-  getCurrentCategoryId,
+  getCurrentDiscourseCategoryId,
 } = require("../utils/airtable/utils");
 
 router.post("/create", recaptchaCheck(0.5), checkSigner, async (req, res) => {
@@ -112,7 +112,8 @@ router.post(
         }
 
         const categoryId =
-          process.env.DEVELOPMENT_CATEGORY_ID ?? (await getCurrentCategoryId());
+          process.env.DEVELOPMENT_CATEGORY_ID ??
+          (await getCurrentDiscourseCategoryId());
         if (categoryId == null || categoryId == undefined) {
           return res.status(400).send("No category id found");
         }

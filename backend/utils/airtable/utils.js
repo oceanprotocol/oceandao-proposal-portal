@@ -70,7 +70,7 @@ async function getCurrentRoundNumber() {
   return roundParameters ? roundParameters[0].fields["Round"] : -1;
 }
 
-async function getCurrentCategoryId() {
+async function getCurrentDiscourseCategoryId() {
   const nowDateString = new Date().toISOString();
   const roundParameters = await _getFundingRoundsSelectQuery(
     `AND({Voting Starts} > "${nowDateString}", "true")`
@@ -157,5 +157,5 @@ module.exports = {
   createAirtableEntry,
   updateAirtableEntry,
   getFormerProposals,
-  getCurrentCategoryId,
+  getCurrentDiscourseCategoryId,
 };
