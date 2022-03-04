@@ -111,7 +111,8 @@ router.post(
           return res.status(400).send("Proposal already exists for this round");
         }
 
-        const categoryId = await getCurrentCategoryId();
+        const categoryId =
+          process.env.DEVELOPMENT_CATEGORY_ID ?? (await getCurrentCategoryId());
         if (categoryId == null || categoryId == undefined) {
           return res.status(400).send("No category id found");
         }
