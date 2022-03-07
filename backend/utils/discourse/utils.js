@@ -42,10 +42,6 @@ function getProjectMd(project) {
 function getProposalMd(proposal) {
   const proposalMd = [];
   proposalMd.push({
-    title: "Proposal Title",
-    body: proposal.proposalTitle,
-  });
-  proposalMd.push({
     title: "Proposal One Liner",
     body: proposal.oneLiner,
   });

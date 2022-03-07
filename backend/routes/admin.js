@@ -104,9 +104,13 @@ router.post(
         const md = "### Admin:\n" + description;
         await replyToDiscoursePost(md, true, getTopicId(data.discourseLink));
         if (status === 2) {
-          await updateAirtableEntry(data.airtableId, {
-            grantDeliverables: "[x]" + data.grantDeliverables,
-          });
+          await updateAirtableEntry(
+            data.airtableId,
+            {
+              grantDeliverables: data.grantDeliverables,
+            },
+            true
+          );
         }
         return res.send({ success: true });
       }

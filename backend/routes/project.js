@@ -121,7 +121,7 @@ router.post(
         newProposal.save(async (err, createdProposal) => {
           if (err) {
             console.error(err);
-            res.status(400).send(err);
+            return res.status(400).send(err);
           }
 
           const discoursePostLink = await createDiscoursePost(
@@ -150,7 +150,7 @@ router.post(
             projectName: projectName,
             projectCategory: project.projectCategory,
             proposalEarmark: proposal.proposalEarmark,
-            grantDeliverables: "[ ] " + proposal.grantDeliverables,
+            grantDeliverables: proposal.grantDeliverables,
             proposalFundingRequested: proposalFundingRequested,
             proposalWalletAddress: proposal.proposalWalletAddress,
             projectLeadFullName: project.projectLeadFullName,
@@ -158,6 +158,7 @@ router.post(
             countryOfResidence: project.countryOfResidence,
             proposalUrl: proposal.discourseLink,
             oneLiner: proposal.oneLiner,
+            proposalTitle: proposal.proposalTitle,
           }); // create airtable entry
 
           proposal.airtableRecordId = airtableRecordId; // TODO MAKE SURE RECORD ID IS CORRECT
