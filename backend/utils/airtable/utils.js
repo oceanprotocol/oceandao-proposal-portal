@@ -70,6 +70,14 @@ async function getCurrentRoundNumber() {
   return roundParameters ? roundParameters[0].fields["Round"] : -1;
 }
 
+async function getCurrentDiscourseCategoryId() {
+  const nowDateString = new Date().toISOString();
+  const roundParameters = await _getFundingRoundsSelectQuery(
+    `AND({Voting Starts} > "${nowDateString}", "true")`
+  );
+  return roundParameters ? roundParameters[0].fields["Discourse Category"] : -1;
+}
+
 /**
  * Updates an entry in the proposals table
  */
@@ -151,4 +159,5 @@ module.exports = {
   createAirtableEntry,
   updateAirtableEntry,
   getFormerProposals,
+  getCurrentDiscourseCategoryId,
 };
