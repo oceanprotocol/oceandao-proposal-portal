@@ -5,7 +5,7 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "start": "sirv public -s --no-clear"
+    "start": "sirv public --http2 --cert localhost.crt --key localhost.key"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
@@ -32,6 +32,8 @@
     "sirv-cli": "^2.0.0",
     "svelte-navigator": "^3.1.5",
     "svelte-quill": "^1.2.0",
-    "sweetalert2": "^9.7.2"
+    "svelte-web3": "^3.3.7",
+    "sweetalert2": "^9.7.2",
+    "web3-vanilla": "^0.1.9"
   }
 }
