@@ -70,10 +70,18 @@ async function getCurrentRoundNumber() {
   return roundParameters ? roundParameters[0].fields["Round"] : -1;
 }
 
+async function getCurrentDiscourseCategoryId() {
+  const nowDateString = new Date().toISOString();
+  const roundParameters = await _getFundingRoundsSelectQuery(
+    `AND({Voting Starts} > "${nowDateString}", "true")`
+  );
+  return roundParameters ? roundParameters[0].fields["Discourse Category"] : -1;
+}
+
 /**
  * Updates an entry in the proposals table
  */
-async function updateAirtableEntry(recordId, proposal) {
+async function updateAirtableEntry(recordId, proposal, grantCompleted = false) {
   let update = {};
   if (proposal.proposalFundingRequested)
     update["USD Requested"] = proposal.proposalFundingRequested;
@@ -81,12 +89,12 @@ async function updateAirtableEntry(recordId, proposal) {
   if (proposal.proposalWalletAddress)
     update["Wallet Address"] = proposal.proposalWalletAddress;
 
-  if (proposal.proposalTitle) update["Proposal Title"] = proposal.proposalTitle;
-
+  // uncomment me if you want to make proposal title updateable
+  //if (proposal.proposalTitle) update["Proposal Title"] = proposal.proposalTitle;
   if (proposal.grantDeliverables)
-    update["Grant Deliverables"] = NodeHtmlMarkdown.NodeHtmlMarkdown.translate(
-      proposal.grantDeliverables
-    );
+    update["Grant Deliverables"] =
+      `${grantCompleted ? "[x]" : "[ ]"} ` +
+      NodeHtmlMarkdown.NodeHtmlMarkdown.translate(proposal.grantDeliverables);
   if (proposal.withdrawn) update["Proposal State"] = "Withdrawn";
   if (proposal.earmark) update["Earmarks"] = earmarkJson[proposal.earmark];
 
@@ -121,6 +129,7 @@ async function createAirtableEntry({
   countryOfResidence,
 
   proposalUrl,
+  proposalTitle,
 }) {
   const roundNumber = await getCurrentRoundNumber();
   const proposal = {
@@ -135,8 +144,9 @@ async function createAirtableEntry({
     "Project Email Address": projectLeadEmail,
     "Country of Recipient": countryOfResidence,
     "Proposal URL": proposalUrl,
+    "Proposal Title": proposalTitle,
     "Grant Deliverables":
-      NodeHtmlMarkdown.NodeHtmlMarkdown.translate(grantDeliverables),
+      "[ ] " + NodeHtmlMarkdown.NodeHtmlMarkdown.translate(grantDeliverables),
   };
 
   const id = await base("Proposals").create(proposal);
@@ -149,4 +159,5 @@ module.exports = {
   createAirtableEntry,
   updateAirtableEntry,
   getFormerProposals,
+  getCurrentDiscourseCategoryId,
 };

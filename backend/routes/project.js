@@ -12,6 +12,7 @@ const {
   createAirtableEntry,
   getCurrentRoundNumber,
   getFormerProposals,
+  getCurrentDiscourseCategoryId,
 } = require("../utils/airtable/utils");
 
 router.post("/create", recaptchaCheck(0.5), checkSigner, async (req, res) => {
@@ -110,17 +111,24 @@ router.post(
           return res.status(400).send("Proposal already exists for this round");
         }
 
+        const categoryId =
+          process.env.DEVELOPMENT_CATEGORY_ID ??
+          (await getCurrentDiscourseCategoryId());
+        if (categoryId == null || categoryId == undefined) {
+          return res.status(400).send("No category id found");
+        }
+
         newProposal.save(async (err, createdProposal) => {
           if (err) {
             console.error(err);
-            res.status(400).send(err);
+            return res.status(400).send(err);
           }
 
           const discoursePostLink = await createDiscoursePost(
             proposal,
             currentRound,
             project,
-            projectName
+            categoryId
           ); // create a new post in the discourse forum
           const postId = discoursePostLink.id;
           if (postId === undefined) {
@@ -142,7 +150,7 @@ router.post(
             projectName: projectName,
             projectCategory: project.projectCategory,
             proposalEarmark: proposal.proposalEarmark,
-            grantDeliverables: "[ ] " + proposal.grantDeliverables,
+            grantDeliverables: proposal.grantDeliverables,
             proposalFundingRequested: proposalFundingRequested,
             proposalWalletAddress: proposal.proposalWalletAddress,
             projectLeadFullName: project.projectLeadFullName,
@@ -150,6 +158,7 @@ router.post(
             countryOfResidence: project.countryOfResidence,
             proposalUrl: proposal.discourseLink,
             oneLiner: proposal.oneLiner,
+            proposalTitle: proposal.proposalTitle,
           }); // create airtable entry
 
           proposal.airtableRecordId = airtableRecordId; // TODO MAKE SURE RECORD ID IS CORRECT
