@@ -2,7 +2,7 @@
   import { Router, Route, Link } from "svelte-navigator";
   import SubmitProposal from "./pages/SubmitProposal.svelte";
   import Navbar from "./components/Navbar.svelte";
-  import { userConnected, connectWallet, userAddress } from "./stores/ethers";
+  import { userConnected, connectWallet, userAddress, connectWalletFromLocalStorage } from "./stores/ethers";
   import ConnectWallet from "./pages/ConnectWallet.svelte";
   import HomePage from "./pages/HomePage.svelte";
   import CreateProject from "./pages/CreateProject.svelte";
@@ -11,7 +11,11 @@
   import GrantDeliverable from "./pages/GrantDeliverable.svelte";
 
   if ($userConnected && $userAddress === "") {
-    connectWallet();
+    if(localStorage.getItem('WEB3_CONNECT_CACHED_PROVIDER')){
+      connectWalletFromLocalStorage();
+    }else{
+      connectWallet();
+    }
   }
 </script>
 

@@ -24,10 +24,31 @@ const providerOptions = {
 }
 
 const web3Modal = new Web3Modal({
-  cacheProvider: false, // optional
+  cacheProvider: true, // optional
   providerOptions, // required
   disableInjectedProvider: false, // optional. For MetaMask / Brave / Opera.
 });
+
+export const setValuesAfterConnection = async (instance) => {
+  const provider = new ethers.providers.Web3Provider(instance);
+  const signer = provider.getSigner();
+  networkProvider.set(provider);
+  networkSigner.set(signer);
+  const signerAddress = await signer.getAddress()
+  userAddress.set(signerAddress);
+  chainID.set(await ethereum.request({ method: "eth_chainId" }));
+  userConnected.set(true);
+}
+
+
+export const connectWalletFromLocalStorage = async () => {
+  const localStorageProvider = JSON.parse(
+    localStorage.getItem('WEB3_CONNECT_CACHED_PROVIDER')
+  )
+  if (!localStorageProvider) return
+  const instance = await web3Modal.connectTo(localStorageProvider)
+  setValuesAfterConnection(instance)
+}
 
 
 export const connectWallet = async () => {
@@ -57,22 +78,21 @@ export const connectWallet = async () => {
   });
 
   // Subscribe to networkId change
-  instance.on("disconnect", () => {
-    userConnected.set(false);
-    userAddress.set(undefined);
-    networkProvider.set(undefined);
-    networkSigner.set(undefined);
-  });
+  instance.on("disconnect", disconnect);
 
-  const provider = new ethers.providers.Web3Provider(instance);
-  console.log(provider);
-  const signer = provider.getSigner();
-  console.log(signer)
-  networkProvider.set(provider);
-  networkSigner.set(signer);
-  userAddress.set(await signer.getAddress());
-  chainID.set(await ethereum.request({ method: "eth_chainId" }));
-  userConnected.set(true);
+  setValuesAfterConnection(instance)
 };
+
+export const disconnect = () => {
+  userConnected.set(false);
+  userAddress.set(undefined);
+  networkProvider.set(undefined);
+  networkSigner.set(undefined);
+  localStorage.removeItem("walletconnect")
+  localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER")
+  web3Modal.clearCachedProvider();
+}
+
+
 
 userConnected.subscribe((val) => localStorage.setItem("userConnected", val));
