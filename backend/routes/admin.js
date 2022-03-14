@@ -7,6 +7,7 @@ const {
   updateDiscoursePost,
 } = require("../utils/discourse/utils");
 const { updateAirtableEntry } = require("../utils/airtable/utils");
+const Signer = require("../models/Signer");
 
 router.post("/getCompletedProposals", (req, res) => {
   Proposal.find(
@@ -171,6 +172,27 @@ router.post(
       });
   }
 );
+
+router.post("/create", checkSigner, requirePriv(5), (req, res) => {
+  const walletAddress = req.body.walletAddress;
+  const privLevel = req.body.privLevel;
+  if (privLevel < 5 && privLevel > 0) {
+    Signer.findOneAndUpdate(
+      {
+        address: walletAddress,
+      },
+      {
+        privLevel: privLevel,
+      },
+      (err) => {
+        if (err) return res.status(400).send(err);
+        return res.send({ success: true });
+      }
+    );
+  } else {
+    return res.send({ success: false, error: "Invalid priv level" });
+  }
+});
 
 const getTopicId = (url) => url.split("/").pop();
 
