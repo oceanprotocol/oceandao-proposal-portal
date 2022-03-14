@@ -9,6 +9,7 @@ export let networkProvider = writable("");
 export let networkSigner = writable("");
 export let chainID = writable("");
 export let nodeProvider = writable("");
+export let web3 = writable("");
 
 const Web3Modal = window.Web3Modal.default;
 const WalletConnectProvider = window.WalletConnectProvider.default;
@@ -50,6 +51,20 @@ export const connectWalletFromLocalStorage = async () => {
   setValuesAfterConnection(instance)
 }
 
+export const signMessage = async (msg, signer) => {
+  let signedMessage;
+  if (web3.wc) {
+      signedMessage = await provider.send(
+          'personal_sign',
+          [ ethers.utils.hexlify(ethers.utils.toUtf8Bytes(msg)), address.toLowerCase() ]
+      );
+  }
+  else { 
+      signedMessage = await signer.signMessage(msg)
+  }
+  return signedMessage;
+};
+
 
 export const connectWallet = async () => {
   await window.ethereum.enable();
@@ -61,6 +76,8 @@ export const connectWallet = async () => {
     console.log("Could not get a wallet connection", e);
     return;
   }
+
+  web3.set(instance);
 
   // Subscribe to accounts change
   instance.on("accountsChanged", (accounts) => {
@@ -91,6 +108,7 @@ export const disconnect = () => {
   localStorage.removeItem("walletconnect")
   localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER")
   web3Modal.clearCachedProvider();
+  window.location.href = "/";
 }
 
 

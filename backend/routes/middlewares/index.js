@@ -54,6 +54,7 @@ function checkSigner(req, res, next) {
 
 function recaptchaCheck(scoreMin = 0.5) {
   return async function (req, res, next) {
+    return next();
     const recaptchaToken = req.body.recaptchaToken;
     const resp = await verifyRecaptcha(recaptchaToken);
     if (resp.score && resp.score >= scoreMin) {
