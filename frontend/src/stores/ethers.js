@@ -91,8 +91,8 @@ export const connectWallet = async () => {
 
 export const disconnect = async () => {
   await web3Modal.clearCachedProvider();
-  if (networkProvider && !web3.currentProvider.selectedAddress){
-    await networkProvider.disconnect()
+  if (web3 && web3.currentProvider && (web3.currentProvider).close) {
+    await (web3.currentProvider).close()
   }
   userAddress.set(undefined);
   networkProvider.set(undefined);
