@@ -1,5 +1,6 @@
 import { writable } from "svelte/store";
 import { ethers } from "ethers";
+import { web } from "svelte-web3"
 
 export let userConnected = writable(
   localStorage.getItem("userConnected") || false
@@ -9,7 +10,6 @@ export let networkProvider = writable("");
 export let networkSigner = writable("");
 export let chainID = writable("");
 export let nodeProvider = writable("");
-export let web3 = writable("");
 
 const Web3Modal = window.Web3Modal.default;
 const WalletConnectProvider = window.WalletConnectProvider.default;
@@ -19,7 +19,7 @@ const providerOptions = {
     package: WalletConnectProvider,
     options: {
       // Mikko's test key - don't copy as your mileage may vary
-      infuraId: "4b9c931a4f26483aaf53db3ed884549e",
+      infuraId: "4b9c931a4f26483aaf53db3ed884549e"
     }
   },
 }
@@ -53,21 +53,12 @@ export const connectWalletFromLocalStorage = async () => {
 
 export const signMessage = async (msg, signer) => {
   let signedMessage;
-  if (web3.wc) {
-      signedMessage = await provider.send(
-          'personal_sign',
-          [ ethers.utils.hexlify(ethers.utils.toUtf8Bytes(msg)), address.toLowerCase() ]
-      );
-  }
-  else { 
-      signedMessage = await signer.signMessage(msg)
-  }
+  signedMessage = await signer.signMessage(msg)
   return signedMessage;
 };
 
 
 export const connectWallet = async () => {
-  await window.ethereum.enable();
   let instance;
   try {
     instance = await web3Modal.connect();
@@ -76,8 +67,6 @@ export const connectWallet = async () => {
     console.log("Could not get a wallet connection", e);
     return;
   }
-
-  web3.set(instance);
 
   // Subscribe to accounts change
   instance.on("accountsChanged", (accounts) => {
@@ -100,14 +89,17 @@ export const connectWallet = async () => {
   setValuesAfterConnection(instance)
 };
 
-export const disconnect = () => {
-  userConnected.set(false);
+export const disconnect = async () => {
+  await web3Modal.clearCachedProvider();
+  if (networkProvider && !web3.currentProvider.selectedAddress){
+    await networkProvider.disconnect()
+  }
   userAddress.set(undefined);
   networkProvider.set(undefined);
   networkSigner.set(undefined);
   localStorage.removeItem("walletconnect")
   localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER")
-  web3Modal.clearCachedProvider();
+  userConnected.set(false);
   window.location.href = "/";
 }
 
