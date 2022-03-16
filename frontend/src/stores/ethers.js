@@ -1,6 +1,5 @@
 import { writable } from "svelte/store";
 import { ethers } from "ethers";
-import { web } from "svelte-web3"
 
 export let userConnected = writable(
   localStorage.getItem("userConnected") || false
@@ -8,9 +7,10 @@ export let userConnected = writable(
 export let userAddress = writable("");
 export let networkProvider = writable("");
 export let networkSigner = writable("");
-export let chainID = writable("");
 export let nodeProvider = writable("");
+export let web3 = writable("");
 
+const Web3 = window.Web3;
 const Web3Modal = window.Web3Modal.default;
 const WalletConnectProvider = window.WalletConnectProvider.default;
 
@@ -37,8 +37,8 @@ export const setValuesAfterConnection = async (instance) => {
   networkSigner.set(signer);
   const signerAddress = await signer.getAddress()
   userAddress.set(signerAddress);
-  chainID.set(await ethereum.request({ method: "eth_chainId" }));
   userConnected.set(true);
+  web3.set(new Web3(instance));
 }
 
 
