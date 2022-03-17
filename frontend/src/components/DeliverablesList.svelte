@@ -9,7 +9,7 @@
     flex-direction: column;
     background-color: var(--brand-white);
     max-height: 55vh;
-    overflow-y: scroll;
+    overflow-y: auto;
     border-radius: var(--border-radius);
     border: 1px solid var(--brand-grey-lighter);
     box-shadow: 0 6px 15px 0 rgb(0 0 0 / 5%);

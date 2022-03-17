@@ -70,6 +70,10 @@
     });
   }
 
+  function returnToAdmin() {
+    location.href = `/admin/home`;
+  }
+
   function acceptProposalDeliverables() {
     completeProposal(2);
   }
@@ -101,7 +105,7 @@
   }
   .deliverablesComparationContainer{
     width: 100%;
-    display: flex;
+    display: block;
     justify-content: space-between;
   }
   :global(.deliverablesComparationContainer > div){
@@ -115,14 +119,17 @@
     <Section
             title={proposal.proposalTitle}
             description={proposal.proposalDescription}
-            descriptionBottom
+            descriptionTop
             actions={[
             {
-              "text": "Accept",
-              "onClick":  acceptProposalDeliverables
+              "text": "Back",
+              "onClick":  returnToAdmin
             },{
               "text": "Reject",
               "onClick":  rejectProposalDeliverables
+            },{
+              "text": "Accept",
+              "onClick":  acceptProposalDeliverables
             }]}>
       <div class="details py-5 px-5">
         <div class="col-start-4 col-span-2 ...">
@@ -139,9 +146,9 @@
         <DeliverablesList deliverables={[proposal.delivered.description]} title="Delivered"/>
       </div>
       <CustomInput
-        label="Review Description"
-        placeholder="Describe your review"
-        onChange=handleChange
+              label="Review Description"
+              placeholder="Describe your review"
+              onChange=handleChange
       />
     </Section>
   {/if}
