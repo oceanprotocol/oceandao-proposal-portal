@@ -8,13 +8,15 @@
   import { getNonce } from "../utils/helpers";
   import { SERVER_URI } from "../utils/config";
   import Button from "../components/Button.svelte";
+  import Recaptcha from "../components/Recaptcha.svelte";
 
   export let projectId;
   const isUpdating = projectId !== undefined;
   let loaded = !isUpdating;
+  let recaptcha;
 
   if (isUpdating) {
-    fetch(`${SERVER_URI}/app/getProjectInfo/${projectId}`)
+    fetch(`${SERVER_URI}/app/project/info/${projectId}`)
       .then((res) => res.json())
       .then((res) => {
         projectStore.update(() => res.project);
@@ -215,6 +217,8 @@ Co-founder at xxx`,
   }
 
   async function createProject() {
+    const recaptchaToken = await recaptcha.getCaptcha();
+
     let projectObject = {
       projectName: $projectStore.projectName,
       projectCategory: $projectStore.projectCategory,
@@ -236,7 +240,7 @@ Co-founder at xxx`,
     const signer = $userAddress;
 
     if (isUpdating) {
-      fetch(`${SERVER_URI}/app/updateProject`, {
+      fetch(`${SERVER_URI}/app/project/update`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -245,6 +249,7 @@ Co-founder at xxx`,
           signer,
           signedMessage,
           message,
+          recaptchaToken,
         }),
       })
         .then((res) => {
@@ -269,7 +274,7 @@ Co-founder at xxx`,
           console.log(err);
         });
     } else {
-      fetch(`${SERVER_URI}/app/createProject`, {
+      fetch(`${SERVER_URI}/app/project/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -278,6 +283,7 @@ Co-founder at xxx`,
           signer,
           signedMessage,
           message,
+          recaptchaToken,
         }),
       })
         .then((res) => {
@@ -304,6 +310,8 @@ Co-founder at xxx`,
     }
   }
 </script>
+
+<Recaptcha bind:this={recaptcha} />
 
 <div class="flex h-screen mt-10 justify-center w-full">
   <div class="w-full max-w-3xl m-auto">
@@ -383,15 +391,16 @@ Co-founder at xxx`,
           </div>
           <div class="flex space-x-2">
             {#if part > 0}
-              <Button
-                text="Back"
-                onclick={() => back()}
-              />
+              <Button text="Back" onclick={() => back()} />
             {/if}
-              <Button
-                text={ part < 1 ? "Next" : isUpdating ? "Update project" : "Create Project"}
-                onclick={() => next()}
-              />
+            <Button
+              text={part < 1
+                ? "Next"
+                : isUpdating
+                ? "Update project"
+                : "Create Project"}
+              onclick={() => next()}
+            />
           </div>
         </div>
       </form>
@@ -404,7 +413,7 @@ Co-founder at xxx`,
   @tailwind components;
   @tailwind utilities;
 
-  .link{
+  .link {
     color: var(--brand-color-primary);
   }
 </style>

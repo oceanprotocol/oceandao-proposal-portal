@@ -1,12 +1,16 @@
-var express = require("express");
-var router = express.Router();
-const path = require("path");
-/* GET home page. */
-router.get("/", function (req, res, next) {
-  res.sendFile(path.join(__dirname, "../public", "index.html"));
-});
-router.get("*", function (req, res, next) {
-  res.sendFile(path.join(__dirname, "../public", "index.html"));
-});
+const express = require("express");
+const router = express.Router();
+
+const webRoute = require("./web");
+const adminRoute = require("./admin");
+const signerRoute = require("./signer");
+const projectRoute = require("./project");
+const proposalRoute = require("./proposal");
+
+router.use("/app/admin", adminRoute);
+router.use("/app/project", projectRoute);
+router.use("/app/proposal", proposalRoute);
+router.use("/app/", signerRoute);
+router.use("/", webRoute);
 
 module.exports = router;

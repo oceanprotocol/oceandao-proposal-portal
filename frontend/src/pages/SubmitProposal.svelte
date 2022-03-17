@@ -3,10 +3,11 @@
   import LargeTextField from "../components/LargeTextField.svelte";
   import OptionSelect from "../components/OptionSelect.svelte";
   import { proposal as proposalStore } from "../stores/proposal";
-  import { SERVER_URI } from "../utils/config";
+  import { SERVER_URI, RECAPTCHA_KEY } from "../utils/config";
   import { signMessage } from "../utils/signatures";
   import { networkSigner, userAddress } from "../stores/ethers";
   import { getNonce } from "../utils/helpers";
+  import Recaptcha from "../components/Recaptcha.svelte";
   import Button from "../components/Button.svelte";
 
   export let projectId;
@@ -14,9 +15,10 @@
   const isUpdating = proposalId !== undefined;
   let loaded = !isUpdating;
   let part = 0;
+  let recaptcha;
 
   if (isUpdating) {
-    fetch(`${SERVER_URI}/app/proposalInfo/${proposalId}`)
+    fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`)
       .then((res) => res.json())
       .then((res) => {
         proposalStore.update(() => res);
@@ -132,6 +134,7 @@ Community Value — How does the project add value to the overall Ocean Communit
   }
 
   async function submitProposal() {
+    const recaptchaToken = await recaptcha.getCaptcha();
     fieldsPart0.map((field) => {
       if (field.required) {
         if (
@@ -168,7 +171,7 @@ Community Value — How does the project add value to the overall Ocean Communit
     const signer = $userAddress;
 
     if (isUpdating) {
-      fetch(`${SERVER_URI}/app/updateProposal`, {
+      fetch(`${SERVER_URI}/app/proposal/update`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -177,6 +180,7 @@ Community Value — How does the project add value to the overall Ocean Communit
           message: proposalJson,
           signedMessage: signedMessage,
           signer: signer,
+          recaptchaToken: recaptchaToken,
         }),
       })
         .then((response) => response.json())
@@ -193,7 +197,7 @@ Community Value — How does the project add value to the overall Ocean Communit
           console.log(error);
         });
     } else {
-      fetch(`${SERVER_URI}/app/createProposal`, {
+      fetch(`${SERVER_URI}/app/project/createProposal`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -202,6 +206,7 @@ Community Value — How does the project add value to the overall Ocean Communit
           message: proposalJson,
           signedMessage: signedMessage,
           signer: signer,
+          recaptchaToken: recaptchaToken,
         }),
       })
         .then((response) => response.json())
@@ -221,6 +226,8 @@ Community Value — How does the project add value to the overall Ocean Communit
   }
 </script>
 
+<Recaptcha bind:this={recaptcha} />
+
 <div class="flex h-screen mt-10 justify-center w-full">
   <div class="w-full max-w-3xl m-auto">
     <p class="text-lg font-bold text-center">
@@ -234,6 +241,7 @@ Community Value — How does the project add value to the overall Ocean Communit
       </a>
       .
     </p>
+
     {#if loaded == false}
       <div class="text-center">
         <div class="spinner-border text-primary" role="status">
@@ -241,7 +249,10 @@ Community Value — How does the project add value to the overall Ocean Communit
         </div>
       </div>
     {:else}
-      <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+      <form
+        id="proposalForm"
+        class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 "
+      >
         <p class="text-xl font-bold mb-2 opacity-90">{partTitles[part]}</p>
         {#each fields[part] as field}
           {#if field.type === "title"}
@@ -303,10 +314,7 @@ Community Value — How does the project add value to the overall Ocean Communit
           </div>
           <div class="flex space-x-2">
             {#if part > 0}
-              <Button
-                text="Back"
-                onclick={() => back()}
-              />
+              <Button text="Back" onclick={() => back()} />
               <button
                 on:click={back}
                 class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
@@ -315,10 +323,10 @@ Community Value — How does the project add value to the overall Ocean Communit
                 Back
               </button>
             {/if}
-              <Button
-                text={isUpdating ? "Update project" : "Submit Proposal"}
-                onclick={() => submitProposal()}
-              />
+            <Button
+              text={isUpdating ? "Update project" : "Submit Proposal"}
+              onclick={() => submitProposal()}
+            />
           </div>
         </div>
       </form>
@@ -331,7 +339,7 @@ Community Value — How does the project add value to the overall Ocean Communit
   @tailwind components;
   @tailwind utilities;
 
-  .link{
+  .link {
     color: var(--brand-color-primary);
   }
 </style>

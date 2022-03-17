@@ -22,7 +22,7 @@
   }
 
   async function loadProject() {
-    let res = await fetch(`${SERVER_URI}/app/getProjectInfo/${projectId}`);
+    let res = await fetch(`${SERVER_URI}/app/project/info/${projectId}`);
     res = await res.json();
     project = res.project;
     proposals = res.proposals;
