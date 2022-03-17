@@ -13,6 +13,7 @@ const {
   getCurrentRoundNumber,
   getFormerProposals,
   getCurrentDiscourseCategoryId,
+  getCurrentRound,
 } = require("../utils/airtable/utils");
 
 router.post("/create", recaptchaCheck(0.5), checkSigner, async (req, res) => {
@@ -96,12 +97,22 @@ router.post(
       });
     }
 
-    const currentRound = await getCurrentRoundNumber();
+    const currentRound = await getCurrentRound();
+    const currentRoundNumber = currentRound.fields["Round"];
+    const currentRoundSubmissionDeadline =
+      currentRound.fields["Proposals Due By"];
+
+    // if submission deadline has passed, return error
+    if (Date.now() > new Date(currentRoundSubmissionDeadline).getTime()) {
+      return res.status(400).json({
+        error: "Submission deadline for this round has passed",
+      });
+    }
 
     Proposal.findOne(
       {
         projectId: project._id,
-        round: currentRound,
+        round: currentRoundNumber,
       },
       async (err, exists) => {
         if (err) {
@@ -126,7 +137,7 @@ router.post(
 
           const discoursePostLink = await createDiscoursePost(
             proposal,
-            currentRound,
+            currentRoundNumber,
             project,
             categoryId
           ); // create a new post in the discourse forum
@@ -164,7 +175,7 @@ router.post(
           proposal.airtableRecordId = airtableRecordId; // TODO MAKE SURE RECORD ID IS CORRECT
           proposal.message = req.body.message;
           proposal.signature = req.body.signedMessage;
-          proposal.round = currentRound;
+          proposal.round = currentRoundNumber;
 
           // update saved proposal
           Proposal.findByIdAndUpdate(

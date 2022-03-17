@@ -58,16 +58,26 @@ async function getProjectUsdLimit(projectName) {
   if (!project) return 3000;
   return project[0] ? project[0].fields["Max Funding"] : 3000;
 }
+
 /**
  * Returns the active round number
  * @return {Number} current round number
  */
 async function getCurrentRoundNumber() {
+  const roundParameters = await getCurrentRound();
+  return roundParameters ? roundParameters.fields["Round"] : -1;
+}
+
+/**
+ * Returns the current round
+ * @return {object} current round
+ */
+async function getCurrentRound() {
   const nowDateString = new Date().toISOString();
   const roundParameters = await _getFundingRoundsSelectQuery(
-    `AND({Voting Starts} > "${nowDateString}", "true")`
+    `AND({Start Date} <= "${nowDateString}",{Voting Starts} > "${nowDateString}", "true")`
   );
-  return roundParameters ? roundParameters[0].fields["Round"] : -1;
+  return roundParameters ? roundParameters[0] : null;
 }
 
 async function getCurrentDiscourseCategoryId() {
@@ -167,4 +177,5 @@ module.exports = {
   updateAirtableEntry,
   getFormerProposals,
   getCurrentDiscourseCategoryId,
+  getCurrentRound,
 };
