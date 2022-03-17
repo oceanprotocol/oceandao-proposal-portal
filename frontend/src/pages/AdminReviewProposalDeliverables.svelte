@@ -70,10 +70,6 @@
     });
   }
 
-  function returnToAdmin() {
-    location.href = `/admin/home`;
-  }
-
   function acceptProposalDeliverables() {
     completeProposal(2);
   }
@@ -122,9 +118,6 @@
             descriptionTop
             actions={[
             {
-              "text": "Back",
-              "onClick":  returnToAdmin
-            },{
               "text": "Reject",
               "onClick":  rejectProposalDeliverables
             },{
