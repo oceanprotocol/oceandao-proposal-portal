@@ -81,7 +81,7 @@ async function getCurrentDiscourseCategoryId() {
 /**
  * Updates an entry in the proposals table
  */
-async function updateAirtableEntry(recordId, proposal, grantCompleted = false) {
+async function updateAirtableEntry(recordId, proposal) {
   let update = {};
   if (proposal.proposalFundingRequested)
     update["USD Requested"] = proposal.proposalFundingRequested;
@@ -89,12 +89,19 @@ async function updateAirtableEntry(recordId, proposal, grantCompleted = false) {
   if (proposal.proposalWalletAddress)
     update["Wallet Address"] = proposal.proposalWalletAddress;
 
+  if (proposal.deliverableChecklist)
+    update["Deliverable Checklist"] =
+      `[x] ` +
+      NodeHtmlMarkdown.NodeHtmlMarkdown.translate(
+        proposal.deliverableChecklist
+      );
+
   // uncomment me if you want to make proposal title updateable
   //if (proposal.proposalTitle) update["Proposal Title"] = proposal.proposalTitle;
   if (proposal.grantDeliverables)
-    update["Grant Deliverables"] =
-      `${grantCompleted ? "[x]" : "[ ]"} ` +
-      NodeHtmlMarkdown.NodeHtmlMarkdown.translate(proposal.grantDeliverables);
+    update["Grant Deliverables"] = NodeHtmlMarkdown.NodeHtmlMarkdown.translate(
+      proposal.grantDeliverables
+    );
   if (proposal.withdrawn) update["Proposal State"] = "Withdrawn";
   if (proposal.earmark) update["Earmarks"] = earmarkJson[proposal.earmark];
 
