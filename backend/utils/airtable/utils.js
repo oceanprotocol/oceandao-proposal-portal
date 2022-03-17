@@ -64,11 +64,8 @@ async function getProjectUsdLimit(projectName) {
  * @return {Number} current round number
  */
 async function getCurrentRoundNumber() {
-  const nowDateString = new Date().toISOString();
-  const roundParameters = await _getFundingRoundsSelectQuery(
-    `AND({Voting Starts} > "${nowDateString}", "true")`
-  );
-  return roundParameters ? roundParameters[0].fields["Round"] : -1;
+  const roundParameters = await getCurrentRound();
+  return roundParameters ? roundParameters.fields["Round"] : -1;
 }
 
 /**
@@ -78,9 +75,9 @@ async function getCurrentRoundNumber() {
 async function getCurrentRound() {
   const nowDateString = new Date().toISOString();
   const roundParameters = await _getFundingRoundsSelectQuery(
-    `AND({Voting Starts} > "${nowDateString}", "true")`
+    `AND({Start Date} <= "${nowDateString}",{Voting Starts} > "${nowDateString}", "true")`
   );
-  return roundParameters ? roundParameters[0] : -1;
+  return roundParameters ? roundParameters[0] : null;
 }
 
 async function getCurrentDiscourseCategoryId() {
