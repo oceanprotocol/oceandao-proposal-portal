@@ -24,7 +24,13 @@ const proposalSchema = new Schema({
   proposalEarmark: {
     type: String,
     required: true,
-    enum: ["newproject", "newprojectoutreach", "coretech", "general"],
+    enum: [
+      "newproject",
+      "newprojectoutreach",
+      "coretech",
+      "general",
+      "outreach",
+    ],
   },
   proposalEarmarkRequest: String,
   oneLiner: {
@@ -41,7 +47,6 @@ const proposalSchema = new Schema({
     type: String,
     required: true,
   },
-
   withdrawn: {
     type: Boolean,
     default: false,
@@ -59,6 +64,35 @@ const proposalSchema = new Schema({
     validate: [
       isValidErc20Address,
       "Please fill a valid proposal wallet address",
+    ],
+  },
+
+  proposalState: {
+    type: String,
+    enum: [
+      "Accepted",
+      "Rejected",
+      "Granted",
+      "Funded",
+      "Not Granted",
+      "Down Voted",
+      "Withdrawn",
+      "Pending",
+    ],
+    default: "Accepted",
+  },
+
+  proposalStanding: {
+    type: String,
+    enum: [
+      "Unreported",
+      "Completed",
+      "In Progress",
+      "Incomplete & Inactive",
+      "Funds Returned",
+      "In Dispute",
+      "New Project",
+      "No Ocean",
     ],
   },
 
