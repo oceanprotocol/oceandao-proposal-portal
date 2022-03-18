@@ -2,7 +2,7 @@ require("dotenv").config();
 const airtable = require("airtable");
 const mongoose = require("mongoose");
 const Project = require("../../models/Project");
-
+const Signer = require("../../models/Signer");
 const randomString = (length) => {
   let result = "";
   const characters =
@@ -46,7 +46,7 @@ async function dumpData() {
     .select({
       view: "All Proposals",
     })
-    .firstPage();
+    .all();
   if (data.length == 0) return console.error("Run this script again");
   data.reverse();
 
@@ -55,13 +55,17 @@ async function dumpData() {
     grantCategoryJsonReverse[grantCategoryJson[key]] = key;
   });
 
-  const done = [];
+  const allProjects = await Project.find({});
+
+  const done = allProjects.map((project) => project.projectName);
+
+  const allSigners = await Signer.find({});
+
+  const signersDone = allSigners.map((signer) => signer.address);
 
   for (let project of data.map((x) => x.fields)) {
     const admin = project["Wallet Address"];
     const projectName = project["Project Name"];
-
-    if (done.includes(projectName)) continue;
 
     const projectCategory = grantCategoryJsonReverse[project["Grant Category"]];
     const countryOfResidence = project["Country of Recipient"] ?? "not set";
@@ -71,19 +75,35 @@ async function dumpData() {
     const projectLeadFullName = project["Project Lead Full Name"] ?? "not set";
     const finalProduct = "not set";
     const projectDescription = project["One Liner"] ?? "not set";
-    new Project({
-      admin,
-      projectName,
-      projectCategory,
-      countryOfResidence,
-      projectLeadEmail,
-      projectLeadFullName,
-      finalProduct,
-      projectDescription,
-    })
-      .save()
-      .catch((err) => console.error(err));
-    done.push(projectName);
+
+    const signer = {
+      address: admin,
+      email: projectLeadEmail,
+      fullName: projectLeadFullName,
+      countryOfResidence: countryOfResidence,
+    };
+
+    if (!signersDone.includes(admin)) {
+      console.log("Adding signer", signer);
+      await new Signer(signer).save();
+      signersDone.push(admin);
+    }
+
+    if (!done.includes(projectName)) {
+      console.log("Adding new project: ", projectName);
+      await new Project({
+        admin,
+        projectName,
+        projectCategory,
+        countryOfResidence,
+        projectLeadEmail,
+        projectLeadFullName,
+        finalProduct,
+        projectDescription,
+      }).save();
+
+      done.push(projectName);
+    }
   }
 
   console.log("Done");
