@@ -14,9 +14,6 @@ const proposalSchema = new Schema({
     type: String,
     required: true,
   },
-  title: {
-    type: String,
-  },
 
   // Proposal Schema
   proposalTitle: {
