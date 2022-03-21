@@ -81,7 +81,7 @@ async function dumpData() {
     newProposal.proposalTitle = `${projectName} - ${proposal["Round"]}`;
 
     if (names.includes(newProposal.proposalTitle)) {
-      newProposal.proposalTitle = `${newProposal.proposalTitle} | 2`;
+      newProposal.proposalTitle = `${newProposal.proposalTitle} | 2`; //TODO fix duplicate proposal problem
     }
     names.push(newProposal.proposalTitle);
 
@@ -99,26 +99,30 @@ async function dumpData() {
         ? new showdown.Converter().makeHtml(proposal["Deliverable Checklist"])
         : null,
       date: new Date(),
-      adminDescription: "Migrated from Airtable",
+      adminDescription: proposal["Deliverable Checklist"]
+        ? "Migrated from Airtable"
+        : null,
       status: proposal["Proposal Standing"] === "Completed" ? 1 : 0,
     };
     newProposal.airtableRecordId = proposal["RecordId"];
     newProposal.discourseLink = proposal["Proposal URL"];
     const slugId = newProposal.discourseLink
       .split("/")
-      .find((x) => !isNaN(parseInt(x)) && parseInt(x) > 100);
+      .find((x) => !isNaN(parseInt(x)));
     const discourseIdRequest = await fetch(
       `https://port.oceanprotocol.com/t/${slugId}.json`
     );
     const res = await discourseIdRequest.json();
     newProposal.withdrawn = proposal["Proposal State"] === "Withdrawn";
-    newProposal.proposalState = proposal["Proposal State"];
-    newProposal.proposalStanding = proposal["Proposal Standing"];
+    // newProposal.proposalState = proposal["Proposal State"];
+    // newProposal.proposalStanding = proposal["Proposal Standing"];
     newProposal.discourseId = res.post_stream.posts[0].id;
 
     await new Proposal(newProposal).save();
     console.log("Proposal saved:", newProposal.proposalTitle);
   }
+
+  // https://port.oceanprotocol.com/t/proposal-round-15-near-integration/1495/2
 
   console.log("Done");
 }

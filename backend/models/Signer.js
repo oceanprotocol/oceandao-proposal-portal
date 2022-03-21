@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const signerSchema = new Schema({
-  address: String,
+  address: { type: String, unique: true, required: true },
   nonce: {
     type: Number,
     default: 0,
@@ -11,7 +11,7 @@ const signerSchema = new Schema({
     type: Number,
     default: 2, // 5 = admin, 4 = moderator, 3 = contributor, 2 = member, 1 = guest
   },
-  email: String,
+  email: String, //TODO MAYBE THIS SHOULD BE UNIQUE
   fullName: String,
   countryOfResidence: String,
 });
