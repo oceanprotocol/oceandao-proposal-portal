@@ -36,7 +36,7 @@ router.get("/getProposalEarmarkRequest", (req, res) => {
         $exists: true,
       },
     },
-    "proposalEarmarkRequest",
+    "proposalEarmarkRequest proposalTitle round",
     (err, proposals) => {
       if (err) {
         return res.status(400).send(err);
