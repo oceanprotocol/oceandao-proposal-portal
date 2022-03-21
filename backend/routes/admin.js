@@ -16,9 +16,11 @@ router.get("/getCompletedProposals", (req, res) => {
     },
     (err, proposals) => {
       if (err) {
-        res.status(400).send(err);
+        return res
+          .status(400)
+          .send({ err: err, message: "Error fetching proposals" });
       }
-      res.status(200).json({
+      return res.status(200).json({
         proposals,
         success: true,
       });
@@ -31,15 +33,15 @@ router.get("/getProposalEarmarkRequest", (req, res) => {
   Proposal.find(
     {
       proposalEarmarkRequest: {
-        $or: [{ $exists: true }, { $ne: null }, { $ne: "" }],
+        $exists: true,
       },
     },
     "proposalEarmarkRequest",
     (err, proposals) => {
       if (err) {
-        res.status(400).send(err);
+        return res.status(400).send(err);
       }
-      res.status(200).json({
+      return res.status(200).json({
         proposals,
         success: true,
       });
