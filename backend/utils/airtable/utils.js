@@ -115,6 +115,9 @@ async function updateAirtableEntry(recordId, proposal) {
   if (proposal.withdrawn) update["Proposal State"] = "Withdrawn";
   if (proposal.earmark) update["Earmarks"] = earmarkJson[proposal.earmark];
 
+  if (proposal.minUsdRequested)
+    update["Minimum USD Requested"] = proposal.minUsdRequested;
+
   if (proposal.oneLiner) update["One Liner"] = proposal.oneLiner;
   await base("Proposals").update(recordId, update);
   return true;
@@ -147,6 +150,8 @@ async function createAirtableEntry({
 
   proposalUrl,
   proposalTitle,
+
+  minUsdRequested,
 }) {
   const roundNumber = await getCurrentRoundNumber();
   const proposal = {
@@ -162,6 +167,7 @@ async function createAirtableEntry({
     "Country of Recipient": countryOfResidence,
     "Proposal URL": proposalUrl,
     "Proposal Title": proposalTitle,
+    "Minimum USD Requested": minUsdRequested,
     "Grant Deliverables":
       "[ ] " + NodeHtmlMarkdown.NodeHtmlMarkdown.translate(grantDeliverables),
   };
