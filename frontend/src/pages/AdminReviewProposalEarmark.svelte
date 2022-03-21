@@ -16,7 +16,7 @@
   let proposal;
 
   async function loadData() {
-    let res = await fetch(`${SERVER_URI}/app/proposalInfo/${proposalId}`);
+    let res = await fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`);
     proposal = await res.json();
 
     if( proposal ) {
