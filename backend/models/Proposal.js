@@ -65,6 +65,11 @@ const proposalSchema = new Schema({
     ],
   },
 
+  minUsdRequested: {
+    type: Number,
+    default: 0,
+  },
+
   delivered: {
     description: String,
     date: Date,
