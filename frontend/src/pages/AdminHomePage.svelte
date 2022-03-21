@@ -10,7 +10,7 @@
   let unacceptedCoreTechProposals;
 
   async function fetchUnacceptedProposals() {
-    const res = await fetch(`${SERVER_URI}/app/admin/getUnacceptedProposals`, {
+    const res = await fetch(`${SERVER_URI}/app/admin/getCompletedProposals`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -64,8 +64,8 @@
     description={"Below are all the proposals that completed. Admins must mark them as reviewed before projects make it into the next funding round. This needs to be accepted by an admin before Voting Starts."}
     >
     {#if unacceptedProposals}
-      <ListWithActions 
-        proposals={unacceptedProposals} 
+      <ListWithActions
+        proposals={unacceptedProposals}
         actions={[
             {
                 "text": "Review",
@@ -80,7 +80,7 @@
     description={"All Proposals that apply to the Core-Tech Earmark must receive clearance by the Core-Tech WG. This needs to be accepted by an Admin before Voting Starts."}
     >
     {#if unacceptedCoreTechProposals}
-      <ListWithActions 
+      <ListWithActions
         proposals={unacceptedCoreTechProposals}
         actions={[
             {
