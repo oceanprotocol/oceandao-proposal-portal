@@ -4,7 +4,7 @@
   import LargeTextField from "../components/LargeTextField.svelte";
   import OptionSelect from "../components/OptionSelect.svelte";
   import { networkSigner, userAddress } from "../stores/ethers";
-  import { signMessage } from "../utils/signatures";
+  import { signMessage } from "../stores/ethers";
   import { getNonce } from "../utils/helpers";
   import { SERVER_URI } from "../utils/config";
   import Button from "../components/Button.svelte";

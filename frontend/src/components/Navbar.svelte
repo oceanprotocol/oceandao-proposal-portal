@@ -1,5 +1,7 @@
 <script>
   import { Router, Route, Link } from "svelte-navigator";
+  import Button from "./Button.svelte";
+  import { disconnect } from "../stores/ethers.js";
   export let userAddress;
 </script>
 
@@ -9,6 +11,9 @@
   }
   .navbarItem{
     color: var(--brand-black);
+    height: auto;
+    display: flex;
+    align-items: center;
   }
   .navbarItem:hover{
     color: var(--brand-color-primary);
@@ -20,6 +25,8 @@
   }
   .walletAddress{
     cursor: default;
+    display: flex;
+    align-items: center;
   }
   .logoText{
     color: var(--brand-black);
@@ -95,6 +102,7 @@
               userAddress.length - 5
             )}
           </p>
+          <Button text="Disconnect" onclick={() => disconnect()} />
         {/if}
       </ul>
     </div>
