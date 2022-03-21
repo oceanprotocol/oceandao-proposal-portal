@@ -177,6 +177,7 @@ router.post(
             proposalUrl: proposal.discourseLink,
             oneLiner: proposal.oneLiner,
             proposalTitle: proposal.proposalTitle,
+            minUsdRequested: proposal.minUsdRequested,
           }); // create airtable entry
 
           proposal.airtableRecordId = airtableRecordId; // TODO MAKE SURE RECORD ID IS CORRECT
