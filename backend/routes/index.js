@@ -7,7 +7,7 @@ const signerRoute = require("./signer");
 const projectRoute = require("./project");
 const proposalRoute = require("./proposal");
 
-router.use("/app/admin", adminRoute);
+router.use("/admin", adminRoute);
 router.use("/app/project", projectRoute);
 router.use("/app/proposal", proposalRoute);
 router.use("/app/", signerRoute);
