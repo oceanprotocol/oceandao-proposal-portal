@@ -97,6 +97,13 @@ router.post(
       });
     }
 
+    const minUsdRequested = parseFloat(proposal.minUsdRequested);
+    if (minUsdRequested > proposalFundingRequested) {
+      return res.status(400).json({
+        error: "Your minimum funding request exceeds your funding request",
+      });
+    }
+
     const currentRound = await getCurrentRound();
     const currentRoundNumber = currentRound.fields["Round"];
     const currentRoundSubmissionDeadline =
