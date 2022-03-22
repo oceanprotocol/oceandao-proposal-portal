@@ -51,3 +51,4 @@
 - [ ] Add portUsername to project.model. - C1
 - [ ] // TODO - rejectProposalEarmark() - Use the right underlying earmark
 - [ ] // TODO - Please fix. New projects can apply for coretech.
+- [ ] // TODO - GET Project + Show: Category, Project Name | Proposal Name | Round Number

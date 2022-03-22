@@ -11,7 +11,7 @@
   async function submitDeliverables() {
     Swal.fire({
       title: "Are you sure?",
-      text: "You will not be able to bla bla bla",
+      text: "Your deliverables will go under review.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Proceed!",

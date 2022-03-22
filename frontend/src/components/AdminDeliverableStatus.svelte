@@ -12,16 +12,22 @@
   }
 </style>
 
-<div class="deliverables">
-  <div class="justify-center text-center bg-slate-50">
-    {#if deliverableStatus === 1}
-      <p class="bg-yellow-50 p-4">Deliverables submitted. In review.</p>
-    {/if}
-    {#if deliverableStatus === 2}
-      <p class="bg-green-50 p-4">Deliverables accepted. Proposal completed.</p>
-    {/if}
-    {#if deliverableStatus === 3}
-      <p class="bg-red-50 p-4">Deliverables rejected: [{adminDescription}]</p>
-    {/if}
+{#if deliverableStatus > 0}
+  <div class="deliverables">
+    <div class="justify-center text-center bg-slate-50">
+      {#if deliverableStatus === 1}
+        <p class="bg-yellow-50 p-4">Deliverables Submitted. Proposal in review.</p>
+      {/if}
+      {#if deliverableStatus === 2}
+        <p class="bg-green-50 p-4">Deliverables Accepted. Proposal Completed.</p>
+      {/if}
+      {#if deliverableStatus === 3}
+        <div class="bg-red-50 p-4">
+          <p>Deliverables Rejected. Please submit new Deliverables.</p>
+          <br/>
+          {adminDescription}
+        </div>
+      {/if}
+    </div>
   </div>
-</div>
+{/if}

@@ -27,7 +27,7 @@
   async function completeProposal(proposalStatus) {
     Swal.fire({
       title: "Are you sure?",
-      text: `You will ${proposalStatus===2 ? 'Accept' : 'Reject'} this proposal`,
+      text: `You will ${proposalStatus===2 ? 'accept' : 'reject'} this proposal`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Proceed!",
@@ -58,7 +58,7 @@
         if (json.success === true) {
           Swal.fire(
                   "Success!",
-                  "You've successfully withdrawn your proposal",
+                  "You've ${proposalStatus===2 ? 'accepted' : 'rejected'} this proposal.",
                   "success"
           ).then(() => {
             location.href = "/admin/home"
@@ -76,10 +76,6 @@
 
   function rejectProposalDeliverables() {
     completeProposal(3);
-  }
-
-  function handleChange(value) {
-    adminDescription = value;
   }
 </script>
 
@@ -141,7 +137,7 @@
       <CustomInput
               label="Review Description"
               placeholder="Describe your review"
-              onChange=handleChange
+              bind:inputValue={adminDescription}
       />
     </Section>
   {/if}

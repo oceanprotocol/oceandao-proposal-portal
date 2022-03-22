@@ -14,7 +14,7 @@
 
   export let proposalId;
   let proposal;
-  
+
   async function loadData() {
     let res = await fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`);
     proposal = await res.json();
@@ -54,7 +54,7 @@
         if (json.success === true) {
           Swal.fire(
                   "Success!",
-                  "You've successfully withdrawn your proposal",
+                  `You've ${newEarmark==='coretech' ? 'Accepted' : 'Rejected'} this proposal as part of the Core-Tech earmark`,
                   "success"
           ).then(() => {
             location.href = "/admin/home"

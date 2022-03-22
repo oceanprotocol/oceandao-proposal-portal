@@ -1,7 +1,7 @@
 <script>
     export let label;
     export let placeholder;
-    export let onChange;
+    export let inputValue;
 </script>
 
 <style>
@@ -27,11 +27,7 @@
     }
 </style>
 
-
 <div class="inputContainer">
     <label>{label}</label>
-    <input
-        placeholder={placeholder}
-        on:change={(e) => onChange(e.target.value)}
-    >
+    <input placeholder={placeholder} bind:value={inputValue}>
 </div>
