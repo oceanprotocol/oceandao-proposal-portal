@@ -103,7 +103,7 @@ async function dumpData() {
       adminDescription: proposal["Deliverable Checklist"]
         ? "Migrated from Airtable"
         : null,
-      status: proposal["Proposal Standing"] === "Completed" ? 1 : 0,
+      status: proposal["Proposal Standing"] === "Completed" ? 2 : 0,
     };
     newProposal.airtableRecordId = proposal["RecordId"];
     newProposal.discourseLink = proposal["Proposal URL"];
