@@ -106,10 +106,29 @@ async function dumpData() {
       status: proposal["Proposal Standing"] === "Completed" ? 2 : 0,
     };
     newProposal.airtableRecordId = proposal["RecordId"];
-    newProposal.discourseLink = proposal["Proposal URL"];
+
+    newProposal.discourseLink = "";
+
+    const link = proposal["Proposal URL"];
+    for (let k of link.split("/")) {
+      if (!isNaN(parseInt(k)) && parseInt(k) > 100) {
+        newProposal.discourseLink += k;
+        break;
+      } else newProposal.discourseLink += k + "/";
+    }
+    console.log(newProposal.discourseLink);
+    if (newProposal.discourseLink != proposal["Proposal URL"]) {
+      await data
+        .find((x) => x.fields["RecordId"] === proposal["RecordId"])
+        .updateFields({
+          "Proposal URL": newProposal.discourseLink,
+        });
+    }
+
     const slugId = newProposal.discourseLink
       .split("/")
       .find((x) => !isNaN(parseInt(x)));
+    console.log(slugId);
     const discourseIdRequest = await fetch(
       `https://port.oceanprotocol.com/t/${slugId}.json`
     );

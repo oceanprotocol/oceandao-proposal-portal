@@ -49,7 +49,7 @@ async function dumpData() {
     })
     .all();
   if (data.length == 0) return console.error("Run this script again");
-  data.reverse();
+  data.reverse(); // reverse because old proposals might be missing some info
 
   const grantCategoryJsonReverse = {};
   Object.keys(grantCategoryJson).forEach((key) => {
@@ -63,7 +63,6 @@ async function dumpData() {
   const allSigners = await Signer.find({});
 
   const signersDone = allSigners.map((signer) => signer.address);
-
   for (let project of data.map((x) => x.fields)) {
     const admin = ethers.utils.getAddress(project["Wallet Address"]);
     const projectName = project["Project Name"];
