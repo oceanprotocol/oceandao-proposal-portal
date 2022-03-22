@@ -1,4 +1,5 @@
 const Project = require("../../models/Project");
+const Proposal = require("../../models/Proposal");
 const Signer = require("../../models/Signer");
 const { getSigner } = require("../../utils/ethers/signature");
 const { verifyRecaptcha } = require("../../utils/recaptcha/recaptcha");
@@ -84,9 +85,31 @@ function checkProject(req, res, next) {
   });
 }
 
+function checkBadState(req, res, next) {
+  const projectId = JSON.parse(req.body.message).projectId;
+
+  // get the latest record
+  Proposal.find({ projectId })
+    .sort({ createdAt: -1 })
+    .limit(1)
+    .exec((err, data) => {
+      if (err) {
+        return res.status(400).send(err);
+      }
+      if (!data[0]) {
+        return res.status(400).send("Project does not exist");
+      }
+      if (data[0].delivered.status !== 1) {
+        return res.status(400).send("Project is not in good state");
+      }
+      next();
+    });
+}
+
 module.exports = {
   requirePriv,
   checkSigner,
   recaptchaCheck,
   checkProject,
+  checkBadState,
 };
