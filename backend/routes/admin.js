@@ -105,7 +105,7 @@ router.post(
         const md = "### Admin:\n" + description;
         await replyToDiscoursePost(md, true, getTopicId(data.discourseLink));
         if (status === 2) {
-          await updateAirtableEntry(data.airtableId, {
+          await updateAirtableEntry(data.airtableRecordId, {
             deliverableChecklist: data.delivered.description,
           });
         }
