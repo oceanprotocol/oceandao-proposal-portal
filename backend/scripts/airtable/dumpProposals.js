@@ -4,8 +4,8 @@ const mongoose = require("mongoose");
 const Project = require("../../models/Project");
 const Proposal = require("../../models/Proposal");
 const fetch = require("node-fetch");
-
-var showdown = require("showdown");
+const ethers = require("ethers");
+const showdown = require("showdown");
 
 airtable.configure({
   apiKey: process.env.AIRTABLE_API_KEY,
@@ -54,15 +54,14 @@ async function dumpData() {
   });
 
   const allProjects = await Project.find({});
+  const allProposals = await Proposal.find({});
 
-  const names = [];
+  const names = allProposals.map((proposal) => proposal.proposalTitle);
 
   for (let proposal of data.map((x) => x.fields)) {
     const projectName = proposal["Project Name"];
 
     let newProposal = {};
-
-    if (proposal["Round"] == "16") continue;
 
     // proposal attributes
     newProposal.projectId = allProjects.find(
@@ -93,7 +92,9 @@ async function dumpData() {
 
     newProposal.round = proposal["Round"];
     newProposal.proposalFundingRequested = proposal["USD Requested"] ?? 0;
-    newProposal.proposalWalletAddress = proposal["Wallet Address"];
+    newProposal.proposalWalletAddress = ethers.utils.getAddress(
+      proposal["Wallet Address"]
+    );
     newProposal.delivered = {
       description: proposal["Deliverable Checklist"]
         ? new showdown.Converter().makeHtml(proposal["Deliverable Checklist"])
@@ -121,8 +122,6 @@ async function dumpData() {
     await new Proposal(newProposal).save();
     console.log("Proposal saved:", newProposal.proposalTitle);
   }
-
-  // https://port.oceanprotocol.com/t/proposal-round-15-near-integration/1495/2
 
   console.log("Done");
 }

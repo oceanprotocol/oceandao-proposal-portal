@@ -3,6 +3,7 @@ const airtable = require("airtable");
 const mongoose = require("mongoose");
 const Project = require("../../models/Project");
 const Signer = require("../../models/Signer");
+const ethers = require("ethers");
 const randomString = (length) => {
   let result = "";
   const characters =
@@ -64,7 +65,7 @@ async function dumpData() {
   const signersDone = allSigners.map((signer) => signer.address);
 
   for (let project of data.map((x) => x.fields)) {
-    const admin = project["Wallet Address"];
+    const admin = ethers.utils.getAddress(project["Wallet Address"]);
     const projectName = project["Project Name"];
 
     const projectCategory = grantCategoryJsonReverse[project["Grant Category"]];

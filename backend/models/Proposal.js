@@ -67,34 +67,34 @@ const proposalSchema = new Schema({
     ],
   },
 
-  proposalState: {
-    type: String,
-    enum: [
-      "Accepted",
-      "Rejected",
-      "Granted",
-      "Funded",
-      "Not Granted",
-      "Down Voted",
-      "Withdrawn",
-      "Pending",
-    ],
-    default: "Accepted",
-  },
+  // proposalState: {
+  //   type: String,
+  //   enum: [
+  //     "Accepted",
+  //     "Rejected",
+  //     "Granted",
+  //     "Funded",
+  //     "Not Granted",
+  //     "Down Voted",
+  //     "Withdrawn",
+  //     "Pending",
+  //   ],
+  //   default: "Accepted",
+  // },
 
-  proposalStanding: {
-    type: String,
-    enum: [
-      "Unreported",
-      "Completed",
-      "In Progress",
-      "Incomplete & Inactive",
-      "Funds Returned",
-      "In Dispute",
-      "New Project",
-      "No Ocean",
-    ],
-  },
+  // proposalStanding: {
+  //   type: String,
+  //   enum: [
+  //     "Unreported",
+  //     "Completed",
+  //     "In Progress",
+  //     "Incomplete & Inactive",
+  //     "Funds Returned",
+  //     "In Dispute",
+  //     "New Project",
+  //     "No Ocean",
+  //   ],
+  // },
 
   delivered: {
     description: String,
