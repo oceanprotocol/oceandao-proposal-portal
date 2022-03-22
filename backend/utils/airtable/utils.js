@@ -109,6 +109,7 @@ async function updateAirtableEntry(recordId, proposal, grantCompleted = false) {
 
   if (proposal.deliverableChecklist)
     update["Deliverable Checklist"] =
+      `[x] Completed! ` +
       NodeHtmlMarkdown.NodeHtmlMarkdown.translate(
         proposal.deliverableChecklist
       );

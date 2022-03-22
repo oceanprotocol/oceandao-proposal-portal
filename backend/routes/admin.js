@@ -85,7 +85,7 @@ router.post(
         await replyToDiscoursePost(md, true, getTopicId(data.discourseLink));
         if (status === 2) {
           await updateAirtableEntry(data.airtableRecordId, {
-            deliverableChecklist: `[x] Done!` + data.delivered.description,
+            deliverableChecklist: data.delivered.description,
           });
         }
         return res.send({ success: true });
