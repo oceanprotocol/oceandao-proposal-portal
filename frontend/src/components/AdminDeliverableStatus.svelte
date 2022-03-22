@@ -4,7 +4,15 @@
   // 0: not delivered, 1: delivered, 2: delivered and accepted, 3: delivered and rejected
 </script>
 
-<div class="deliverableStatus">
+<style>
+  .deliverables {
+    border-radius: var(--border-radius);
+    border: 1px solid var(--brand-grey-lighter);
+    box-shadow: 0 6px 15px 0 rgb(0 0 0 / 5%);
+  }
+</style>
+
+<div class="deliverables">
   <div class="justify-center text-center bg-slate-50">
     {#if deliverableStatus === 1}
       <p class="bg-yellow-50 p-4">Deliverables submitted. In review.</p>

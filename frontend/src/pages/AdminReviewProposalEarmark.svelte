@@ -14,19 +14,10 @@
 
   export let proposalId;
   let proposal;
-
+  
   async function loadData() {
     let res = await fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`);
     proposal = await res.json();
-
-    if( proposal ) {
-      if( proposal.delivered.status === 0 || proposal.delivered.status === 2 ) {
-        deliverableActions = [{
-          "text": "Submit Deliverables",
-          "onClick": onSubmitDeliverableClick
-        }]
-      }
-    }
   }
   loadData();
 
@@ -76,15 +67,13 @@
   }
 
   function acceptProposalEarmark() {
-    setProposalEarmark('coretech');
+    // Accept and use the requested earmark
+    setProposalEarmark(proposal.proposalEarmarkRequest);
   }
 
   function rejectProposalEarmark() {
-    setProposalEarmark('general');
-  }
-
-  function handleChange(value) {
-    adminDescription = value;
+    // Use the underlying, preset earmark (i.e. new team)
+    setProposalEarmark(proposal.proposalEarmark);
   }
 </script>
 

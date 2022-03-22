@@ -49,3 +49,5 @@
 - [ ] Update Withdrawn UX - Hide/Show button. Communicate state. - B1
 - [ ] Add spinners on buttons to update/create - C1
 - [ ] Add portUsername to project.model. - C1
+- [ ] // TODO - rejectProposalEarmark() - Use the right underlying earmark
+- [ ] // TODO - Please fix. New projects can apply for coretech.

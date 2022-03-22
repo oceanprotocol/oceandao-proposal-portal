@@ -3,6 +3,14 @@
   export let proposalEarmarkRequest;
 </script>
 
+<style>
+  .earmarkRequest {
+    border-radius: var(--border-radius);
+    border: 1px solid var(--brand-grey-lighter);
+    box-shadow: 0 6px 15px 0 rgb(0 0 0 / 5%);
+  }
+</style>
+
 <div class="earmarkRequest">
   {#if proposalEarmarkRequest !== "" && proposalEarmarkRequest !== undefined}
     <div class="justify-center text-center bg-yellow-50 p-4">

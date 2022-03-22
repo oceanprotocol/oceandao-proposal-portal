@@ -71,6 +71,7 @@ router.post(
       },
     ];
 
+    // TODO - Please fix. New projects can apply for coretech.
     const formerProposals = await getFormerProposals(projectName);
     if (formerProposals.length == 0) {
       // ? triple === no?
