@@ -58,7 +58,7 @@
         if (json.success === true) {
           Swal.fire(
                   "Success!",
-                  "You've ${proposalStatus===2 ? 'accepted' : 'rejected'} this proposal.",
+                  `You've ${proposalStatus===2 ? 'accepted' : 'rejected'} this proposal.`,
                   "success"
           ).then(() => {
             location.href = "/admin/home"

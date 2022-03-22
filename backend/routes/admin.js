@@ -34,7 +34,7 @@ router.get("/getProposalEarmarkRequest", (req, res) => {
     {
       proposalEarmarkRequest: {
         $exists: true,
-        $ne: ""
+        $ne: "",
       },
     },
     "proposalEarmarkRequest proposalTitle round",
@@ -85,7 +85,7 @@ router.post(
         await replyToDiscoursePost(md, true, getTopicId(data.discourseLink));
         if (status === 2) {
           await updateAirtableEntry(data.airtableRecordId, {
-            deliverableChecklist: data.delivered.description,
+            deliverableChecklist: `[x] Done!` + data.delivered.description,
           });
         }
         return res.send({ success: true });
