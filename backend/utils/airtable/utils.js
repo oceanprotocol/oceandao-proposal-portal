@@ -23,7 +23,6 @@ const _getFundingRoundsSelectQuery = async (selectQuery) => {
 
 const getProposalByRecordId = async (recordId) => {
   const proposal = await base("Proposals").find(recordId);
-  console.log(proposal);
   return proposal;
 };
 
