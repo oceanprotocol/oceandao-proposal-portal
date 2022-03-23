@@ -21,6 +21,12 @@ const _getFundingRoundsSelectQuery = async (selectQuery) => {
   }
 };
 
+const getProposalByRecordId = async (recordId) => {
+  const proposal = await base("Proposals").find(recordId);
+  console.log(proposal);
+  return proposal;
+};
+
 const _getProposalsSelectQuery = async (selectQuery) => {
   try {
     return await base("Proposals")
@@ -178,4 +184,5 @@ module.exports = {
   getFormerProposals,
   getCurrentDiscourseCategoryId,
   getCurrentRound,
+  getProposalByRecordId,
 };
