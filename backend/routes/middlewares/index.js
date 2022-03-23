@@ -1,6 +1,7 @@
 const Project = require("../../models/Project");
 const Proposal = require("../../models/Proposal");
 const Signer = require("../../models/Signer");
+const { getProposalByRecordId } = require("../../utils/airtable/utils");
 const { getSigner } = require("../../utils/ethers/signature");
 const { verifyRecaptcha } = require("../../utils/recaptcha/recaptcha");
 
@@ -90,19 +91,29 @@ function checkBadState(req, res, next) {
 
   // get the latest record
   Proposal.find({ projectId })
-    .sort({ createdAt: -1 })
+    .sort({ round: -1 })
     .limit(1)
-    .exec((err, data) => {
+    .exec(async (err, data) => {
       if (err) {
         return res.status(400).send(err);
       }
       if (!data[0]) {
-        return res.status(400).send("Project does not exist");
+        next();
       }
-      if (data[0].delivered.status !== 1) {
-        return res.status(400).send("Project is not in good state");
-      }
-      next();
+      if (data[0].delivered.status !== 2) {
+        const proposalInfo = await getProposalByRecordId(
+          data[0].airtableRecordId
+        );
+        console.log(proposalInfo.fields);
+        if (
+          (proposalInfo.fields["Proposal State"] != "Funded" ||
+            proposalInfo.fields["Proposal State"] != "Granted") &&
+          proposalInfo.fields["Proposal Standing"] != "Completed"
+        ) {
+          return res.status(400).send("Project has an undelivered proposal");
+        }
+        return next();
+      } else next();
     });
 }
 
