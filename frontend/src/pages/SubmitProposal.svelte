@@ -16,6 +16,7 @@
   let loaded = !isUpdating;
   let part = 0;
   let recaptcha;
+  let errortext;
 
   if (isUpdating) {
     fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`)
@@ -134,6 +135,7 @@ Community Value — How does the project add value to the overall Ocean Communit
   }
 
   async function submitProposal() {
+    errortext = null;
     const recaptchaToken = await recaptcha.getCaptcha();
     fieldsPart0.map((field) => {
       if (field.required) {
@@ -183,13 +185,24 @@ Community Value — How does the project add value to the overall Ocean Communit
           recaptchaToken: recaptchaToken,
         }),
       })
-        .then((response) => response.json())
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          }
+          return response.text();
+        })
         .then((data) => {
           if (data.success) {
             alert("Proposal updated successfully");
             window.location.href = `/proposal/view/${proposalId}`;
           } else {
             alert("Error updating proposal");
+            try {
+              data = JSON.parse(data);
+              errortext = data.message && data;
+            } catch (e) {
+              errortext = data;
+            }
             console.error(data);
           }
         })
@@ -209,13 +222,24 @@ Community Value — How does the project add value to the overall Ocean Communit
           recaptchaToken: recaptchaToken,
         }),
       })
-        .then((response) => response.json())
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          }
+          return response.text();
+        })
         .then((data) => {
           if (data.success) {
             alert("Proposal created successfully");
             window.location.href = `/project/${projectId}`;
           } else {
             alert("Error creating proposal");
+            try {
+              data = JSON.parse(data);
+              errortext = data.message && data;
+            } catch (e) {
+              errortext = data;
+            }
             console.error(data);
           }
         })
@@ -312,6 +336,9 @@ Community Value — How does the project add value to the overall Ocean Communit
               />
             {/each}
           </div>
+          {#if errortext}
+            <div class="text-red-500">{errortext}</div>
+          {/if}
           <div class="flex space-x-2">
             {#if part > 0}
               <Button text="Back" onclick={() => back()} />
