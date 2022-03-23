@@ -106,8 +106,8 @@ function checkBadState(req, res, next) {
         );
         console.log(proposalInfo.fields);
         if (
-          (proposalInfo.fields["Proposal State"] != "Funded" ||
-            proposalInfo.fields["Proposal State"] != "Granted") && // # maybe check only for funded and NOT granted
+          (proposalInfo.fields["Proposal State"] == "Funded" ||
+            proposalInfo.fields["Proposal State"] == "Granted") && // # maybe check only for funded and NOT granted
           proposalInfo.fields["Proposal Standing"] != "Completed"
         ) {
           return res.status(400).send("Project has an undelivered proposal");
