@@ -61,9 +61,15 @@ async function dumpData() {
   const allProposals = await Proposal.find({});
 
   const names = allProposals.map((proposal) => proposal.proposalTitle);
+  const recordIds = allProposals.map((proposal) => proposal.airtableRecordId);
   const namesNew = [];
 
   for (let proposal of data.map((x) => x.fields)) {
+    if (recordIds.includes(proposal["RecordId"])) {
+      continue;
+    }
+    recordIds.push(proposal["RecordId"]);
+
     const projectName = proposal["Project Name"];
 
     let newProposal = {};
