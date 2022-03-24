@@ -21,6 +21,11 @@ const _getFundingRoundsSelectQuery = async (selectQuery) => {
   }
 };
 
+const getProposalByRecordId = async (recordId) => {
+  const proposal = await base("Proposals").find(recordId);
+  return proposal;
+};
+
 const _getProposalsSelectQuery = async (selectQuery) => {
   try {
     return await base("Proposals")
@@ -123,6 +128,9 @@ async function updateAirtableEntry(recordId, proposal, grantCompleted = false) {
   if (proposal.withdrawn) update["Proposal State"] = "Withdrawn";
   if (proposal.earmark) update["Earmarks"] = earmarkJson[proposal.earmark];
 
+  if (proposal.minUsdRequested)
+    update["Minimum USD Requested"] = proposal.minUsdRequested;
+
   if (proposal.oneLiner) update["One Liner"] = proposal.oneLiner;
   await base("Proposals").update(recordId, update);
   return true;
@@ -155,6 +163,8 @@ async function createAirtableEntry({
 
   proposalUrl,
   proposalTitle,
+
+  minUsdRequested,
 }) {
   const roundNumber = await getCurrentRoundNumber();
   const proposal = {
@@ -170,6 +180,7 @@ async function createAirtableEntry({
     "Country of Recipient": countryOfResidence,
     "Proposal URL": proposalUrl,
     "Proposal Title": proposalTitle,
+    "Minimum USD Requested": minUsdRequested,
     "Grant Deliverables":
       "[ ] " + NodeHtmlMarkdown.NodeHtmlMarkdown.translate(grantDeliverables),
   };
@@ -186,4 +197,5 @@ module.exports = {
   getFormerProposals,
   getCurrentDiscourseCategoryId,
   getCurrentRound,
+  getProposalByRecordId,
 };

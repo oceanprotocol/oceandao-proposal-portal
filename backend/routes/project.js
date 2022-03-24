@@ -5,12 +5,16 @@ const express = require("express");
 const router = express.Router();
 const Proposal = require("../models/Proposal");
 const Project = require("../models/Project");
-const { checkSigner, recaptchaCheck, checkProject } = require("./middlewares");
+const {
+  checkSigner,
+  recaptchaCheck,
+  checkProject,
+  checkBadState,
+} = require("./middlewares");
 const { createDiscoursePost } = require("../utils/discourse/utils");
 const {
   getProjectUsdLimit,
   createAirtableEntry,
-  getCurrentRoundNumber,
   getFormerProposals,
   getCurrentDiscourseCategoryId,
   getCurrentRound,
@@ -51,6 +55,7 @@ router.post(
   recaptchaCheck(0.5),
   checkSigner,
   checkProject,
+  checkBadState,
   async function (req, res) {
     const proposal = JSON.parse(req.body.message);
     // create a new proposal
@@ -95,6 +100,13 @@ router.post(
     if (proposalFundingRequested > projectUsdLimit) {
       return res.status(400).json({
         error: "Your funding request exceeds the project USD limit",
+      });
+    }
+
+    const minUsdRequested = parseFloat(proposal.minUsdRequested);
+    if (minUsdRequested > proposalFundingRequested) {
+      return res.status(400).json({
+        error: "Your minimum funding request exceeds your funding request",
       });
     }
 
@@ -171,6 +183,7 @@ router.post(
             proposalUrl: proposal.discourseLink,
             oneLiner: proposal.oneLiner,
             proposalTitle: proposal.proposalTitle,
+            minUsdRequested: proposal.minUsdRequested,
           }); // create airtable entry
 
           proposal.airtableRecordId = airtableRecordId; // TODO MAKE SURE RECORD ID IS CORRECT
