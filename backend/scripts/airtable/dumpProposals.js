@@ -35,6 +35,10 @@ db.on("disconnected", () => {
   console.log("Mongoose disconnected");
 });
 
+const sleep = (ms) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
 async function dumpData() {
   const data = await base("Proposals")
     .select({
@@ -144,6 +148,8 @@ async function dumpData() {
     newProposal.discourseId = res.post_stream.posts[0].id;
 
     await new Proposal(newProposal).save();
+
+    sleep(1000);
     console.log("Proposal saved:", newProposal.proposalTitle);
   }
 
