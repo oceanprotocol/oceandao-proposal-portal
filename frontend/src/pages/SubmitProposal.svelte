@@ -103,6 +103,16 @@ Community Value — How does the project add value to the overall Ocean Communit
     },
     {
       type: "text",
+      title: "Minimum Funding Requested (USD)",
+      bindValue: "minUsdRequested",
+      wrong: false,
+      required: true,
+      textFormat: "number",
+      importantText:
+        "The amount of minimum funding requested is in USD, but the amount paid is in OCEAN token. The conversion rate is calculated at Vote End, so payment is completed as quickly as possible. This determines how many OCEAN will be awarded if a proposal is voted to receive a grant.",
+    },
+    {
+      type: "text",
       title: "Proposal Wallet Address",
       bindValue: "proposalWalletAddress",
       placeHolder: "0x...",
