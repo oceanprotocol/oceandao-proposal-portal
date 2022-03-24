@@ -67,6 +67,7 @@ const proposalSchema = new Schema({
     ],
   },
 
+
   // proposalState: {
   //   type: String,
   //   enum: [
@@ -95,6 +96,12 @@ const proposalSchema = new Schema({
   //     "No Ocean",
   //   ],
   // },
+
+  minUsdRequested: {
+    type: Number,
+    default: 0,
+  },
+
 
   delivered: {
     description: String,
