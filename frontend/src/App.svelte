@@ -9,6 +9,9 @@
   import ProjectPage from "./pages/ProjectPage.svelte";
   import ProposalPage from "./pages/ProposalPage.svelte";
   import GrantDeliverable from "./pages/GrantDeliverable.svelte";
+  import AdminHomePage from "./pages/AdminHomePage.svelte";
+  import AdminReviewProposalDeliverables from "./pages/AdminReviewProposalDeliverables.svelte";
+  import AdminReviewProposalEarmark from "./pages/AdminReviewProposalEarmark.svelte";
 
   if ($userConnected && $userAddress === "") {
     if(localStorage.getItem('WEB3_CONNECT_CACHED_PROVIDER')){
@@ -62,6 +65,18 @@
 
     <Route path="newProject">
       <CreateProject />
+    </Route>
+
+    <Route path="admin/home" let:params>
+      <AdminHomePage/>
+    </Route>
+
+    <Route path="admin/reviewProposalDeliverables/:proposalId" let:params>
+      <AdminReviewProposalDeliverables proposalId={params.proposalId}/>
+    </Route>
+
+    <Route path="admin/reviewProposalEarmark/:proposalId" let:params>
+      <AdminReviewProposalEarmark proposalId={params.proposalId}/>
     </Route>
   </main>
 </Router>

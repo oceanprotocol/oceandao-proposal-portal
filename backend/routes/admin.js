@@ -9,16 +9,18 @@ const {
 const { updateAirtableEntry } = require("../utils/airtable/utils");
 const Signer = require("../models/Signer");
 
-router.post("/getCompletedProposals", (req, res) => {
+router.get("/getCompletedProposals", (req, res) => {
   Proposal.find(
     {
       "delivered.status": 1,
     },
     (err, proposals) => {
       if (err) {
-        res.status(400).send(err);
+        return res
+          .status(400)
+          .send({ err: err, message: "Error fetching proposals" });
       }
-      res.status(200).json({
+      return res.status(200).json({
         proposals,
         success: true,
       });
@@ -26,44 +28,21 @@ router.post("/getCompletedProposals", (req, res) => {
   );
 });
 
-router.post("/getProposalEarmarkRequest", (req, res) => {
+router.get("/getProposalEarmarkRequest", (req, res) => {
   // find proposals with proposalEarmarkRequest not null
   Proposal.find(
     {
       proposalEarmarkRequest: {
-        $or: [{ $exists: true }, { $ne: null }, { $ne: "" }],
+        $exists: true,
+        $ne: "",
       },
     },
-    "proposalEarmarkRequest",
+    "proposalEarmarkRequest proposalTitle round",
     (err, proposals) => {
       if (err) {
-        res.status(400).send(err);
+        return res.status(400).send(err);
       }
-      res.status(200).json({
-        proposals,
-        success: true,
-      });
-    }
-  );
-});
-
-router.post("/getCompletedProposals", (req, res) => {
-  Proposal.find(
-    {
-      $or: [
-        {
-          "delivered.status": 1,
-        },
-        {
-          "delivered.status": 3,
-        },
-      ],
-    },
-    (err, proposals) => {
-      if (err) {
-        res.status(400).send(err);
-      }
-      res.status(200).json({
+      return res.status(200).json({
         proposals,
         success: true,
       });
@@ -105,7 +84,7 @@ router.post(
         const md = "### Admin:\n" + description;
         await replyToDiscoursePost(md, true, getTopicId(data.discourseLink));
         if (status === 2) {
-          await updateAirtableEntry(data.airtableId, {
+          await updateAirtableEntry(data.airtableRecordId, {
             deliverableChecklist: data.delivered.description,
           });
         }

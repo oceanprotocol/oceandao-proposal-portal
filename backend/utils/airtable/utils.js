@@ -93,10 +93,18 @@ async function getCurrentDiscourseCategoryId() {
   return roundParameters ? roundParameters[0].fields["Discourse Category"] : -1;
 }
 
+async function getCurrentDiscourseCategoryId() {
+  const nowDateString = new Date().toISOString();
+  const roundParameters = await _getFundingRoundsSelectQuery(
+    `AND({Voting Starts} > "${nowDateString}", "true")`
+  );
+  return roundParameters ? roundParameters[0].fields["Discourse Category"] : -1;
+}
+
 /**
  * Updates an entry in the proposals table
  */
-async function updateAirtableEntry(recordId, proposal) {
+async function updateAirtableEntry(recordId, proposal, grantCompleted = false) {
   let update = {};
   if (proposal.proposalFundingRequested)
     update["USD Requested"] = proposal.proposalFundingRequested;
@@ -106,7 +114,7 @@ async function updateAirtableEntry(recordId, proposal) {
 
   if (proposal.deliverableChecklist)
     update["Deliverable Checklist"] =
-      `[x] ` +
+      `[x] Completed! ` +
       NodeHtmlMarkdown.NodeHtmlMarkdown.translate(
         proposal.deliverableChecklist
       );
@@ -114,9 +122,9 @@ async function updateAirtableEntry(recordId, proposal) {
   // uncomment me if you want to make proposal title updateable
   //if (proposal.proposalTitle) update["Proposal Title"] = proposal.proposalTitle;
   if (proposal.grantDeliverables)
-    update["Grant Deliverables"] = NodeHtmlMarkdown.NodeHtmlMarkdown.translate(
-      proposal.grantDeliverables
-    );
+    update["Grant Deliverables"] =
+      `${grantCompleted ? "[x]" : "[ ]"} ` +
+      NodeHtmlMarkdown.NodeHtmlMarkdown.translate(proposal.grantDeliverables);
   if (proposal.withdrawn) update["Proposal State"] = "Withdrawn";
   if (proposal.earmark) update["Earmarks"] = earmarkJson[proposal.earmark];
 
