@@ -5,12 +5,16 @@ const express = require("express");
 const router = express.Router();
 const Proposal = require("../models/Proposal");
 const Project = require("../models/Project");
-const { checkSigner, recaptchaCheck, checkProject } = require("./middlewares");
+const {
+  checkSigner,
+  recaptchaCheck,
+  checkProject,
+  checkBadState,
+} = require("./middlewares");
 const { createDiscoursePost } = require("../utils/discourse/utils");
 const {
   getProjectUsdLimit,
   createAirtableEntry,
-  getCurrentRoundNumber,
   getFormerProposals,
   getCurrentDiscourseCategoryId,
   getCurrentRound,
@@ -51,6 +55,7 @@ router.post(
   recaptchaCheck(0.5),
   checkSigner,
   checkProject,
+  checkBadState,
   async function (req, res) {
     const proposal = JSON.parse(req.body.message);
     // create a new proposal
