@@ -98,7 +98,7 @@ function checkBadState(req, res, next) {
         return res.status(400).send(err);
       }
       if (!data[0]) {
-        next();
+        return next();
       }
       if (data[0].delivered.status !== 2) {
         const proposalInfo = await getProposalByRecordId(
