@@ -34,7 +34,6 @@ const projectSchema = new Schema({
     type: String,
     trim: true,
     lowercase: true,
-    unique: true,
     required: "Email address is required",
     validate: [validator.default.isEmail, "Please fill a valid email address"],
   },

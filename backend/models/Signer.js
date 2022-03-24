@@ -24,6 +24,9 @@ const signerSchema = new Schema({
     type: Number,
     default: 2, // 5 = admin, 4 = moderator, 3 = contributor, 2 = member, 1 = guest
   },
+  email: String, //TODO MAYBE THIS SHOULD BE UNIQUE
+  fullName: String,
+  countryOfResidence: String,
 });
 
 const Signer = mongoose.model("Signer", signerSchema);
