@@ -19,10 +19,10 @@ const providerOptions = {
     package: WalletConnectProvider,
     options: {
       // Mikko's test key - don't copy as your mileage may vary
-      infuraId: "4b9c931a4f26483aaf53db3ed884549e"
-    }
+      infuraId: "4b9c931a4f26483aaf53db3ed884549e",
+    },
   },
-}
+};
 
 const web3Modal = new Web3Modal({
   cacheProvider: true, // optional
@@ -35,74 +35,77 @@ export const setValuesAfterConnection = async (instance) => {
   const signer = provider.getSigner();
   networkProvider.set(provider);
   networkSigner.set(signer);
-  const signerAddress = await signer.getAddress()
+  const signerAddress = await signer.getAddress();
   userAddress.set(signerAddress);
   userConnected.set(true);
   web3.set(new Web3(instance));
-}
-
+};
 
 export const connectWalletFromLocalStorage = async () => {
   const localStorageProvider = JSON.parse(
-    localStorage.getItem('WEB3_CONNECT_CACHED_PROVIDER')
-  )
-  if (!localStorageProvider) return
-  const instance = await web3Modal.connectTo(localStorageProvider)
-  setValuesAfterConnection(instance)
-}
+    localStorage.getItem("WEB3_CONNECT_CACHED_PROVIDER")
+  );
+  if (!localStorageProvider) return;
+  const instance = await web3Modal.connectTo(localStorageProvider);
+
+  // Subscribe to accounts change
+  instance.on("accountsChanged", (accounts) => {});
+
+  // Subscribe to chainId change
+  instance.on("chainChanged", (chainId) => {});
+
+  // Subscribe to networkId change
+  instance.on("networkChanged", (networkId) => {});
+
+  // Subscribe to networkId change
+  instance.on("disconnect", disconnect);
+
+  setValuesAfterConnection(instance);
+};
 
 export const signMessage = async (msg, signer) => {
   let signedMessage;
-  signedMessage = await signer.signMessage(msg)
+  signedMessage = await signer.signMessage(msg);
   return signedMessage;
 };
-
 
 export const connectWallet = async () => {
   let instance;
   try {
     instance = await web3Modal.connect();
     //provider = new ethers.providers.Web3Provider(window.ethereum)
-  } catch(e) {
+  } catch (e) {
     console.log("Could not get a wallet connection", e);
     return;
   }
 
   // Subscribe to accounts change
-  instance.on("accountsChanged", (accounts) => {
-    
-  });
+  instance.on("accountsChanged", (accounts) => {});
 
   // Subscribe to chainId change
-  instance.on("chainChanged", (chainId) => {
-    
-  });
+  instance.on("chainChanged", (chainId) => {});
 
   // Subscribe to networkId change
-  instance.on("networkChanged", (networkId) => {
-    
-  });
+  instance.on("networkChanged", (networkId) => {});
 
   // Subscribe to networkId change
   instance.on("disconnect", disconnect);
 
-  setValuesAfterConnection(instance)
+  setValuesAfterConnection(instance);
 };
 
 export const disconnect = async () => {
   await web3Modal.clearCachedProvider();
-  if (web3 && web3.currentProvider && (web3.currentProvider).close) {
-    await (web3.currentProvider).close()
+  if (web3 && web3.currentProvider && web3.currentProvider.close) {
+    await web3.currentProvider.close();
   }
   userAddress.set(undefined);
   networkProvider.set(undefined);
   networkSigner.set(undefined);
-  localStorage.removeItem("walletconnect")
-  localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER")
+  localStorage.removeItem("walletconnect");
+  localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER");
   userConnected.set(false);
   window.location.href = "/";
-}
-
-
+};
 
 userConnected.subscribe((val) => localStorage.setItem("userConnected", val));
