@@ -35,6 +35,10 @@ db.on("disconnected", () => {
   console.log("Mongoose disconnected");
 });
 
+const sleep = (ms) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
 async function dumpData() {
   const data = await base("Proposals")
     .select({
@@ -57,6 +61,7 @@ async function dumpData() {
   const allProposals = await Proposal.find({});
 
   const names = allProposals.map((proposal) => proposal.proposalTitle);
+  const namesNew = [];
 
   for (let proposal of data.map((x) => x.fields)) {
     const projectName = proposal["Project Name"];
@@ -80,9 +85,13 @@ async function dumpData() {
     newProposal.proposalTitle = `${projectName} - ${proposal["Round"]}`;
 
     if (names.includes(newProposal.proposalTitle)) {
+      continue;
+    }
+
+    if (namesNew.includes(newProposal.proposalTitle)) {
       newProposal.proposalTitle = `${newProposal.proposalTitle} | 2`; //TODO fix duplicate proposal problem
     }
-    names.push(newProposal.proposalTitle);
+    namesNew.push(newProposal.proposalTitle);
 
     newProposal.proposalEarmark = earmarkJsonReverse[proposal["Earmarks"]];
     newProposal.oneLiner = proposal["One Liner"] || "Not found";
@@ -139,6 +148,8 @@ async function dumpData() {
     newProposal.discourseId = res.post_stream.posts[0].id;
 
     await new Proposal(newProposal).save();
+
+    sleep(1000);
     console.log("Proposal saved:", newProposal.proposalTitle);
   }
 
