@@ -262,7 +262,7 @@ Co-founder at xxx`,
               res = JSON.parse(res);
             } catch (e) {}
             errorMessage = `Error creating project. Please check fields. ${
-              res.message ?? res
+              res.message ?? res.error ?? res
             }`;
           }
         })
@@ -301,7 +301,7 @@ Co-founder at xxx`,
               res = JSON.parse(res);
             } catch (e) {}
             errorMessage = `Error creating project. Please check fields. ${
-              res.message ?? res
+              res.message ?? res.error ?? res
             }`;
           }
         })

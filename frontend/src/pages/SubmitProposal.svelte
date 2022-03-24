@@ -209,7 +209,7 @@ Community Value — How does the project add value to the overall Ocean Communit
             alert("Error updating proposal");
             try {
               data = JSON.parse(data);
-              errortext = data.message && data;
+              errortext = data.message ?? data.error ?? data;
             } catch (e) {
               errortext = data;
             }
@@ -246,7 +246,7 @@ Community Value — How does the project add value to the overall Ocean Communit
             alert("Error creating proposal");
             try {
               data = JSON.parse(data);
-              errortext = data.message && data;
+              errortext = data.message ?? data.error ?? data;
             } catch (e) {
               errortext = data;
             }
