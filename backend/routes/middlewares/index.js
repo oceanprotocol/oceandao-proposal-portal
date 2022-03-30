@@ -1,5 +1,7 @@
 const Project = require("../../models/Project");
+const Proposal = require("../../models/Proposal");
 const Signer = require("../../models/Signer");
+const { getProposalByRecordId } = require("../../utils/airtable/utils");
 const { getSigner } = require("../../utils/ethers/signature");
 const { verifyRecaptcha } = require("../../utils/recaptcha/recaptcha");
 
@@ -84,9 +86,40 @@ function checkProject(req, res, next) {
   });
 }
 
+function checkBadState(req, res, next) {
+  const projectId = JSON.parse(req.body.message).projectId;
+
+  // get the latest record
+  Proposal.find({ projectId })
+    .sort({ round: -1 })
+    .limit(1)
+    .exec(async (err, data) => {
+      if (err) {
+        return res.status(400).send(err);
+      }
+      if (!data[0]) {
+        return next();
+      }
+      if (data[0].delivered.status !== 2) {
+        const proposalInfo = await getProposalByRecordId(
+          data[0].airtableRecordId
+        );
+        if (
+          (proposalInfo.fields["Proposal State"] == "Funded" ||
+            proposalInfo.fields["Proposal State"] == "Granted") && // # maybe check only for funded and NOT granted
+          proposalInfo.fields["Proposal Standing"] != "Completed"
+        ) {
+          return res.status(400).send("Project has an undelivered proposal");
+        }
+        return next();
+      } else next();
+    });
+}
+
 module.exports = {
   requirePriv,
   checkSigner,
   recaptchaCheck,
   checkProject,
+  checkBadState,
 };

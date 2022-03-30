@@ -14,11 +14,17 @@ const _getFundingRoundsSelectQuery = async (selectQuery) => {
       .select({
         view: "Rounds",
         filterByFormula: selectQuery,
+        sort: [{ field: "Start Date", direction: "desc" }],
       })
       .firstPage();
   } catch (err) {
     console.error(err);
   }
+};
+
+const getProposalByRecordId = async (recordId) => {
+  const proposal = await base("Proposals").find(recordId);
+  return proposal;
 };
 
 const _getProposalsSelectQuery = async (selectQuery) => {
@@ -58,16 +64,26 @@ async function getProjectUsdLimit(projectName) {
   if (!project) return 3000;
   return project[0] ? project[0].fields["Max Funding"] : 3000;
 }
+
 /**
  * Returns the active round number
  * @return {Number} current round number
  */
 async function getCurrentRoundNumber() {
+  const roundParameters = await getCurrentRound();
+  return roundParameters ? roundParameters.fields["Round"] : -1;
+}
+
+/**
+ * Returns the current round
+ * @return {object} current round
+ */
+async function getCurrentRound() {
   const nowDateString = new Date().toISOString();
   const roundParameters = await _getFundingRoundsSelectQuery(
-    `AND({Voting Starts} > "${nowDateString}", "true")`
+    `AND({Start Date} < "${nowDateString}", "true")`
   );
-  return roundParameters ? roundParameters[0].fields["Round"] : -1;
+  return roundParameters ? roundParameters[0] : null;
 }
 
 async function getCurrentDiscourseCategoryId() {
@@ -89,6 +105,12 @@ async function updateAirtableEntry(recordId, proposal, grantCompleted = false) {
   if (proposal.proposalWalletAddress)
     update["Wallet Address"] = proposal.proposalWalletAddress;
 
+  if (proposal.deliverableChecklist)
+    update["Deliverable Checklist"] =
+      `[x] Completed! ` +
+      NodeHtmlMarkdown.NodeHtmlMarkdown.translate(
+        proposal.deliverableChecklist
+      );
   // uncomment me if you want to make proposal title updateable
   //if (proposal.proposalTitle) update["Proposal Title"] = proposal.proposalTitle;
   if (proposal.grantDeliverables)
@@ -97,6 +119,9 @@ async function updateAirtableEntry(recordId, proposal, grantCompleted = false) {
       NodeHtmlMarkdown.NodeHtmlMarkdown.translate(proposal.grantDeliverables);
   if (proposal.withdrawn) update["Proposal State"] = "Withdrawn";
   if (proposal.earmark) update["Earmarks"] = earmarkJson[proposal.earmark];
+
+  if (proposal.minUsdRequested)
+    update["Minimum USD Requested"] = proposal.minUsdRequested;
 
   if (proposal.oneLiner) update["One Liner"] = proposal.oneLiner;
   await base("Proposals").update(recordId, update);
@@ -130,6 +155,7 @@ async function createAirtableEntry({
 
   proposalUrl,
   proposalTitle,
+  minUsdRequested,
 }) {
   const roundNumber = await getCurrentRoundNumber();
   const proposal = {
@@ -145,6 +171,7 @@ async function createAirtableEntry({
     "Country of Recipient": countryOfResidence,
     "Proposal URL": proposalUrl,
     "Proposal Title": proposalTitle,
+    "Minimum USD Requested": minUsdRequested,
     "Grant Deliverables":
       "[ ] " + NodeHtmlMarkdown.NodeHtmlMarkdown.translate(grantDeliverables),
   };
@@ -160,4 +187,6 @@ module.exports = {
   updateAirtableEntry,
   getFormerProposals,
   getCurrentDiscourseCategoryId,
+  getCurrentRound,
+  getProposalByRecordId,
 };

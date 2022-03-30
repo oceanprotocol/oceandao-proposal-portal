@@ -4,7 +4,7 @@
   import LargeTextField from "../components/LargeTextField.svelte";
   import OptionSelect from "../components/OptionSelect.svelte";
   import { networkSigner, userAddress } from "../stores/ethers";
-  import { signMessage } from "../utils/signatures";
+  import { signMessage } from "../stores/ethers";
   import { getNonce } from "../utils/helpers";
   import { SERVER_URI } from "../utils/config";
   import Button from "../components/Button.svelte";
@@ -252,13 +252,18 @@ Co-founder at xxx`,
           recaptchaToken,
         }),
       })
-        .then((res) => {
+        .then(async (res) => {
           if (res.status === 200) {
             return res.json();
           } else if (res.status === 400) {
             console.log("Couldn't update project: ", res);
-            errorMessage =
-              "Error updating project. Please check fields. " + res;
+            res = await res.text();
+            try {
+              res = JSON.parse(res);
+            } catch (e) {}
+            errorMessage = `Error creating project. Please check fields. ${
+              res.message ?? res.error ?? res
+            }`;
           }
         })
         .then((data) => {
@@ -286,17 +291,22 @@ Co-founder at xxx`,
           recaptchaToken,
         }),
       })
-        .then((res) => {
+        .then(async (res) => {
           if (res.status === 200) {
             return res.json();
           } else if (res.status === 400) {
             console.log("Couldn't create project: ", res);
-            errorMessage = "Error creating project. Please check fields.";
+            res = await res.text();
+            try {
+              res = JSON.parse(res);
+            } catch (e) {}
+            errorMessage = `Error creating project. Please check fields. ${
+              res.message ?? res.error ?? res
+            }`;
           }
         })
         .then((data) => {
           if (data !== undefined) {
-            // TODO - Export and add to projects[]
             console.log("Project created");
             console.log(data);
             alert("Project created");

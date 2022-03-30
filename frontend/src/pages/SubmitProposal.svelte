@@ -16,6 +16,7 @@
   let loaded = !isUpdating;
   let part = 0;
   let recaptcha;
+  let errortext;
 
   if (isUpdating) {
     fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`)
@@ -102,6 +103,16 @@ Community Value — How does the project add value to the overall Ocean Communit
     },
     {
       type: "text",
+      title: "Minimum Funding Requested (USD)",
+      bindValue: "minUsdRequested",
+      wrong: false,
+      required: true,
+      textFormat: "number",
+      importantText:
+        "The amount of minimum funding requested is in USD, but the amount paid is in OCEAN token. The conversion rate is calculated at Vote End, so payment is completed as quickly as possible. This determines how many OCEAN will be awarded if a proposal is voted to receive a grant.",
+    },
+    {
+      type: "text",
       title: "Proposal Wallet Address",
       bindValue: "proposalWalletAddress",
       placeHolder: "0x...",
@@ -134,6 +145,7 @@ Community Value — How does the project add value to the overall Ocean Communit
   }
 
   async function submitProposal() {
+    errortext = null;
     const recaptchaToken = await recaptcha.getCaptcha();
     fieldsPart0.map((field) => {
       if (field.required) {
@@ -164,6 +176,7 @@ Community Value — How does the project add value to the overall Ocean Communit
       projectId: projectId,
       proposalId: proposalId,
       nonce: nonce,
+      minUsdRequested: $proposalStore.minUsdRequested,
     };
 
     const proposalJson = JSON.stringify(proposalObject);
@@ -183,13 +196,24 @@ Community Value — How does the project add value to the overall Ocean Communit
           recaptchaToken: recaptchaToken,
         }),
       })
-        .then((response) => response.json())
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          }
+          return response.text();
+        })
         .then((data) => {
           if (data.success) {
             alert("Proposal updated successfully");
             window.location.href = `/proposal/view/${proposalId}`;
           } else {
             alert("Error updating proposal");
+            try {
+              data = JSON.parse(data);
+              errortext = data.message ?? data.error ?? data;
+            } catch (e) {
+              errortext = data;
+            }
             console.error(data);
           }
         })
@@ -209,13 +233,24 @@ Community Value — How does the project add value to the overall Ocean Communit
           recaptchaToken: recaptchaToken,
         }),
       })
-        .then((response) => response.json())
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          }
+          return response.text();
+        })
         .then((data) => {
           if (data.success) {
             alert("Proposal created successfully");
             window.location.href = `/project/${projectId}`;
           } else {
             alert("Error creating proposal");
+            try {
+              data = JSON.parse(data);
+              errortext = data.message ?? data.error ?? data;
+            } catch (e) {
+              errortext = data;
+            }
             console.error(data);
           }
         })
@@ -312,6 +347,9 @@ Community Value — How does the project add value to the overall Ocean Communit
               />
             {/each}
           </div>
+          {#if errortext}
+            <div class="text-red-500">{errortext}</div>
+          {/if}
           <div class="flex space-x-2">
             {#if part > 0}
               <Button text="Back" onclick={() => back()} />

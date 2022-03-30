@@ -11,7 +11,7 @@
   async function submitDeliverables() {
     Swal.fire({
       title: "Are you sure?",
-      text: "You will not be able to bla bla bla",
+      text: "Your deliverables will go under review.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Proceed!",
@@ -70,12 +70,22 @@
     });
 </script>
 
+<style>
+  .deliverables-container {
+    height: 100%;
+    max-width: 800px;
+    flex-direction: column;
+    margin: auto;
+    padding-top: var(--spacer);
+  }
+</style>
+
 <div class="deliverables-container">
   <Section
-    class="flex text-left bg-grey-200"
-    title={"Deliverables"}
-    descriptionTextLeft
-    actions={[
+          class="flex text-left bg-grey-200"
+          title={"Deliverables"}
+          descriptionTextLeft
+          actions={[
       {
         text: "Submit",
         onClick: submitDeliverables,
@@ -93,13 +103,3 @@
     {/if}
   </Section>
 </div>
-
-<style>
-  .deliverables-container {
-    height: 100%;
-    max-width: 800px;
-    flex-direction: column;
-    margin: auto;
-    padding-top: var(--spacer);
-  }
-</style>

@@ -12,6 +12,7 @@
 
   export let proposalId;
   let proposal;
+  let proposalActions = [];
   let deliverableActions = [];
 
   let pageText = {
@@ -23,8 +24,9 @@
     let res = await fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`);
     proposal = await res.json();
 
+    // TODO - GET Project + Show: Category, Project Name | Proposal Name | Round Number
     if (proposal) {
-      if (proposal.delivered.status === 0 || proposal.delivered.status === 2) {
+      if (proposal.delivered.status === 0 || proposal.delivered.status === 3) {
         deliverableActions = [
           {
             text: "Submit Deliverables",
@@ -35,15 +37,15 @@
     }
 
     console.log(proposal);
-    console.log(proposal.proposalEarmark);
-    console.log(earmarks);
+    console.log(proposal.delivered);
+    console.log(proposal.delivered.adminDescription);
   }
   loadData();
 
   async function withdrawProposal() {
     Swal.fire({
       title: "Are you sure?",
-      text: "You will not be able to bla bla bla",
+      text: "You cannot revert this action. Your proposal will be withdrawn from the Funding Round.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Proceed!",

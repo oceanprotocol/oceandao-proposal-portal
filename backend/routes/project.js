@@ -5,14 +5,19 @@ const express = require("express");
 const router = express.Router();
 const Proposal = require("../models/Proposal");
 const Project = require("../models/Project");
-const { checkSigner, recaptchaCheck, checkProject } = require("./middlewares");
+const {
+  checkSigner,
+  recaptchaCheck,
+  checkProject,
+  checkBadState,
+} = require("./middlewares");
 const { createDiscoursePost } = require("../utils/discourse/utils");
 const {
   getProjectUsdLimit,
   createAirtableEntry,
-  getCurrentRoundNumber,
   getFormerProposals,
   getCurrentDiscourseCategoryId,
+  getCurrentRound,
 } = require("../utils/airtable/utils");
 
 router.post("/create", recaptchaCheck(0.5), checkSigner, async (req, res) => {
@@ -45,11 +50,13 @@ router.post("/list", async (req, res) => {
   res.send(projects);
 });
 
+const processing = [];
 router.post(
   "/createProposal",
   recaptchaCheck(0.5),
   checkSigner,
   checkProject,
+  checkBadState,
   async function (req, res) {
     const proposal = JSON.parse(req.body.message);
     // create a new proposal
@@ -60,6 +67,11 @@ router.post(
     const projectName = project.projectName;
 
     proposal.signer = res.locals.signer; // signer
+    if (processing.includes(proposal.signer)) {
+      res.status(400).send("Please try again later");
+      return;
+    }
+    processing.push(proposal.signer);
     proposal.projectId = project._id; // add projectId to proposal
     proposal.events = [
       {
@@ -70,6 +82,7 @@ router.post(
       },
     ];
 
+    // TODO - Please fix. New projects can apply for coretech.
     const formerProposals = await getFormerProposals(projectName);
     if (formerProposals.length == 0) {
       // ? triple === no?
@@ -96,12 +109,32 @@ router.post(
       });
     }
 
-    const currentRound = await getCurrentRoundNumber();
+    const minUsdRequested = parseFloat(proposal.minUsdRequested);
+    if (!minUsdRequested) {
+      return res.status(400).json({
+        error: "Please enter a minimum USD amount",
+      });
+    }
+    if (minUsdRequested > proposalFundingRequested) {
+      return res.status(400).json({
+        error: "Your minimum funding request exceeds your funding request",
+      });
+    }
+
+    const currentRound = await getCurrentRound();
+    let currentRoundNumber = currentRound.fields["Round"];
+    const currentRoundSubmissionDeadline =
+      currentRound.fields["Proposals Due By"];
+
+    // if submission deadline has passed, return error
+    if (Date.now() > new Date(currentRoundSubmissionDeadline).getTime()) {
+      currentRoundNumber += 1; // submit proposal for next round
+    }
 
     Proposal.findOne(
       {
         projectId: project._id,
-        round: currentRound,
+        round: currentRoundNumber,
       },
       async (err, exists) => {
         if (err) {
@@ -111,34 +144,27 @@ router.post(
           return res.status(400).send("Proposal already exists for this round");
         }
 
-        const categoryId =
-          process.env.DEVELOPMENT_CATEGORY_ID ??
-          (await getCurrentDiscourseCategoryId());
-        if (categoryId == null || categoryId == undefined) {
-          return res.status(400).send("No category id found");
-        }
 
-        newProposal.save(async (err, createdProposal) => {
-          if (err) {
-            console.error(err);
-            return res.status(400).send(err);
+        try {
+          const categoryId =
+            process.env.DEVELOPMENT_CATEGORY_ID ??
+            (await getCurrentDiscourseCategoryId());
+          if (categoryId == null || categoryId == undefined) {
+            return res.status(400).send("No category id found");
+
           }
 
           const discoursePostLink = await createDiscoursePost(
             proposal,
-            currentRound,
+            currentRoundNumber,
             project,
             categoryId
           ); // create a new post in the discourse forum
           const postId = discoursePostLink.id;
           if (postId === undefined) {
-            console.error(
-              "Error creating post in discourse",
-              discoursePostLink
+            throw new Error(
+              "Could not create a new post in the discourse forum"
             );
-            return res.status(400).json({
-              error: "Could not create a new post in the discourse forum",
-            });
           }
           const slug = discoursePostLink.topic_slug;
           const URL = `${process.env.DISCOURSE_BASE_URI}/t/${slug}/${discoursePostLink.topic_id}`;
@@ -159,27 +185,29 @@ router.post(
             proposalUrl: proposal.discourseLink,
             oneLiner: proposal.oneLiner,
             proposalTitle: proposal.proposalTitle,
+            minUsdRequested: minUsdRequested,
+
           }); // create airtable entry
 
           proposal.airtableRecordId = airtableRecordId; // TODO MAKE SURE RECORD ID IS CORRECT
           proposal.message = req.body.message;
           proposal.signature = req.body.signedMessage;
-          proposal.round = currentRound;
+          proposal.round = currentRoundNumber;
 
           // update saved proposal
-          Proposal.findByIdAndUpdate(
-            createdProposal._id,
-            proposal,
-            { runValidators: true },
-            (err, proposal) => {
-              if (err) {
-                console.error(err);
-                return res.status(400).send(err);
-              }
-              res.send({ success: true, proposal });
+
+          new Proposal(proposal).save((err, proposal) => {
+            if (err) {
+              console.error(err);
+              return res.status(400).send(err);
             }
-          );
-        });
+            res.send({ success: true, proposal });
+            processing.splice(processing.indexOf(proposal.signer), 1);
+          });
+        } catch (err) {
+          processing.splice(processing.indexOf(proposal.signer), 1);
+          return res.status(400).send(err);
+        }
       }
     );
   }
