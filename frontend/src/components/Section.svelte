@@ -66,6 +66,7 @@
                 <Button
                     text={action.text}
                     onclick={() => action.onClick()}
+                    loading={action.loading}
                 />
             </div>
         {/each}

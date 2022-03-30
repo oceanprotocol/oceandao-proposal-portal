@@ -1,13 +1,24 @@
 <script>
+  import { Circle } from 'svelte-loading-spinners'
+
   export let onclick;
   export let text;
   export let secondary;
+  export let loading;
+  export let disabled;
 </script>
 
 <button
   on:click={onclick}
   class="button {secondary && "buttonSecondary"} hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-  type="button">{text}</button
+  disabled={disabled===true}
+  type="button">
+  {#if loading===true}
+    <Circle size="20" color="#FFFFFF" unit="px"></Circle>
+  {:else}
+    {text}
+  {/if}
+  </button
 >
 
 <style>

@@ -39,7 +39,7 @@
     actions={[
       {
         text: "Create Project",
-        onClick: onCreateNewProject,
+        onClick: onCreateNewProject
       },
     ]}
   >
