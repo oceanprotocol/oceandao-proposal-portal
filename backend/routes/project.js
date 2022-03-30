@@ -111,20 +111,13 @@ router.post(
     }
 
     const currentRound = await getCurrentRound();
-    if (!currentRound) {
-      return res.status(400).json({
-        error: "Round has not started yet. Please try again later.",
-      });
-    }
-    const currentRoundNumber = currentRound.fields["Round"];
+    let currentRoundNumber = currentRound.fields["Round"];
     const currentRoundSubmissionDeadline =
       currentRound.fields["Proposals Due By"];
 
     // if submission deadline has passed, return error
     if (Date.now() > new Date(currentRoundSubmissionDeadline).getTime()) {
-      return res.status(400).json({
-        error: "Submission deadline for this round has passed",
-      });
+      currentRoundNumber += 1; // submit proposal for next round
     }
 
     Proposal.findOne(
