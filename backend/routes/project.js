@@ -144,12 +144,14 @@ router.post(
           return res.status(400).send("Proposal already exists for this round");
         }
 
+
         try {
           const categoryId =
             process.env.DEVELOPMENT_CATEGORY_ID ??
             (await getCurrentDiscourseCategoryId());
           if (categoryId == null || categoryId == undefined) {
             return res.status(400).send("No category id found");
+
           }
 
           const discoursePostLink = await createDiscoursePost(
@@ -184,6 +186,7 @@ router.post(
             oneLiner: proposal.oneLiner,
             proposalTitle: proposal.proposalTitle,
             minUsdRequested: minUsdRequested,
+
           }); // create airtable entry
 
           proposal.airtableRecordId = airtableRecordId; // TODO MAKE SURE RECORD ID IS CORRECT
