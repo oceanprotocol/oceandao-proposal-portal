@@ -13,6 +13,7 @@ const {
   getProjectUsdLimit,
   getCurrentRoundNumber,
   updateAirtableEntry,
+  getProposalByRecordId,
 } = require("../utils/airtable/utils");
 
 router.post("/withdraw", checkSigner, (req, res) => {
@@ -179,6 +180,11 @@ router.post("/deliver", checkSigner, async (req, res) => {
         return res
           .status(400)
           .json({ error: "Proposal has already been delivered" });
+
+      const proposalInfo = await getProposalByRecordId(data.airtableRecordId);
+      if (proposalInfo.fields["Proposal State"] !== "Funded") {
+        return res.status(400).json({ error: "Proposal must be funded" });
+      }
 
       const event = {
         eventType: "deliver",
