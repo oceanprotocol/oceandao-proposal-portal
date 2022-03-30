@@ -11,9 +11,9 @@ const {
 } = require("../utils/discourse/utils");
 const {
   getProjectUsdLimit,
-  getCurrentRoundNumber,
   updateAirtableEntry,
   getProposalByRecordId,
+  getCurrentRound,
 } = require("../utils/airtable/utils");
 
 router.post("/withdraw", checkSigner, (req, res) => {
@@ -86,8 +86,17 @@ router.post("/update", recaptchaCheck(0.5), checkSigner, function (req, res) {
       if (proposal.minUsdRequested)
         proposal.minUsdRequested = parseFloat(proposal.minUsdRequested);
 
-      const currentRound = await getCurrentRoundNumber();
-      if (data.round != currentRound) {
+      const currentRound = await getCurrentRound();
+      if (currentRound.fields["Round"] > data.round) {
+        return res
+          .status(400)
+          .json({ error: "You cannot update proposals in the past" });
+      }
+
+      if (
+        currentRound.fields["Round"] === data.round &&
+        currentRound.fields["Round State"] !== "Started"
+      ) {
         // return if voting period started
         return res.status(400).send("Voting period has already started");
       }
