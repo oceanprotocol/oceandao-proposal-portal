@@ -14,6 +14,7 @@ const _getFundingRoundsSelectQuery = async (selectQuery) => {
       .select({
         view: "Rounds",
         filterByFormula: selectQuery,
+        sort: [{ field: "Start Date", direction: "desc" }],
       })
       .firstPage();
   } catch (err) {
@@ -80,7 +81,7 @@ async function getCurrentRoundNumber() {
 async function getCurrentRound() {
   const nowDateString = new Date().toISOString();
   const roundParameters = await _getFundingRoundsSelectQuery(
-    `AND({Start Date} <= "${nowDateString}",{Voting Starts} > "${nowDateString}", "true")`
+    `AND({Start Date} < "${nowDateString}", "true")`
   );
   return roundParameters ? roundParameters[0] : null;
 }
