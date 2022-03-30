@@ -104,7 +104,6 @@ function checkBadState(req, res, next) {
         const proposalInfo = await getProposalByRecordId(
           data[0].airtableRecordId
         );
-        console.log(proposalInfo.fields);
         if (
           (proposalInfo.fields["Proposal State"] == "Funded" ||
             proposalInfo.fields["Proposal State"] == "Granted") && // # maybe check only for funded and NOT granted
