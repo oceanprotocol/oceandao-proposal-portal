@@ -111,6 +111,11 @@ router.post(
     }
 
     const currentRound = await getCurrentRound();
+    if (!currentRound) {
+      return res.status(400).json({
+        error: "Round has not started yet. Please try again later.",
+      });
+    }
     const currentRoundNumber = currentRound.fields["Round"];
     const currentRoundSubmissionDeadline =
       currentRound.fields["Proposals Due By"];
