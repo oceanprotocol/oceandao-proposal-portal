@@ -94,22 +94,6 @@ async function getCurrentDiscourseCategoryId() {
   return roundParameters ? roundParameters[0].fields["Discourse Category"] : -1;
 }
 
-async function getCurrentDiscourseCategoryId() {
-  const nowDateString = new Date().toISOString();
-  const roundParameters = await _getFundingRoundsSelectQuery(
-    `AND({Voting Starts} > "${nowDateString}", "true")`
-  );
-  return roundParameters ? roundParameters[0].fields["Discourse Category"] : -1;
-}
-
-async function getCurrentDiscourseCategoryId() {
-  const nowDateString = new Date().toISOString();
-  const roundParameters = await _getFundingRoundsSelectQuery(
-    `AND({Voting Starts} > "${nowDateString}", "true")`
-  );
-  return roundParameters ? roundParameters[0].fields["Discourse Category"] : -1;
-}
-
 /**
  * Updates an entry in the proposals table
  */
@@ -172,7 +156,6 @@ async function createAirtableEntry({
   proposalUrl,
   proposalTitle,
   minUsdRequested,
-
 }) {
   const roundNumber = await getCurrentRoundNumber();
   const proposal = {
