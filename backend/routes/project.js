@@ -67,11 +67,6 @@ router.post(
     const projectName = project.projectName;
 
     proposal.signer = res.locals.signer; // signer
-    if (processing.includes(proposal.signer)) {
-      res.status(400).send("Please try again later");
-      return;
-    }
-    processing.push(proposal.signer);
     proposal.projectId = project._id; // add projectId to proposal
     proposal.events = [
       {
@@ -144,6 +139,11 @@ router.post(
           return res.status(400).send("Proposal already exists for this round");
         }
 
+        if (processing.includes(proposal.signer)) {
+          res.status(400).send("Please try again later");
+          return;
+        }
+        processing.push(proposal.signer);
 
         try {
           const categoryId =
@@ -151,7 +151,6 @@ router.post(
             (await getCurrentDiscourseCategoryId());
           if (categoryId == null || categoryId == undefined) {
             return res.status(400).send("No category id found");
-
           }
 
           const discoursePostLink = await createDiscoursePost(
@@ -186,7 +185,6 @@ router.post(
             oneLiner: proposal.oneLiner,
             proposalTitle: proposal.proposalTitle,
             minUsdRequested: minUsdRequested,
-
           }); // create airtable entry
 
           proposal.airtableRecordId = airtableRecordId; // TODO MAKE SURE RECORD ID IS CORRECT
@@ -198,6 +196,7 @@ router.post(
 
           new Proposal(proposal).save((err, proposal) => {
             if (err) {
+              processing.splice(processing.indexOf(proposal.signer), 1);
               console.error(err);
               return res.status(400).send(err);
             }
