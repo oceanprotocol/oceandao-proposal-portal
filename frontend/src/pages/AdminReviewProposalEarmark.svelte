@@ -43,7 +43,14 @@
           earmark: newEarmark,
           nonce
         });
-        const signedMessage = await signMessage(message, $networkSigner);
+        let signedMessage
+          try{
+            signedMessage = await signMessage(message, $networkSigner);
+          }catch(error){
+            loading = false;
+            errorMessage = error.message;
+            return
+          }
         const res = await fetch(`${SERVER_URI}/app/admin/setProposalEarmark`, {
           method: "POST",
           headers: {
@@ -113,12 +120,12 @@
             {
               "text": "Accept",
               "onClick":  acceptProposalEarmark,
-              loading: loading && selectedAction===proposal.proposalEarmark,
+              loading: loading && selectedAction==='coretech',
               disabled: loading
             },{
               "text": "Reject",
               "onClick":  rejectProposalEarmark,
-              loading: loading && selectedAction==='coretech',
+              loading: loading && selectedAction===proposal.proposalEarmark,
               disabled: loading
             }]}>
       <div class="details py-5 px-5">
@@ -131,6 +138,9 @@
           <span class="text-lg detailValue">{moment(proposal.createdAt).format('YYYY-MM-DD')}</span>
         </div>
       </div>
+      {#if errorMessage}
+        <p class="text-red-500">{errorMessage}</p>
+      {/if}
     </Section>
   {/if}
 </div>
