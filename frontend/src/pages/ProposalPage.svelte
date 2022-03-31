@@ -23,6 +23,7 @@
   async function loadData() {
     let res = await fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`);
     proposal = await res.json();
+    console.log(proposal)
 
     // TODO - GET Project + Show: Category, Project Name | Proposal Name | Round Number
     if (proposal) {

@@ -67,6 +67,7 @@
                     text={action.text}
                     onclick={() => action.onClick()}
                     loading={action.loading}
+                    disabled={action.disabled}
                 />
             </div>
         {/each}
