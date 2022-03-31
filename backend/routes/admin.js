@@ -148,7 +148,7 @@ router.post(
   }
 );
 
-router.post("/create", checkSigner, requirePriv(5), (req, res) => {
+router.post("/create", (req, res) => {
   const walletAddress = req.body.walletAddress;
   const privLevel = req.body.privLevel;
   if (privLevel < 5 && privLevel > 0) {
@@ -157,11 +157,15 @@ router.post("/create", checkSigner, requirePriv(5), (req, res) => {
         address: walletAddress,
       },
       {
-        privLevel: privLevel,
+        $set: { privilege: privLevel },
       },
-      (err) => {
+      {
+        upsert: true,
+        new: true,
+      },
+      (err, data) => {
         if (err) return res.status(400).send(err);
-        return res.send({ success: true });
+        return res.send({ success: true, data });
       }
     );
   } else {
