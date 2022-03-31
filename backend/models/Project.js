@@ -34,6 +34,7 @@ const projectSchema = new Schema({
   projectLeadEmail: {
     type: String,
     trim: true,
+    set: (value) => value.trim(),
     lowercase: true,
     required: "Email address is required",
     validate: [validator.default.isEmail, "Please fill a valid email address"],
