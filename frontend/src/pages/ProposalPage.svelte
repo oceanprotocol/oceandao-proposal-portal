@@ -34,6 +34,7 @@
           {
             text: "Submit Deliverables",
             onClick: onSubmitDeliverableClick,
+            disabled: loading
           },
         ];
       }
