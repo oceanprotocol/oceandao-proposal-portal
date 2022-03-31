@@ -14,6 +14,8 @@
   let proposal;
   let proposalActions = [];
   let deliverableActions = [];
+  let loading = false;
+  let errorMessage = undefined;
 
   let pageText = {
     proposalDescription: `Use the form below to submit your final deliverables and complete your proposal. This enables your project to remain in a good state, and to apply for more grants.`,
@@ -53,6 +55,7 @@
       cancelButtonText: "Cancel",
     }).then(async (result) => {
       if (result.value) {
+        loading = true;
         const signer = $userAddress;
         const nonce = await getNonce(signer);
         const message = JSON.stringify({
@@ -60,7 +63,14 @@
           nonce,
           withdraw: true,
         });
-        const signedMessage = await signMessage(message, $networkSigner);
+        let signedMessage
+        try{
+          signedMessage = await signMessage(message, $networkSigner);
+        }catch(error){
+          loading = false;
+          errorMessage = error.message;
+          return
+        }
         const res = await fetch(`${SERVER_URI}/app/proposal/withdraw`, {
           method: "POST",
           headers: {
@@ -74,12 +84,14 @@
         });
         const json = await res.json();
         if (json.success === true) {
+          loading = false;
           Swal.fire(
             "Success!",
             "You've successfully withdrawn your proposal",
             "success"
           ); // ? Popup flashes & goes away without user interaction. Looks broken. Proposal view does not render.
         } else {
+          loading = false;
           Swal.fire("Error!", "Something went wrong", "error");
         }
       }
@@ -106,10 +118,13 @@
         {
           text: "Withdraw Proposal",
           onClick: withdrawProposal,
+          loading: loading,
+          disabled: loading
         },
         {
           text: "Update Proposal",
           onClick: onUpdateProposalClick,
+          disabled: loading
         },
       ]}
     >
@@ -130,6 +145,9 @@
       <AdminEarmarkStatus
         proposalEarmarkRequest={proposal.proposalEarmarkRequest}
       />
+      {#if errorMessage}
+        <p class="text-red-500">{errorMessage}</p>
+      {/if}
     </Section>
   {/if}
   {#if proposal}
