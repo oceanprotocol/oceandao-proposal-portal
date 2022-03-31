@@ -12,6 +12,7 @@ const projectSchema = new Schema({
     type: String,
     required: true,
     unique: true,
+    set: (value) => value.trim(),
   },
   projectCategory: {
     type: String,

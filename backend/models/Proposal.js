@@ -20,6 +20,7 @@ const proposalSchema = new Schema({
     type: String,
     required: true,
     unique: true,
+    set: (value) => value.trim(),
   },
   proposalEarmark: {
     type: String,
@@ -67,7 +68,6 @@ const proposalSchema = new Schema({
     ],
   },
 
-
   // proposalState: {
   //   type: String,
   //   enum: [
@@ -101,7 +101,6 @@ const proposalSchema = new Schema({
     type: Number,
     default: 0,
   },
-
 
   delivered: {
     description: String,
