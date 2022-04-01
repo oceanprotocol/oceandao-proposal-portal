@@ -5,9 +5,13 @@
   import ProjectItemsList from "../components/ProjectItemsList.svelte";
   import Section from "../components/Section.svelte";
   import ListWithActions from "../components/ListWithActions.svelte";
+  import ListWithAdmins from "../components/ListWithAdmins.svelte";
 
   let unacceptedProposals;
   let unacceptedCoreTechProposals;
+  let administrators;
+  let userAdmin;
+  let userPrivLevel;
 
   async function fetchUnacceptedProposals() {
     const res = await fetch(`${SERVER_URI}/app/admin/getCompletedProposals`, {
@@ -37,8 +41,40 @@
     console.log(unacceptedCoreTechProposals)
   }
 
+  async function fetchAdministrators() {
+    const res = await fetch(`${SERVER_URI}/app/admin/getAdministrators`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        'Accept': 'application/json'
+      }
+    });
+    const data = await res.json();
+    administrators = data.administrators;
+
+    console.log(administrators)
+    console.log("User Address: ", userAddress)
+    console.log("User Address: ", $userAddress)
+
+    userAdmin = administrators.filter((admin) => admin.address === $userAddress)
+    if(userAdmin !== undefined)
+      userPrivLevel = userAdmin.privilege;
+
+    console.log("Local user admin object: ", userAdmin)
+    console.log("Local user privilege level: ", userPrivLevel)
+  }
+
+  async function createAdministrator() {
+
+  }
+
+  async function deleteAdministrator() {
+
+  }
+
   fetchUnacceptedProposals();
   fetchCoreTechUnacceptedProposals();
+  fetchAdministrators();
 
   function onReviewProposalClick(proposalId) {
     location.href = `/admin/reviewProposalDeliverables/${proposalId}`;
@@ -96,6 +132,13 @@
             }
         ]}
        />
+    {/if}
+  </Section>
+  <Section class="flex text-left bg-grey-200"
+           title="Manage Admins"
+           description={"Use the following panel to create, update, and delete admins."}>
+    {#if administrators}
+      <ListWithAdmins admins={administrators} />
     {/if}
   </Section>
 </div>

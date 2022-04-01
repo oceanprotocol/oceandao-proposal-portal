@@ -9,6 +9,22 @@ const {
 const { updateAirtableEntry } = require("../utils/airtable/utils");
 const Signer = require("../models/Signer");
 
+router.get("/getAdministrators", (req, res) => {
+    Signer.find({"privilege": {$gte: 3}},
+        (err, administrators) => {
+            if (err) {
+                return res
+                    .status(400)
+                    .send({ err: err, message: "Error fetching proposals" });
+            }
+            return res.status(200).json({
+                administrators,
+                success: true,
+            });
+        }
+    );
+});
+
 router.get("/getCompletedProposals", (req, res) => {
   Proposal.find(
     {

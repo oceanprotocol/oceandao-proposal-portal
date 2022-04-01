@@ -3,6 +3,10 @@
 
   export let proposals;
   export let actions;
+
+  async function updateAdminOnClick() {
+
+  }
 </script>
 
 <style>
