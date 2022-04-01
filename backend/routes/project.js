@@ -16,7 +16,6 @@ const {
   getProjectUsdLimit,
   createAirtableEntry,
   getFormerProposals,
-  getCurrentDiscourseCategoryId,
   getCurrentRound,
 } = require("../utils/airtable/utils");
 
