@@ -16,7 +16,6 @@ const {
   getProjectUsdLimit,
   createAirtableEntry,
   getFormerProposals,
-  getCurrentDiscourseCategoryId,
   getCurrentRound,
 } = require("../utils/airtable/utils");
 
@@ -148,8 +147,9 @@ router.post(
         try {
           const categoryId =
             process.env.DEVELOPMENT_CATEGORY_ID ??
-            (await getCurrentDiscourseCategoryId());
+            currentRound.fields["Discourse Category"];
           if (categoryId == null || categoryId == undefined) {
+            processing.splice(processing.indexOf(proposal.signer), 1);
             return res.status(400).send("No category id found");
           }
 
@@ -204,8 +204,9 @@ router.post(
             processing.splice(processing.indexOf(proposal.signer), 1);
           });
         } catch (err) {
+          console.error(err);
           processing.splice(processing.indexOf(proposal.signer), 1);
-          return res.status(400).send(err);
+          return res.status(400).send(err.message);
         }
       }
     );
