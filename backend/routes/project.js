@@ -66,11 +66,6 @@ router.post(
     const projectName = project.projectName;
 
     proposal.signer = res.locals.signer; // signer
-    if (processing.includes(proposal.signer)) {
-      res.status(400).send("Please try again later");
-      return;
-    }
-    processing.push(proposal.signer);
     proposal.projectId = project._id; // add projectId to proposal
     proposal.events = [
       {
