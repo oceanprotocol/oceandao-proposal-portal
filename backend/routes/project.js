@@ -16,7 +16,6 @@ const {
   getProjectUsdLimit,
   createAirtableEntry,
   getFormerProposals,
-  getCurrentDiscourseCategoryId,
   getCurrentRound,
 } = require("../utils/airtable/utils");
 
@@ -144,14 +143,19 @@ router.post(
           return res.status(400).send("Proposal already exists for this round");
         }
 
+        if (processing.includes(proposal.signer)) {
+          res.status(400).send("Please try again later");
+          return;
+        }
+        processing.push(proposal.signer);
 
         try {
           const categoryId =
             process.env.DEVELOPMENT_CATEGORY_ID ??
-            (await getCurrentDiscourseCategoryId());
+            currentRound.fields["Discourse Category"];
           if (categoryId == null || categoryId == undefined) {
+            processing.splice(processing.indexOf(proposal.signer), 1);
             return res.status(400).send("No category id found");
-
           }
 
           const discoursePostLink = await createDiscoursePost(
@@ -186,7 +190,6 @@ router.post(
             oneLiner: proposal.oneLiner,
             proposalTitle: proposal.proposalTitle,
             minUsdRequested: minUsdRequested,
-
           }); // create airtable entry
 
           proposal.airtableRecordId = airtableRecordId; // TODO MAKE SURE RECORD ID IS CORRECT
@@ -198,6 +201,7 @@ router.post(
 
           new Proposal(proposal).save((err, proposal) => {
             if (err) {
+              processing.splice(processing.indexOf(proposal.signer), 1);
               console.error(err);
               return res.status(400).send(err);
             }
@@ -205,8 +209,9 @@ router.post(
             processing.splice(processing.indexOf(proposal.signer), 1);
           });
         } catch (err) {
+          console.error(err);
           processing.splice(processing.indexOf(proposal.signer), 1);
-          return res.status(400).send(err);
+          return res.status(400).send(err.message);
         }
       }
     );
