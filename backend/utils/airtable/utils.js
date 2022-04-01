@@ -87,11 +87,9 @@ async function getCurrentRound() {
 }
 
 async function getCurrentDiscourseCategoryId() {
-  const nowDateString = new Date().toISOString();
-  const roundParameters = await _getFundingRoundsSelectQuery(
-    `AND({Voting Starts} > "${nowDateString}", "true")`
-  );
-  return roundParameters ? roundParameters[0].fields["Discourse Category"] : -1;
+  // NOT USED
+  const roundParameters = await getCurrentRound();
+  return roundParameters ? roundParameters.fields["Discourse Category"] : -1;
 }
 
 /**
