@@ -5,72 +5,67 @@ const apiUsername = process.env.DISCOURSE_USERNAME;
 const baseUrl = process.env.DISCOURSE_BASE_URI;
 const fetch = require("node-fetch");
 
-function getProjectMd(project) {
-  // TODO include value add criteria
-  const projectMd = [];
-  projectMd.push({
+function getMarkdown(project, proposal) {
+  const md = [];
+
+  md.push({
     title: "## Project Description",
     body: project.projectDescription,
     type: "md",
   });
-  projectMd.push({
+  md.push({
     title: "## Final Product",
     body: project.finalProduct,
     type: "md",
   });
   if (project.coreTeam)
-    projectMd.push({
+    md.push({
       title: "## Core Team",
       body: project.coreTeam,
       type: "md",
     });
 
   if (project.advisors)
-    projectMd.push({
+    md.push({
       title: "## Advisors",
       body: project.advisors,
       type: "md",
     });
 
-  return projectMd;
-}
-
-function getProposalMd(proposal) {
-  const proposalMd = [];
-  proposalMd.push({
+  md.push({
     title: "# Proposal",
   });
-  proposalMd.push({
+  md.push({
     title: "## " + proposal.proposalTitle,
   });
-  proposalMd.push({
+  md.push({
     title: "### One Liner",
     body: proposal.oneLiner,
   });
-  proposalMd.push({
+  md.push({
     title: "## Description",
     body: proposal.proposalDescription,
     type: "md",
   });
-  proposalMd.push({
+  md.push({
     title: "## Grant Deliverables",
     body: proposal.grantDeliverables,
     type: "md",
   });
-  proposalMd.push({
+  md.push({
     title: "## Value Add Criteria",
     body: proposal.valueAddCriteria,
   });
-  proposalMd.push({
+  md.push({
     title: "*Funding Requested*",
     body: proposal.proposalFundingRequested,
   });
-  proposalMd.push({
+  md.push({
     title: "*Wallet Address*",
     body: proposal.proposalWalletAddress,
   });
 
-  return proposalMd;
+  return md;
 }
 
 function getMarkdownProposal(md) {
@@ -115,15 +110,8 @@ async function createDiscoursePost(
   project,
   categoryId
 ) {
-  const proposalMd = getProposalMd(proposal);
-  const projectMd = getProjectMd(project);
-  const post = getMarkdownProposal([
-    {
-      title: `# ${project.projectName}`,
-    },
-    ...projectMd,
-    ...proposalMd,
-  ]);
+  const md = getMarkdown(project);
+  const post = getMarkdownProposal(md);
 
   const res = await fetch(`${baseUrl}/posts.json`, {
     method: "POST",
