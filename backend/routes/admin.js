@@ -148,7 +148,7 @@ router.post(
   }
 );
 
-router.post("/create", (req, res) => {
+router.post("/create", checkSigner, requirePriv(5), (req, res) => {
   const walletAddress = req.body.walletAddress;
   const privLevel = req.body.privLevel;
   if (privLevel < 5 && privLevel > 0) {
