@@ -128,7 +128,7 @@ async function updateAirtableEntry(recordId, proposal, grantCompleted = false) {
 
 async function getFormerProposals(projectName) {
   const formerProposals = await _getProposalsSelectQuery(
-    `{Project Name} = "${projectName}"`
+    `AND({Project Name} = "${projectName}",{Proposal State} = "Funded")`
   );
   return formerProposals;
 }
