@@ -1,19 +1,40 @@
 <script>
+  import { Circle } from 'svelte-loading-spinners'
+
   export let onclick;
   export let text;
   export let secondary;
+  export let loading;
+  export let disabled;
 </script>
 
 <button
   on:click={onclick}
-  class="button {secondary && "buttonSecondary"} hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-  type="button">{text}</button
+  class="button {secondary && "buttonSecondary"} {disabled && "disabled"} hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+  disabled={disabled===true}
+  type="button">
+  {#if loading===true}
+    <div class="loadingSpinnerContainer">
+      <Circle size="20" color="#FFFFFF" unit="px" cl></Circle>
+    </div>
+  {/if}
+  {text}
+  </button
 >
 
 <style>
   .button {
     background-color: var(--brand-color-primary);
     font-size: var(--font-size-small);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .loadingSpinnerContainer {
+    margin-right: 5px;
+  }
+  .disabled{
+    background-color: var(--button-disabled-color);
   }
   .buttonSecondary{
     background-color: var(--brand-white);
