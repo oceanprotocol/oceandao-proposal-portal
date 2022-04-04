@@ -196,16 +196,16 @@ router.post(
 
           new Proposal(proposal).save((err, proposal) => {
             if (err) {
-              processing.splice(processing.indexOf(proposal.signer), 1);
               console.error(err);
+              processing.splice(processing.indexOf(res.locals.signer), 1);
               return res.status(400).send(err);
             }
             res.send({ success: true, proposal });
-            processing.splice(processing.indexOf(proposal.signer), 1);
+            processing.splice(processing.indexOf(res.locals.signer), 1);
           });
         } catch (err) {
           console.error(err);
-          processing.splice(processing.indexOf(proposal.signer), 1);
+          processing.splice(processing.indexOf(res.locals.signer), 1);
           return res.status(400).send(err.message);
         }
       }
