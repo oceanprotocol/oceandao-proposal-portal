@@ -178,6 +178,7 @@ Community Value — How does the project add value to the overall Ocean Communit
       projectId: projectId,
       proposalId: proposalId,
       nonce: nonce,
+      minUsdRequested: $proposalStore.minUsdRequested,
     };
 
     const proposalJson = JSON.stringify(proposalObject);

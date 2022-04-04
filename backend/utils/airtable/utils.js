@@ -14,6 +14,7 @@ const _getFundingRoundsSelectQuery = async (selectQuery) => {
       .select({
         view: "Rounds",
         filterByFormula: selectQuery,
+        sort: [{ field: "Start Date", direction: "desc" }],
       })
       .firstPage();
   } catch (err) {
@@ -80,25 +81,15 @@ async function getCurrentRoundNumber() {
 async function getCurrentRound() {
   const nowDateString = new Date().toISOString();
   const roundParameters = await _getFundingRoundsSelectQuery(
-    `AND({Start Date} <= "${nowDateString}",{Voting Starts} > "${nowDateString}", "true")`
+    `AND({Start Date} < "${nowDateString}", "true")`
   );
   return roundParameters ? roundParameters[0] : null;
 }
 
 async function getCurrentDiscourseCategoryId() {
-  const nowDateString = new Date().toISOString();
-  const roundParameters = await _getFundingRoundsSelectQuery(
-    `AND({Voting Starts} > "${nowDateString}", "true")`
-  );
-  return roundParameters ? roundParameters[0].fields["Discourse Category"] : -1;
-}
-
-async function getCurrentDiscourseCategoryId() {
-  const nowDateString = new Date().toISOString();
-  const roundParameters = await _getFundingRoundsSelectQuery(
-    `AND({Voting Starts} > "${nowDateString}", "true")`
-  );
-  return roundParameters ? roundParameters[0].fields["Discourse Category"] : -1;
+  // NOT USED
+  const roundParameters = await getCurrentRound();
+  return roundParameters ? roundParameters.fields["Discourse Category"] : -1;
 }
 
 /**
@@ -118,7 +109,6 @@ async function updateAirtableEntry(recordId, proposal, grantCompleted = false) {
       NodeHtmlMarkdown.NodeHtmlMarkdown.translate(
         proposal.deliverableChecklist
       );
-
   // uncomment me if you want to make proposal title updateable
   //if (proposal.proposalTitle) update["Proposal Title"] = proposal.proposalTitle;
   if (proposal.grantDeliverables)
@@ -163,7 +153,6 @@ async function createAirtableEntry({
 
   proposalUrl,
   proposalTitle,
-
   minUsdRequested,
 }) {
   const roundNumber = await getCurrentRoundNumber();
