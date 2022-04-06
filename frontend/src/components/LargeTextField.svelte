@@ -2,12 +2,13 @@
   import { onMount } from "svelte";
 
   export let title;
+  export let name;
   export let placeHolder;
   export let value = null;
   export let disabled = false;
-  export let wrong = false;
+  export let handleChange;
+  export let error;
   export let rows = 3;
-  export let wrongText = "";
   //  import { quill } from "svelte-quill";
   let editor;
   const toolbarOptions = [
@@ -84,7 +85,7 @@
       {title}
     </label>
   {/if}
-  <div class="editor-wrapper">
+  <div class="editor-wrapper {error && 'border-red-500 border rounded-md'}">
     <div
       class="editor"
       bind:this={editor}
@@ -92,8 +93,8 @@
     />
   </div>
 
-  {#if wrong}
-    <p class="text-red-500 text-xs italic">{wrongText}</p>
+  {#if error}
+    <p class="text-red-500 italic text-left mt-1">{error}</p>
   {/if}
 </div>
 

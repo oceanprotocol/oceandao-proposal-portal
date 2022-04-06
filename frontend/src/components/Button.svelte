@@ -2,12 +2,13 @@
   export let onclick;
   export let text;
   export let secondary;
+  export let type;
 </script>
 
 <button
   on:click={onclick}
   class="button {secondary && "buttonSecondary"} hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-  type="button">{text}</button
+  type={type ? type : "button"}>{text}</button
 >
 
 <style>
