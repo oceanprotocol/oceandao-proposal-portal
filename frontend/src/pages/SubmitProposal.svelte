@@ -17,6 +17,7 @@
   let part = 0;
   let recaptcha;
   let errortext;
+  let roundNumber;
 
   if (isUpdating) {
     fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`)
@@ -24,6 +25,12 @@
       .then((res) => {
         proposalStore.update(() => res);
         loaded = true;
+      });
+  } else {
+    fetch(`${SERVER_URI}/app/round/number`)
+      .then((res) => res.json())
+      .then((res) => {
+        roundNumber = res.roundNumber;
       });
   }
 
@@ -277,6 +284,10 @@ Community Value — How does the project add value to the overall Ocean Communit
       .
     </p>
 
+    <h3 style="text-align: center;">
+      Submitting for <b>Round {roundNumber}</b>
+    </h3>
+
     {#if loaded == false}
       <div class="text-center">
         <div class="spinner-border text-primary" role="status">
@@ -362,7 +373,9 @@ Community Value — How does the project add value to the overall Ocean Communit
               </button>
             {/if}
             <Button
-              text={isUpdating ? "Update project" : "Submit Proposal"}
+              text={isUpdating
+                ? "Update project"
+                : `Submit Proposal for Round ${roundNumber}`}
               onclick={() => submitProposal()}
             />
           </div>
