@@ -1,12 +1,19 @@
 const express = require("express");
-const { getCurrentRoundNumber } = require("../utils/airtable/utils");
+const { getCurrentRound } = require("../utils/airtable/utils");
 const router = express.Router();
 const redis = require("../utils/redis");
 
 router.get("/number", async (req, res) => {
   let roundNumber = await redis.get("currentRoundNumber");
   if (!roundNumber) {
-    roundNumber = await getCurrentRoundNumber();
+    const currentRound = await getCurrentRound();
+    roundNumber = currentRound.fields["Round"];
+    const currentRoundSubmissionDeadline =
+      currentRound.fields["Proposals Due By"];
+    if (Date.now() > new Date(currentRoundSubmissionDeadline).getTime()) {
+      roundNumber += 1; // will submit proposal for next round
+    }
+
     if (roundNumber == -1) {
       return res.status(400).send("No round number found");
     }
