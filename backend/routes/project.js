@@ -288,19 +288,23 @@ router.get("/info/:projectId", async (req, res) => {
   const projectId = req.params.projectId;
   Proposal.find(
     { projectId: projectId },
-    "proposalFundingRequested proposalTitle round proposalEarmark",
-    (err, proposals) => {
+    "proposalFundingRequested proposalTitle round proposalEarmark"
+  )
+    .sort({ round: -1 })
+    .exec((err, proposals) => {
       Project.findById(projectId, (err, project) => {
+        const lastProposal = proposals[proposals.length - 1];
+        const canCreateProposals = lastProposal.delivered.status == 2;
         if (err) {
           res.status(400).send(err);
         }
         res.status(200).send({
           project,
           proposals,
+          canCreateProposals,
         });
       });
-    }
-  );
+    });
 });
 
 module.exports = router;
