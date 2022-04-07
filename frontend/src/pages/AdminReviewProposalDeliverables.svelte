@@ -110,7 +110,7 @@
   {#if proposal }
     <Section
             title={proposal.proposalTitle}
-            description={proposal.proposalDescription}
+            description={proposal.proposalDescription + '\n\n' + proposal.discourseLink}
             descriptionTop
             actions={[
             {
