@@ -192,6 +192,7 @@ router.post(
             oneLiner: proposal.oneLiner,
             proposalTitle: proposal.proposalTitle,
             minUsdRequested: minUsdRequested,
+            roundNumber: currentRoundNumber.toString(),
           }); // create airtable entry
 
           proposal.airtableRecordId = airtableRecordId; // TODO MAKE SURE RECORD ID IS CORRECT
