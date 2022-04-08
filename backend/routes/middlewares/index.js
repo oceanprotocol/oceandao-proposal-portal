@@ -88,22 +88,33 @@ function checkProject(req, res, next) {
 
 function checkBadState(req, res, next) {
   const projectId = JSON.parse(req.body.message).projectId;
-
+  console.log('herrreeee')
   // get the latest record
+  try{
   Proposal.find({ projectId })
     .sort({ round: -1 })
     .limit(1)
     .exec(async (err, data) => {
+      console.log('herrreeee')
       if (err) {
         return res.status(400).send(err);
       }
-      if (!data[0]) {
+      console.log('herrreeee')
+      if (!data || data[0]) {
         return next();
       }
       if (data[0].delivered.status !== 2) {
-        const proposalInfo = await getProposalByRecordId(
-          data[0].airtableRecordId
-        );
+        let proposalInfo
+        console.log('herrreeee')
+        try{
+          proposalInfo = await getProposalByRecordId(
+            data[0].airtableRecordId
+          );
+        }catch(error) {
+          console.error('getProposalByRecordId failed: ',error)
+          return res.status(400).send(error);
+          // throw(error)
+        }
         if (
           (proposalInfo.fields["Proposal State"] == "Funded" ||
             proposalInfo.fields["Proposal State"] == "Granted") && // # maybe check only for funded and NOT granted
@@ -114,6 +125,9 @@ function checkBadState(req, res, next) {
         return next();
       } else next();
     });
+  }catch(error){
+    return res.status(400).send(error);
+  }
 }
 
 module.exports = {

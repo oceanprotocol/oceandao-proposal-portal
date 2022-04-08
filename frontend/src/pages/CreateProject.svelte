@@ -126,8 +126,6 @@
         })
         .then((data) => {
           if (data !== undefined) {
-            console.log("Project updated");
-            console.log(data);
             alert("Project updated");
             window.location.href = "/";
             errorMessage = null;
@@ -165,8 +163,6 @@
         })
         .then((data) => {
           if (data !== undefined) {
-            console.log("Project created");
-            console.log(data);
             alert("Project created");
             window.location.href = "/";
             errorMessage = null;
@@ -184,6 +180,13 @@
 
 <div class="flex h-screen mt-10 justify-center w-full">
   <div class="w-full max-w-3xl m-auto">
+  {#if loaded == false}
+      <div class="text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+  {:else}
     <p class="text-lg font-bold text-center">
       Projects must meet the
       <a
@@ -194,8 +197,7 @@
         Project Submission Criteria
       </a> .
     </p>
-    {#if loaded}
-      <form on:submit={handleSubmit}>
+      <form on:submit={handleSubmit} class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 ">
         <p class="text-xl font-bold mb-2 opacity-90">{partTitles[part]}</p>
         {#each fields[part] as field}
           {#if field.type === "title"}

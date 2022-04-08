@@ -2,13 +2,14 @@
   import TextField from "../components/TextField.svelte";
   import LargeTextField from "../components/LargeTextField.svelte";
   import OptionSelect from "../components/OptionSelect.svelte";
-  import { proposal as proposalStore } from "../stores/proposal";
   import { SERVER_URI, RECAPTCHA_KEY } from "../utils/config";
   import { signMessage } from "../utils/signatures";
   import { networkSigner, userAddress } from "../stores/ethers";
   import { getNonce } from "../utils/helpers";
   import Recaptcha from "../components/Recaptcha.svelte";
   import Button from "../components/Button.svelte";
+  import { createForm } from "svelte-forms-lib";
+  import { fieldsPart0, validationSchema, initialValues } from "../constants/createProposalForm"
 
   export let projectId;
   export let proposalId;
@@ -18,110 +19,7 @@
   let recaptcha;
   let errortext;
 
-  if (isUpdating) {
-    fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`)
-      .then((res) => res.json())
-      .then((res) => {
-        proposalStore.update(() => res);
-        loaded = true;
-      });
-  }
-
   const partTitles = ["Part 1 - Proposal Details"];
-
-  let fieldsPart0 = [
-    {
-      type: "text",
-      title: "Proposal Title",
-      bindValue: "proposalTitle",
-      required: true,
-      wrong: false,
-      disabled: isUpdating,
-    },
-    {
-      type: "optionSelect",
-      title: "What Earmark are you applying to?",
-      bindValue: "proposalEarmark",
-      wrong: false,
-      required: true,
-      options: [
-        {
-          value: "coretech",
-          text: "Core-Tech",
-        },
-        {
-          value: "general",
-          text: "General",
-        },
-      ],
-    },
-    {
-      type: "text",
-      title: "Proposal in one sentence",
-      bindValue: "oneLiner",
-      required: true,
-      wrong: false,
-    },
-    {
-      type: "largeText",
-      title: "Proposal Description",
-      bindValue: "proposalDescription",
-      rows: 10,
-      placeHolder: `Description of the proposal.`,
-    },
-    {
-      type: "largeText",
-      title: "Grant Deliverables",
-      bindValue: "grantDeliverables",
-      required: true,
-      placeHolder: `__(Grant Deliverable 1)__
-__(Grant Deliverable 2)__
-__(Grant Deliverable 3)__`,
-      wrong: false,
-    },
-    {
-      type: "largeText",
-      title: "Value Add Criteria",
-      bindValue: "valueAddCriteria",
-      required: true,
-      placeHolder: `How does the project and proposal add value to Ocean ecosystem?
-Usage of Ocean — how well might the project drive usage of Ocean?
-Viability — what is the chance of success of the project?
-Community Engagement — How active is the team in the community?
-Community Value — How does the project add value to the overall Ocean Community / Ecosystem?`,
-      wrong: false,
-    },
-    {
-      type: "text",
-      title: "Funding Requested (USD)",
-      bindValue: "proposalFundingRequested",
-      wrong: false,
-      required: true,
-      textFormat: "number",
-      importantText:
-        "The amount requested is in USD, but the amount paid is in OCEAN token. The conversion rate is calculated at Vote End, so payment is completed as quickly as possible. This determines how many OCEAN will be awarded if a proposal is voted to receive a grant.",
-    },
-    {
-      type: "text",
-      title: "Minimum Funding Requested (USD)",
-      bindValue: "minUsdRequested",
-      wrong: false,
-      required: true,
-      textFormat: "number",
-      importantText:
-        "The amount of minimum funding requested is in USD, but the amount paid is in OCEAN token. The conversion rate is calculated at Vote End, so payment is completed as quickly as possible. This determines how many OCEAN will be awarded if a proposal is voted to receive a grant.",
-    },
-    {
-      type: "text",
-      title: "Proposal Wallet Address",
-      bindValue: "proposalWalletAddress",
-      placeHolder: "0x...",
-      wrong: false,
-      required: true,
-      importantText:
-        "Must have minimum 500 OCEAN in wallet to be eligible. This wallet is where you will receive the grant amount if selected",
-    },
-  ];
 
   let fields = [fieldsPart0];
 
@@ -147,36 +45,21 @@ Community Value — How does the project add value to the overall Ocean Communit
   async function submitProposal() {
     errortext = null;
     const recaptchaToken = await recaptcha.getCaptcha();
-    fieldsPart0.map((field) => {
-      if (field.required) {
-        if (
-          $proposalStore[field.bindValue] == null ||
-          $proposalStore[field.bindValue] == ""
-        ) {
-          field.wrong = true;
-          field.wrongText = "This field is required";
-        } else {
-          field.wrong = false;
-        }
-      }
-    });
-    fields = [fieldsPart0];
-    if (fieldsPart0.filter((field) => field.wrong).length !== 0) return;
 
     const nonce = await getNonce($userAddress);
     const proposalObject = {
-      proposalTitle: $proposalStore.proposalTitle,
-      proposalEarmark: $proposalStore.proposalEarmark,
-      oneLiner: $proposalStore.oneLiner,
-      proposalDescription: $proposalStore.proposalDescription,
-      grantDeliverables: $proposalStore.grantDeliverables,
-      proposalFundingRequested: $proposalStore.proposalFundingRequested,
-      proposalWalletAddress: $proposalStore.proposalWalletAddress,
-      valueAddCriteria: $proposalStore.valueAddCriteria,
+      proposalTitle: $form.proposalTitle,
+      proposalEarmark: $form.proposalEarmark,
+      oneLiner: $form.oneLiner,
+      proposalDescription: $form.proposalDescription,
+      grantDeliverables: $form.grantDeliverables,
+      proposalFundingRequested: $form.proposalFundingRequested,
+      proposalWalletAddress: $form.proposalWalletAddress,
+      valueAddCriteria: $form.valueAddCriteria,
       projectId: projectId,
       proposalId: proposalId,
       nonce: nonce,
-      minUsdRequested: $proposalStore.minUsdRequested,
+      minUsdRequested: $form.minUsdRequested,
     };
 
     const proposalJson = JSON.stringify(proposalObject);
@@ -184,6 +67,7 @@ Community Value — How does the project add value to the overall Ocean Communit
     const signer = $userAddress;
 
     if (isUpdating) {
+      console.log(proposalObject)
       fetch(`${SERVER_URI}/app/proposal/update`, {
         method: "POST",
         headers: {
@@ -259,12 +143,38 @@ Community Value — How does the project add value to the overall Ocean Communit
         });
     }
   }
+
+  const { form, errors, handleChange, handleSubmit, values, changeValue } = createForm({
+    initialValues: initialValues,
+    validationSchema: validationSchema,
+    onSubmit: values => {
+      submitProposal()
+    }
+  })
+
+  if (isUpdating) {
+    fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`)
+      .then((res) => res.json())
+      .then((res) => {
+        for(const value in $form){
+          $form[value] = res[value]
+        }
+        loaded = true;
+      });
+  }
 </script>
 
 <Recaptcha bind:this={recaptcha} />
 
 <div class="flex h-screen mt-10 justify-center w-full">
   <div class="w-full max-w-3xl m-auto">
+    {#if loaded == false}
+      <div class="text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+    {:else}
     <p class="text-lg font-bold text-center">
       Proposals must meet the
       <a
@@ -276,16 +186,9 @@ Community Value — How does the project add value to the overall Ocean Communit
       </a>
       .
     </p>
-
-    {#if loaded == false}
-      <div class="text-center">
-        <div class="spinner-border text-primary" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-      </div>
-    {:else}
+    
       <form
-        id="proposalForm"
+        on:submit={handleSubmit}
         class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 "
       >
         <p class="text-xl font-bold mb-2 opacity-90">{partTitles[part]}</p>
@@ -299,35 +202,37 @@ Community Value — How does the project add value to the overall Ocean Communit
 
           {#if field.type === "text"}
             <TextField
-              bind:value={$proposalStore[field.bindValue]}
+              name={field.bindValue}
+              value={$form[field.bindValue]}
               title={field.title}
               placeHolder={field.placeHolder}
               disabled={field.disabled}
-              wrong={field.wrong}
-              wrongText={field.wrongText}
+              error={$errors[field.bindValue]}
               textFormat={field.textFormat}
               importantText={field.importantText}
+              handleChange={handleChange}
             />
           {/if}
           {#if field.type === "largeText"}
             <LargeTextField
-              bind:value={$proposalStore[field.bindValue]}
+              bind:value={$form[field.bindValue]}
+              name={field.bindValue}
               title={field.title}
               placeHolder={field.placeHolder}
               disabled={field.disabled}
-              wrong={field.wrong}
-              wrongText={field.wrongText}
+              error={$errors[field.bindValue]}
+              handleChange={handleChange}
               rows={field.rows}
             />
           {/if}
           {#if field.type === "optionSelect"}
             <OptionSelect
-              bind:value={$proposalStore[field.bindValue]}
+              bind:value={$form[field.bindValue]}
               title={field.title}
               placeHolder={field.placeHolder}
               disabled={field.disabled}
-              wrong={field.wrong}
-              wrongText={field.wrongText}
+              error={$errors[field.bindValue]}
+              handleChange={handleChange}
               options={field.options}
             />
           {/if}
@@ -362,8 +267,8 @@ Community Value — How does the project add value to the overall Ocean Communit
               </button>
             {/if}
             <Button
-              text={isUpdating ? "Update project" : "Submit Proposal"}
-              onclick={() => submitProposal()}
+              type="submit"
+              text={isUpdating ? "Update proposal" : "Submit Proposal"}
             />
           </div>
         </div>

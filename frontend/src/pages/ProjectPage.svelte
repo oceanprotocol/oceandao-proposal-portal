@@ -26,7 +26,6 @@
     res = await res.json();
     project = res.project;
     proposals = res.proposals;
-    console.log(project, proposals);
   }
   loadProject();
 </script>

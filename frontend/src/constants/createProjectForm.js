@@ -6,14 +6,12 @@ export const fieldsPart0 = [
       title: "Name of Project",
       bindValue: "projectName",
       required: true,
-      wrong: false,
       disabled: false,
     },
     {
       type: "optionSelect",
       title: "Project Category",
       bindValue: "projectCategory",
-      wrong: false,
       disabled: false,
       required: true,
       options: [
@@ -44,15 +42,13 @@ export const fieldsPart0 = [
       title: "Project Description",
       bindValue: "projectDescription",
       required: true,
-      placeHolder: "Description of the project and what problem is it solving",
-      wrong: false,
+      placeHolder: "Description of the project and what problem is it solving"
     },
     {
       type: "largeText",
       title: "What is the final product?",
       bindValue: "finalProduct",
       placeHolder: "1-2 sentences describing the final product",
-      wrong: false,
       required: true,
     },
     {
@@ -60,7 +56,6 @@ export const fieldsPart0 = [
       title: "Project lead full name",
       bindValue: "projectLeadFullName",
       placeHolder: "first name last name",
-      wrong: false,
       required: true,
     },
     {
@@ -68,7 +63,6 @@ export const fieldsPart0 = [
       title: "Project lead email",
       bindValue: "projectLeadEmail",
       placeHolder: "example@example.com",
-      wrong: false,
       required: true,
     },
     {
@@ -76,29 +70,25 @@ export const fieldsPart0 = [
       title: "Country of Residence",
       bindValue: "countryOfResidence",
       placeHolder: "USA",
-      wrong: false,
       required: true,
     },
     {
       type: "text",
       title: "Team Website",
       bindValue: "teamWebsite",
-      placeHolder: "URL",
-      wrong: false,
+      placeHolder: "URL"
     },
     {
       type: "text",
       title: "Twitter Website",
       bindValue: "twitterLink",
-      placeHolder: "URL",
-      wrong: false,
+      placeHolder: "URL"
     },
     {
       type: "text",
       title: "Discord Website",
       bindValue: "discordLink",
-      placeHolder: "URL",
-      wrong: false,
+      placeHolder: "URL"
     },
   ];
 

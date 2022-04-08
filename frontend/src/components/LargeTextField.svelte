@@ -52,6 +52,8 @@
     });
   });
 
+  console.log(error)
+
   function imageHandler() {
     const tooltip = this.quill.theme.tooltip;
     const originalSave = tooltip.save;
@@ -75,6 +77,17 @@
   }
 </script>
 
+<style>
+  @import "https://cdn.quilljs.com/1.3.6/quill.snow.css";
+
+  .editor {
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    min-height: 200px;
+    padding: 16px;
+  }
+</style>
+
 <svelte:head>
   <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
 </svelte:head>
@@ -97,14 +110,3 @@
     <p class="text-red-500 italic text-left mt-1">{error}</p>
   {/if}
 </div>
-
-<style>
-  @import "https://cdn.quilljs.com/1.3.6/quill.snow.css";
-
-  .editor {
-    border: 1px solid #e2e8f0;
-    border-radius: 4px;
-    min-height: 200px;
-    padding: 16px;
-  }
-</style>

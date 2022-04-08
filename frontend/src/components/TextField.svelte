@@ -11,8 +11,6 @@
   export let importantText = "";
   export let handleChange;
 
-  console.log(name)
-
   const handleInputType = (e) => {
     e.target.type = textFormat;
   };
@@ -35,6 +33,7 @@
   {/if}
   {#if importantText !== "" || importantText !== null}
     <p class="text-gray opacity-60 text-xs italic text-left mt-1">
+      {importantText ?? ""}
     </p>
   {/if}
 </div>
