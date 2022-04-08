@@ -154,8 +154,9 @@ async function createAirtableEntry({
   proposalUrl,
   proposalTitle,
   minUsdRequested,
+
+  roundNumber,
 }) {
-  const roundNumber = await getCurrentRoundNumber();
   const proposal = {
     "Project Name": projectName,
     "One Liner": oneLiner,
