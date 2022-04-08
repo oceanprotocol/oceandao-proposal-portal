@@ -116,13 +116,13 @@ router.post(
     }
 
     const currentRound = await getCurrentRound();
-    let currentRoundNumber = currentRound.fields["Round"];
+    let currentRoundNumber = parseInt(currentRound.fields["Round"]);
     const currentRoundSubmissionDeadline =
       currentRound.fields["Proposals Due By"];
 
     // if submission deadline has passed, return error
     if (Date.now() > new Date(currentRoundSubmissionDeadline).getTime()) {
-      currentRoundNumber += 1; // submit proposal for next round
+      currentRoundNumber = parseInt(currentRoundNumber) + 1; // submit proposal for next round
     }
 
     Proposal.findOne(
@@ -192,6 +192,7 @@ router.post(
             oneLiner: proposal.oneLiner,
             proposalTitle: proposal.proposalTitle,
             minUsdRequested: minUsdRequested,
+            roundNumber: currentRoundNumber.toString(),
           }); // create airtable entry
 
           proposal.airtableRecordId = airtableRecordId; // TODO MAKE SURE RECORD ID IS CORRECT
