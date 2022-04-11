@@ -16,6 +16,16 @@
   let loaded = !isUpdating;
   let recaptcha;
   let project;
+  let loading = false;
+
+  if (isUpdating) {
+    fetch(`${SERVER_URI}/app/project/info/${projectId}`)
+      .then((res) => res.json())
+      .then((res) => {
+        projectStore.update(() => res.project);
+        loaded = true;
+      });
+  }
 
   let part = 0;
   let errorMessage = null;
@@ -79,6 +89,7 @@
 
   async function createProject() {
     const recaptchaToken = await recaptcha.getCaptcha();
+    loading = true;
 
     let projectObject = {
       projectName: $form.projectName,
@@ -97,7 +108,14 @@
       projectId: projectId,
     };
     const message = JSON.stringify(projectObject);
-    const signedMessage = await signMessage(message, $networkSigner);
+    let signedMessage
+    try{
+      signedMessage = await signMessage(message, $networkSigner);
+    }catch(error){
+      loading = false;
+      errorMessage = error.message;
+      return
+    }
     const signer = $userAddress;
 
     if (isUpdating) {
@@ -116,15 +134,19 @@
         .then(async (res) => {
           if (res.status === 200) {
             return res.json();
+            loading = false;
           } else if (res.status === 400) {
             console.log("Couldn't update project: ", res);
             res = await res.text();
             try {
               res = JSON.parse(res);
-            } catch (e) {}
+            } catch (e) {
+              loading = false;
+            }
             errorMessage = `Error creating project. Please check fields. ${
               res.message ?? res.error ?? res
             }`;
+            loading = false;
           }
         })
         .then((data) => {
@@ -132,10 +154,12 @@
             alert("Project updated");
             window.location.href = "/";
             errorMessage = null;
+            loading = false;
           }
         })
         .catch((err) => {
           console.log(err);
+          loading = false;
         });
     } else {
       fetch(`${SERVER_URI}/app/project/create`, {
@@ -153,15 +177,19 @@
         .then(async (res) => {
           if (res.status === 200) {
             return res.json();
+            loading = false;
           } else if (res.status === 400) {
             console.log("Couldn't create project: ", res);
             res = await res.text();
             try {
               res = JSON.parse(res);
-            } catch (e) {}
+            } catch (e) {
+              loading = false;
+            }
             errorMessage = `Error creating project. Please check fields. ${
               res.message ?? res.error ?? res
             }`;
+            loading = false;
           }
         })
         .then((data) => {
@@ -169,10 +197,12 @@
             alert("Project created");
             window.location.href = "/";
             errorMessage = null;
+            loading = false;
           }
         })
         .catch((err) => {
           console.log(err);
+          loading = false;
         });
     }
   }
@@ -268,7 +298,7 @@
           </div>
           <div class="flex space-x-2">
             {#if part > 0}
-              <Button text="Back" onclick={() => back()} />
+              <Button text="Back" onclick={() => back()} disabled={loading}/>
             {/if}
             <Button
               type="submit"
@@ -277,6 +307,9 @@
                 : isUpdating
                 ? "Update project"
                 : "Create Project"}
+              onclick={() => next()}
+              loading={loading}
+              disabled={loading}
             />
           </div>
         </div>

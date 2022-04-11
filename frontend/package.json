@@ -31,6 +31,7 @@
     "rollup-plugin-postcss": "^4.0.2",
     "sirv-cli": "^2.0.0",
     "svelte-forms-lib": "^2.0.1",
+    "svelte-loading-spinners": "^0.1.7",
     "svelte-navigator": "^3.1.5",
     "svelte-quill": "^1.2.0",
     "svelte-web3": "^3.3.7",

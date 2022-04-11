@@ -67,13 +67,23 @@
                   <Button
                       text={action.text}
                       type={action.type}
+                      loading={action.loading}
+                      disabled={action.disabled}
                   />
                 {:else}
                   <Button
                       text={action.text}
                       onclick={() => action.onClick()}
+                      loading={action.loading}
+                      disabled={action.disabled}
                     />
                 {/if}
+                <Button
+                    text={action.text}
+                    onclick={() => action.onClick()}
+                    loading={action.loading}
+                    disabled={action.disabled}
+                />
             </div>
         {/each}
         </div>

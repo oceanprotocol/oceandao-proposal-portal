@@ -10,7 +10,10 @@
   import { createForm } from "svelte-forms-lib";
   import * as yup from 'yup';
 
-  async function submitDeliverables(values) {
+  let loading=false;
+  let errorMessage=undefined;
+
+  async function submitDeliverables() {
     Swal.fire({
       title: "Are you sure?",
       text: "Your deliverables will go under review.",
@@ -20,6 +23,7 @@
       cancelButtonText: "Cancel",
     }).then(async (result) => {
       if (result.value) {
+          loading=true;
           const signer = $userAddress;
           const nonce = await getNonce(signer);
           const message = JSON.stringify({
@@ -27,7 +31,14 @@
             description: values.value,
             nonce,
           });
-          const signedMessage = await signMessage(message, $networkSigner);
+          let signedMessage
+          try{
+            signedMessage = await signMessage(message, $networkSigner);
+          }catch(error){
+            loading = false;
+            errorMessage = error.message;
+            return
+          }
           const res = await fetch(`${SERVER_URI}/app/proposal/deliver`, {
             method: "POST",
             headers: {
@@ -46,10 +57,12 @@
               "Your submission has been sent, it will be visible once it is confirmed by one of the moderators", //TODO CHANGE THIS TEXT
               "success"
             ).then(() => {
+              loading=false;
               window.location.href = "/";
             });
           } else {
             Swal.fire("Error!", "Something went wrong", "error");
+            loading=false;
           }
       }
     });
@@ -98,9 +111,18 @@
 
 <div class="deliverables-container">
   <Section
-    class="flex text-left bg-grey-200"
-    title={"Deliverables"}
-    descriptionTextLeft
+          class="flex text-left bg-grey-200"
+          title={"Deliverables"}
+          descriptionTextLeft
+          actions={[
+      {
+        text: "Submit",
+        onClick: submitDeliverables,
+        loading: loading,
+        disabled: loading
+      },
+    ]}
+>>>>>>> development
   >
     {#if loaded == false}
       <div class="text-center">
@@ -125,6 +147,9 @@
           />
         </div>
       </form>
+    {/if}
+    {#if errorMessage}
+      <p class="text-red-500">{errorMessage}</p>
     {/if}
   </Section>
 </div>

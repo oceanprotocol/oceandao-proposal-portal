@@ -33,9 +33,6 @@
   fields.map((fieldPart) => {
     fieldPart.map((field) => {
       requiredFields(field);
-      if(field.disabledOnUpdate){
-        field.disabled = true;
-      }
     });
   });
 

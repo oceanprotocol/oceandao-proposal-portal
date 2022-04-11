@@ -19,7 +19,6 @@ const proposalSchema = new Schema({
   proposalTitle: {
     type: String,
     required: true,
-    unique: true,
     set: (value) => value.trim(),
   },
   proposalEarmark: {
