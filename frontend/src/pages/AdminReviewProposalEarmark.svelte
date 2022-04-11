@@ -14,6 +14,9 @@
 
   export let proposalId;
   let proposal;
+  let loading = false;
+  let errorMessage = undefined;
+  let selectedAction = undefined;
 
   async function loadData() {
     let res = await fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`);
@@ -31,6 +34,8 @@
       cancelButtonText: "Cancel",
     }).then(async (result) => {
       if (result.value) {
+        selectedAction = newEarmark;
+        loading = true;
         const signer = $userAddress;
         const nonce = await getNonce(signer);
         const message = JSON.stringify({
@@ -38,7 +43,14 @@
           earmark: newEarmark,
           nonce
         });
-        const signedMessage = await signMessage(message, $networkSigner);
+        let signedMessage
+          try{
+            signedMessage = await signMessage(message, $networkSigner);
+          }catch(error){
+            loading = false;
+            errorMessage = error.message;
+            return
+          }
         const res = await fetch(`${SERVER_URI}/app/admin/setProposalEarmark`, {
           method: "POST",
           headers: {
@@ -52,6 +64,7 @@
         });
         const json = await res.json();
         if (json.success === true) {
+          loading = false;
           Swal.fire(
                   "Success!",
                   `You've ${newEarmark==='coretech' ? 'Accepted' : 'Rejected'} this proposal as part of the Core-Tech earmark`,
@@ -60,6 +73,7 @@
             location.href = "/admin/home"
           }); // ? Popup flashes & goes away without user interaction. Looks broken. Proposal view does not render.
         } else {
+          loading = false;
           Swal.fire("Error!", "Something went wrong", "error");
         }
       }
@@ -105,10 +119,14 @@
             actions={[
             {
               "text": "Accept",
-              "onClick":  acceptProposalEarmark
+              "onClick":  acceptProposalEarmark,
+              loading: loading && selectedAction==='coretech',
+              disabled: loading
             },{
               "text": "Reject",
-              "onClick":  rejectProposalEarmark
+              "onClick":  rejectProposalEarmark,
+              loading: loading && selectedAction===proposal.proposalEarmark,
+              disabled: loading
             }]}>
       <div class="details py-5 px-5">
         <div class="col-start-4 col-span-2 ...">
@@ -120,6 +138,9 @@
           <span class="text-lg detailValue">{moment(proposal.createdAt).format('YYYY-MM-DD')}</span>
         </div>
       </div>
+      {#if errorMessage}
+        <p class="text-red-500">{errorMessage}</p>
+      {/if}
     </Section>
   {/if}
 </div>

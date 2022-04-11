@@ -65,7 +65,11 @@ export const connectWalletFromLocalStorage = async () => {
 
 export const signMessage = async (msg, signer) => {
   let signedMessage;
-  signedMessage = await signer.signMessage(msg);
+  try{
+    signedMessage = await signer.signMessage(msg);
+  }catch(error){
+    throw error
+  }
   return signedMessage;
 };
 
