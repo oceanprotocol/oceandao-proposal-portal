@@ -7,6 +7,7 @@ export const fieldsPart0 = [
       bindValue: "proposalTitle",
       required: true,
       disabled: false,
+      disabledOnUpdate: true
     },
     {
       type: "optionSelect",

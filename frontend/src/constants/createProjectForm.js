@@ -7,6 +7,7 @@ export const fieldsPart0 = [
       bindValue: "projectName",
       required: true,
       disabled: false,
+      disabledOnUpdate: true
     },
     {
       type: "optionSelect",
@@ -14,6 +15,7 @@ export const fieldsPart0 = [
       bindValue: "projectCategory",
       disabled: false,
       required: true,
+      disabledOnUpdate: true,
       options: [
         {
           value: "build",

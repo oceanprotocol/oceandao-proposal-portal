@@ -21,6 +21,8 @@
     ["image"],
   ];
 
+  console.log(value)
+
   onMount(async () => {
     const { default: Quill } = await import("quill");
 

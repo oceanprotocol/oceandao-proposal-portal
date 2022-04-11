@@ -7,8 +7,10 @@
   import Button from "../components/Button.svelte";
   import Swal from "sweetalert2";
   import Section from "../components/Section.svelte";
+  import { createForm } from "svelte-forms-lib";
+  import * as yup from 'yup';
 
-  async function submitDeliverables() {
+  async function submitDeliverables(values) {
     Swal.fire({
       title: "Are you sure?",
       text: "Your deliverables will go under review.",
@@ -18,12 +20,11 @@
       cancelButtonText: "Cancel",
     }).then(async (result) => {
       if (result.value) {
-        if (value) {
           const signer = $userAddress;
           const nonce = await getNonce(signer);
           const message = JSON.stringify({
             proposalId: proposalId,
-            description: value,
+            description: values.value,
             nonce,
           });
           const signedMessage = await signMessage(message, $networkSigner);
@@ -50,21 +51,31 @@
           } else {
             Swal.fire("Error!", "Something went wrong", "error");
           }
-        }
       }
     });
   }
 
   export let proposalId;
-  $: value = "";
   let loaded = false;
   const isUpdating = proposalId !== undefined;
   let proposalData;
+
+  const { form, errors, handleChange, handleSubmit, values, changeValue } = createForm({
+    initialValues: {
+      deliverables: 'asd'
+    },
+    validationSchema: yup.object().shape({
+      deliverables: yup.string().required("Deliverables are required")
+    }),
+    onSubmit: values => {
+      submitDeliverables(values)
+    }
+  })
+
   fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`)
     .then((res) => res.json())
     .then((res) => {
-      console.log(res);
-      value = res.grantDeliverables;
+      $form.deliverables = res.grantDeliverables;
       proposalData = res;
       loaded = true;
     });
@@ -78,19 +89,18 @@
     margin: auto;
     padding-top: var(--spacer);
   }
+  .button-container{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
 </style>
 
 <div class="deliverables-container">
   <Section
-          class="flex text-left bg-grey-200"
-          title={"Deliverables"}
-          descriptionTextLeft
-          actions={[
-      {
-        text: "Submit",
-        onClick: submitDeliverables,
-      },
-    ]}
+    class="flex text-left bg-grey-200"
+    title={"Deliverables"}
+    descriptionTextLeft
   >
     {#if loaded == false}
       <div class="text-center">
@@ -99,7 +109,22 @@
         </div>
       </div>
     {:else}
-      <LargeTextField placeHolder="Description" bind:value />
+      <form on:submit={handleSubmit}>
+        <LargeTextField 
+          bind:value={$form.deliverables}
+          placeHolder={"Description"} 
+          name={"deliverables"}
+          disabled={false}
+          error={$errors.deliverables}
+          handleChange={handleChange}
+        />
+        <div class="button-container">
+          <Button
+            type="submit"
+            text="Submit"
+          />
+        </div>
+      </form>
     {/if}
   </Section>
 </div>

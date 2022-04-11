@@ -5,7 +5,7 @@
   export let name;
   export let placeHolder;
   export let value = null;
-  export let disabled = false;
+  export let disabled;
   export let error;
   export let textFormat = "text";
   export let importantText = "";
@@ -23,6 +23,7 @@
   <input
     bind:value
     name={name}
+    disabled={disabled}
     on:change={handleChange}
     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline {error && 'border-red-500'}"
   />
