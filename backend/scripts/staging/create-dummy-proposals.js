@@ -32,7 +32,7 @@ async function createProposal(wallet, projectId) {
     proposalDescription: LOREM_TEXT,
     grantDeliverables: LOREM_TEXT,
     proposalFundingRequested: 3000,
-    proposalWalletAddress: wallet.address,
+    proposalWalletAddress: "0x000000000000000000000000000000000000dEaD",
     valueAddCriteria: LOREM_TEXT,
     projectId: projectId,
     nonce: await getNonce(wallet.address),
