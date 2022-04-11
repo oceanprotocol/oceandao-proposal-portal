@@ -104,7 +104,13 @@
     <div
       class="editor"
       bind:this={editor}
-      on:text-change={(e) => (value = e.detail.html)}
+      on:text-change={(e) => {
+        if(e.detail.html === "<p><br></p>"){
+          value = '';
+        }else{
+          value = e.detail.html
+        }
+      }}
     />
   </div>
 
