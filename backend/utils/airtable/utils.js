@@ -126,9 +126,9 @@ async function updateAirtableEntry(recordId, proposal, grantCompleted = false) {
   return true;
 }
 
-async function getFormerProposals(projectName) {
+async function getFormerFundedProposals(projectName) {
   const formerProposals = await _getProposalsSelectQuery(
-    `{Project Name} = "${projectName}"`
+    `AND({Project Name} = "${projectName}",{Proposal State} = "Funded")`
   );
   return formerProposals;
 }
@@ -184,7 +184,7 @@ module.exports = {
   getCurrentRoundNumber,
   createAirtableEntry,
   updateAirtableEntry,
-  getFormerProposals,
+  getFormerFundedProposals,
   getCurrentDiscourseCategoryId,
   getCurrentRound,
   getProposalByRecordId,

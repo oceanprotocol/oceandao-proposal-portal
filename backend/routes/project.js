@@ -15,7 +15,7 @@ const { createDiscoursePost } = require("../utils/discourse/utils");
 const {
   getProjectUsdLimit,
   createAirtableEntry,
-  getFormerProposals,
+  getFormerFundedProposals,
   getCurrentRound,
 } = require("../utils/airtable/utils");
 
@@ -77,7 +77,7 @@ router.post(
     ];
 
     // TODO - Please fix. New projects can apply for coretech.
-    const formerProposals = await getFormerProposals(projectName);
+    const formerProposals = await getFormerFundedProposals(projectName);
     if (formerProposals.length == 0) {
       // ? triple === no?
       if (project.projectCategory === "outreach") {
