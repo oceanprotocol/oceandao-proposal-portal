@@ -81,6 +81,7 @@ router.post(
       { runValidators: true },
       async (err, data) => {
         if (err) return res.status(400).send(err);
+        const md = "<h3>Admin:</h3><br/>" + description;
         await replyToDiscoursePost(
           description,
           true,
