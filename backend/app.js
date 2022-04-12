@@ -7,6 +7,13 @@ const logger = require("morgan");
 const indexRouter = require("./routes");
 const cors = require("cors");
 const app = express();
+const redis = require("./utils/redis");
+const cacher = require("./utils/redis/cacher");
+redis.connect();
+redis.on("connect", function () {
+  console.log("Redis connected");
+  cacher.cacheAllProposals();
+});
 
 app.use(cors());
 require("./utils/mongodb/connection");
