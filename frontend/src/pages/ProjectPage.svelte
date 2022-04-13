@@ -25,8 +25,8 @@
     res = await res.json();
     project = res.project;
     proposals = res.proposals;
-    canSubmitProposal = res.canSubmitProposal;
-    isOwner = res.admin == $userAddress;
+    canSubmitProposal = res.canCreateProposals;
+    isOwner = true; // TODO FIX ME
   }
   loadProject();
 </script>
@@ -37,12 +37,14 @@
       title={project.projectName}
       description={project.projectDescription}
       descriptionBottom
-      actions={isOwner?[
-        {
-          text: "Update Project",
-          onClick: onUpdateProjectClick,
-        },
-      ]:[]}
+      actions={isOwner
+        ? [
+            {
+              text: "Update Project",
+              onClick: onUpdateProjectClick,
+            },
+          ]
+        : []}
     >
       <div class="details py-5 px-5">
         <div class="col-start-4 col-span-2 ...">
@@ -63,12 +65,14 @@
   <Section
     title={"Proposals"}
     description={"Create and manage proposals below in order to submit them to OceanDAO Seed Grants. You can only have 1 proposal per project, for each funding round."}
-    actions={(canSubmitProposal && isOwner) ? [
-      {
-        text: "Create Proposal",
-        onClick: onCreateProposalClick,
-      },
-    ]:[]}
+    actions={canSubmitProposal && isOwner
+      ? [
+          {
+            text: "Create Proposal",
+            onClick: onCreateProposalClick,
+          },
+        ]
+      : []}
   >
     {#if proposals}
       <ProposalItemsList {proposals} />
