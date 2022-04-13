@@ -43,7 +43,7 @@
   fields.map((fieldPart) => {
     fieldPart.map((field) => {
       requiredFields(field);
-      if(field.disabledOnUpdate){
+      if(field.disabledOnUpdate && isUpdating){
         field.disabled = true;
       }
     });
@@ -179,7 +179,6 @@
             return res.json();
             loading = false;
           } else if (res.status === 400) {
-            console.log("Couldn't create project: ", res);
             res = await res.text();
             try {
               res = JSON.parse(res);
@@ -307,7 +306,6 @@
                 : isUpdating
                 ? "Update project"
                 : "Create Project"}
-              onclick={() => next()}
               loading={loading}
               disabled={loading}
             />

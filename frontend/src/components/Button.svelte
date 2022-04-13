@@ -12,8 +12,8 @@
 <button
   on:click={onclick}
   class="button {secondary && "buttonSecondary"} {disabled && "disabled"} hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-  disabled={disabled===true}
-  type="button">
+  disabled={disabled}
+  type={type || 'button'}>
   {#if loading===true}
     <div class="loadingSpinnerContainer">
       <Circle size="20" color="#FFFFFF" unit="px" cl></Circle>

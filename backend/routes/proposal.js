@@ -155,7 +155,14 @@ router.post("/update", recaptchaCheck(0.5), checkSigner, function (req, res) {
         { runValidators: true },
         async (err, data) => {
           if (err) return res.status(400).send(err);
-          await updateAirtableEntry(airtableId, update); // update airtable entry
+
+          await updateAirtableEntry(airtableId, update).then((resp) => {}, error => {
+            console.log('find by id error',error)
+            return res.status(400).json({
+              error: error,
+            });
+          }) // update airtable entry
+          
           await updateDiscoursePost(
             proposalDiscourseId,
             { ...data, ...update },

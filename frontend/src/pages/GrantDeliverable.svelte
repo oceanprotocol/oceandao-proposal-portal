@@ -14,6 +14,7 @@
   let errorMessage=undefined;
 
   async function submitDeliverables() {
+    console.log('herre')
     Swal.fire({
       title: "Are you sure?",
       text: "Your deliverables will go under review.",
@@ -26,6 +27,7 @@
           loading=true;
           const signer = $userAddress;
           const nonce = await getNonce(signer);
+          console.log('herre')
           const message = JSON.stringify({
             proposalId: proposalId,
             description: values.value,
@@ -75,7 +77,7 @@
 
   const { form, errors, handleChange, handleSubmit, values, changeValue } = createForm({
     initialValues: {
-      deliverables: 'asd'
+      deliverables: ''
     },
     validationSchema: yup.object().shape({
       deliverables: yup.string().required("Deliverables are required")
@@ -111,18 +113,9 @@
 
 <div class="deliverables-container">
   <Section
-          class="flex text-left bg-grey-200"
-          title={"Deliverables"}
-          descriptionTextLeft
-          actions={[
-      {
-        text: "Submit",
-        onClick: submitDeliverables,
-        loading: loading,
-        disabled: loading
-      },
-    ]}
->>>>>>> development
+      class="flex text-left bg-grey-200"
+      title={"Deliverables"}
+      descriptionTextLeft
   >
     {#if loaded == false}
       <div class="text-center">
@@ -144,6 +137,8 @@
           <Button
             type="submit"
             text="Submit"
+            loading={loading}
+            disabled={loading}
           />
         </div>
       </form>
