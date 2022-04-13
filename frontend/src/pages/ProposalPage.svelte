@@ -24,8 +24,8 @@
 
   async function loadData() {
     let res = await fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`);
-    proposal = await res.json();
-    console.log(proposal)
+    const data = await res.json();
+    proposal = data.proposal;
 
     // TODO - GET Project + Show: Category, Project Name | Proposal Name | Round Number
     if (proposal) {
@@ -34,7 +34,7 @@
           {
             text: "Submit Deliverables",
             onClick: onSubmitDeliverableClick,
-            disabled: loading
+            disabled: loading,
           },
         ];
       }
@@ -64,13 +64,13 @@
           nonce,
           withdraw: true,
         });
-        let signedMessage
-        try{
+        let signedMessage;
+        try {
           signedMessage = await signMessage(message, $networkSigner);
-        }catch(error){
+        } catch (error) {
           loading = false;
           errorMessage = error.message;
-          return
+          return;
         }
         const res = await fetch(`${SERVER_URI}/app/proposal/withdraw`, {
           method: "POST",
@@ -120,12 +120,12 @@
           text: "Withdraw Proposal",
           onClick: withdrawProposal,
           loading: loading,
-          disabled: loading
+          disabled: loading,
         },
         {
           text: "Update Proposal",
           onClick: onUpdateProposalClick,
-          disabled: loading
+          disabled: loading,
         },
       ]}
     >
