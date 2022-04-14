@@ -289,7 +289,6 @@ Community Value — How does the project add value to the overall Ocean Communit
   }
 
   async function showMinUsdWarning() {
-    showMinUsdRequestedWarning = false
     if($proposalStore['minUsdRequested'] > 0){
       Swal.fire({
       title: "Are you sure?",
@@ -300,6 +299,7 @@ Community Value — How does the project add value to the overall Ocean Communit
       cancelButtonText: "Cancel",
     }).then(async (result) => {
       if (result.value) {
+        showMinUsdRequestedWarning = false
         return
       }else{
         $proposalStore['minUsdRequested'] = 0
