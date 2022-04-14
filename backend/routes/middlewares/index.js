@@ -88,24 +88,23 @@ function checkProject(req, res, next) {
 
 function checkBadState(req, res, next) {
   const projectId = JSON.parse(req.body.message).projectId;
-  console.log('herrreeee')
   // get the latest record
   try{
   Proposal.find({ projectId })
     .sort({ round: -1 })
     .limit(1)
     .exec(async (err, data) => {
-      console.log('herrreeee')
+      // handle errors
       if (err) {
         return res.status(400).send(err);
       }
-      console.log('herrreeee')
+      // handle empty results
       if (!data || data[0]) {
         return next();
       }
+      // handle bad proposals and retrieve from airtable
       if (data[0].delivered.status !== 2) {
         let proposalInfo
-        console.log('herrreeee')
         try{
           proposalInfo = await getProposalByRecordId(
             data[0].airtableRecordId
@@ -113,7 +112,6 @@ function checkBadState(req, res, next) {
         }catch(error) {
           console.error('getProposalByRecordId failed: ',error)
           return res.status(400).send(error);
-          // throw(error)
         }
         if (
           (proposalInfo.fields["Proposal State"] == "Funded" ||
