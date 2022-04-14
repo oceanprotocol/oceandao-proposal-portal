@@ -296,7 +296,9 @@ router.get("/info/:projectId", async (req, res) => {
     .exec((err, proposals) => {
       Project.findById(projectId, async (err, project) => {
         const lastProposal = proposals[proposals.length - 1];
-        const canCreateProposals = lastProposal.delivered.status == 2;
+        const canCreateProposals = lastProposal
+          ? lastProposal.delivered.status == 2
+          : true;
         if (err) {
           res.status(400).send(err);
         }
