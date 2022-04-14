@@ -119,7 +119,7 @@ Community Value — How does the project add value to the overall Ocean Communit
       required: true,
       textFormat: "number",
       importantText:
-        "The minimum amount of funding that need's to be reached in order to receive funding.",
+        "The minimum amount of funding that need's to be reached in order to receive funding. If after voting you end up with less USD than the minimum amount you won't get those funds.",
     },
     {
       type: "text",
