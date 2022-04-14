@@ -119,7 +119,7 @@ Community Value — How does the project add value to the overall Ocean Communit
       required: true,
       textFormat: "number",
       importantText:
-        "The minimum amount of funding that need's to be reached in order to receive funding. If after voting you end up with less USD than the minimum amount you won't get those funds.",
+        "To win a grant, this is the minimum USD amount you are willing to accept. If after voting you end up with less USD than the minimum amount, you will not receive any funds.",
     },
     {
       type: "text",
@@ -292,7 +292,7 @@ Community Value — How does the project add value to the overall Ocean Communit
     if($proposalStore['minUsdRequested'] > 0){
       Swal.fire({
       title: "Are you sure?",
-      text: `You won't be funded if min USD requested is not reached`,
+      text: `To win and receive any funds, you have to reach the Minimum Funding Requested amount.`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Proceed!",
