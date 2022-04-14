@@ -9,10 +9,39 @@ function getMarkdown(project, proposal) {
   const md = [];
 
   md.push({
-    title: "## Project Description",
+    title: "# " + proposal.proposalTitle,
+  });
+  md.push({
+    title: "## One Liner",
+    body: proposal.oneLiner,
+  });
+
+  md.push({
+    title: "## Description",
+    body: proposal.proposalDescription,
+    type: "md",
+  });
+
+  md.push({
+    title: `# ${project.projectName}`,
+    body: "",
+  });
+
+  md.push({
+    title: "## Description",
     body: project.projectDescription,
     type: "md",
   });
+  md.push({
+    title: "## Grant Deliverables",
+    body: proposal.grantDeliverables,
+    type: "md",
+  });
+  md.push({
+    title: "## Value Add Criteria",
+    body: proposal.valueAddCriteria,
+  });
+
   md.push({
     title: "## Final Product",
     body: project.finalProduct,
@@ -32,30 +61,6 @@ function getMarkdown(project, proposal) {
       type: "md",
     });
 
-  md.push({
-    title: "# Proposal",
-  });
-  md.push({
-    title: "## " + proposal.proposalTitle,
-  });
-  md.push({
-    title: "### One Liner",
-    body: proposal.oneLiner,
-  });
-  md.push({
-    title: "## Description",
-    body: proposal.proposalDescription,
-    type: "md",
-  });
-  md.push({
-    title: "## Grant Deliverables",
-    body: proposal.grantDeliverables,
-    type: "md",
-  });
-  md.push({
-    title: "## Value Add Criteria",
-    body: proposal.valueAddCriteria,
-  });
   md.push({
     title: "*Funding Requested*",
     body: proposal.proposalFundingRequested,
