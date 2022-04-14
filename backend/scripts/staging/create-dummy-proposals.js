@@ -1,6 +1,7 @@
 const fetch = require("node-fetch");
 const SERVER_URI = "http://localhost:3005";
 const ethers = require("ethers");
+const genName = require("./names");
 
 const getWallet = () => ethers.Wallet.createRandom();
 const sign = async (wallet, message) => {
@@ -26,7 +27,7 @@ async function getNonce(address) {
 
 async function createProposal(wallet, projectId) {
   const proposalObject = {
-    proposalTitle: `Dummy Proposal ${makeid(8)}`,
+    proposalTitle: `${genName()} ${makeid(8)}`,
     proposalEarmark: "general",
     oneLiner: LOREM_TEXT.substring(0, 40),
     proposalDescription: LOREM_TEXT,
@@ -60,7 +61,7 @@ async function createProposal(wallet, projectId) {
 
 async function createProject(wallet) {
   const projectObject = {
-    projectName: `Dummy Project ${makeid(8)}`,
+    projectName: `${genName()} ${makeid(8)}`,
     projectCategory: "build",
     projectDescription: LOREM_TEXT,
     finalProduct: LOREM_TEXT,
