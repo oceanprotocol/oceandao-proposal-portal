@@ -103,6 +103,10 @@ async function updateAirtableEntry(recordId, proposal, grantCompleted = false) {
   if (proposal.proposalWalletAddress)
     update["Wallet Address"] = proposal.proposalWalletAddress;
 
+  if (proposal.proposalStanding) {
+    update["Proposal Standing"] = proposal.proposalStanding;
+  }
+
   if (proposal.deliverableChecklist)
     update["Deliverable Checklist"] =
       `[x] Completed! ` +
