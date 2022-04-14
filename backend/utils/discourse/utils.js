@@ -110,7 +110,7 @@ async function createDiscoursePost(
   project,
   categoryId
 ) {
-  const md = getMarkdown(project);
+  const md = getMarkdown(project, proposal);
   const post = getMarkdownProposal(md);
 
   const res = await fetch(`${baseUrl}/posts.json`, {
