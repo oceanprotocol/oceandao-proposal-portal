@@ -24,6 +24,7 @@ const _getFundingRoundsSelectQuery = async (selectQuery) => {
 
 const getProposalByRecordId = async (recordId) => {
   const proposal = await base("Proposals").find(recordId);
+  console.error(proposal)
   return proposal;
 };
 
@@ -126,7 +127,11 @@ async function updateAirtableEntry(recordId, proposal, grantCompleted = false) {
     update["Minimum USD Requested"] = proposal.minUsdRequested;
 
   if (proposal.oneLiner) update["One Liner"] = proposal.oneLiner;
-  await base("Proposals").update(recordId, update);
+    base("Proposals").update(recordId, update).then((resp) => {
+      console.log(resp)
+    }, error => {
+      throw error.message
+    })
   return true;
 }
 

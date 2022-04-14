@@ -2,8 +2,7 @@
   export let title;
   export let value = null;
   export let disabled = false;
-  export let wrong = false;
-  export let wrongText = "";
+  export let error;
   export let options;
 
   value = options[0].value;
@@ -16,14 +15,14 @@
   <select
     {disabled}
     bind:value
-    class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+    class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500 {error && 'border-red-500 border rounded-md'}"
     id="grid-state"
   >
     {#each options as option}
       <option value={option.value}>{option.text}</option>
     {/each}
   </select>
-  {#if wrong}
-    <p class="text-red-500 text-xs italic">{wrongText}</p>
+  {#if error}
+    <p class="text-red-500 text-xs italic">{error}</p>
   {/if}
 </div>

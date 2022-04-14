@@ -2,12 +2,13 @@
   import { onMount } from "svelte";
 
   export let title;
+  export let name;
   export let placeHolder;
   export let value = null;
   export let disabled = false;
-  export let wrong = false;
+  export let handleChange;
+  export let error;
   export let rows = 3;
-  export let wrongText = "";
   //  import { quill } from "svelte-quill";
   let editor;
   const toolbarOptions = [
@@ -19,6 +20,8 @@
 
     ["image", "link"],
   ];
+
+  console.log(value)
 
   onMount(async () => {
     const { default: Quill } = await import("quill");
@@ -51,6 +54,8 @@
     });
   });
 
+  console.log(error)
+
   function imageHandler() {
     const tooltip = this.quill.theme.tooltip;
     const originalSave = tooltip.save;
@@ -74,29 +79,6 @@
   }
 </script>
 
-<svelte:head>
-  <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
-</svelte:head>
-
-<div class="mb-8">
-  {#if title}
-    <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
-      {title}
-    </label>
-  {/if}
-  <div class="editor-wrapper">
-    <div
-      class="editor"
-      bind:this={editor}
-      on:text-change={(e) => (value = e.detail.html)}
-    />
-  </div>
-
-  {#if wrong}
-    <p class="text-red-500 text-xs italic">{wrongText}</p>
-  {/if}
-</div>
-
 <style>
   @import "https://cdn.quilljs.com/1.3.6/quill.snow.css";
 
@@ -107,3 +89,32 @@
     padding: 16px;
   }
 </style>
+
+<svelte:head>
+  <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
+</svelte:head>
+
+<div class="mb-8">
+  {#if title}
+    <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+      {title}
+    </label>
+  {/if}
+  <div class="editor-wrapper {error && 'border-red-500 border rounded-md'}">
+    <div
+      class="editor"
+      bind:this={editor}
+      on:text-change={(e) => {
+        if(e.detail.html === "<p><br></p>"){
+          value = '';
+        }else{
+          value = e.detail.html
+        }
+      }}
+    />
+  </div>
+
+  {#if error}
+    <p class="text-red-500 italic text-left mt-1">{error}</p>
+  {/if}
+</div>

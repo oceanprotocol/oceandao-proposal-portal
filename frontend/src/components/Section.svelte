@@ -63,12 +63,21 @@
         <div class="actionContainer">
         {#each actions as action}
             <div class="flex mt-5">
-                <Button
-                    text={action.text}
-                    onclick={() => action.onClick()}
-                    loading={action.loading}
-                    disabled={action.disabled}
-                />
+                {#if action.type}
+                  <Button
+                      text={action.text}
+                      type={action.type}
+                      loading={action.loading}
+                      disabled={action.disabled}
+                  />
+                {:else}
+                  <Button
+                      text={action.text}
+                      onclick={() => action.onClick()}
+                      loading={action.loading}
+                      disabled={action.disabled}
+                    />
+                {/if}
             </div>
         {/each}
         </div>

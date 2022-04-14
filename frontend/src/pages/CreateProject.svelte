@@ -1,5 +1,4 @@
 <script>
-  import { project as projectStore } from "../stores/project";
   import TextField from "../components/TextField.svelte";
   import LargeTextField from "../components/LargeTextField.svelte";
   import OptionSelect from "../components/OptionSelect.svelte";
@@ -9,11 +8,14 @@
   import { SERVER_URI } from "../utils/config";
   import Button from "../components/Button.svelte";
   import Recaptcha from "../components/Recaptcha.svelte";
+  import { createForm } from "svelte-forms-lib";
+  import { fieldsPart0, fieldsPart1, validationSchema, initialValues } from "../constants/createProjectForm"
 
   export let projectId;
   const isUpdating = projectId !== undefined;
   let loaded = !isUpdating;
   let recaptcha;
+  let project;
   let loading = false;
 
   if (isUpdating) {
@@ -30,131 +32,6 @@
 
   const partTitles = ["Part 1 - Project Details", "Part 2 - Team Details"];
 
-  let fieldsPart0 = [
-    {
-      type: "text",
-      title: "Name of Project",
-      bindValue: "projectName",
-      required: true,
-      wrong: false,
-      disabled: isUpdating,
-    },
-    {
-      type: "optionSelect",
-      title: "Project Category",
-      bindValue: "projectCategory",
-      wrong: false,
-      disabled: isUpdating,
-      required: true,
-      options: [
-        {
-          value: "build",
-          text: "Build / improve applications or integrations to Ocean",
-        },
-        {
-          value: "outreach",
-          text: "Outreach / community / spread awareness (grants don't need to be technical in nature)",
-        },
-        {
-          value: "unleash",
-          text: "Unleash data",
-        },
-        {
-          value: "buildcore",
-          text: "Build / improve core software",
-        },
-        {
-          value: "improvedao", //TODO Change these
-          text: "Improvements to OceanDAO",
-        },
-      ],
-    },
-    {
-      type: "largeText",
-      title: "Project Description",
-      bindValue: "projectDescription",
-      required: true,
-      placeHolder: "Description of the project and what problem is it solving",
-      wrong: false,
-    },
-    {
-      type: "largeText",
-      title: "What is the final product?",
-      bindValue: "finalProduct",
-      placeHolder: "1-2 sentences describing the final product",
-      wrong: false,
-      required: true,
-    },
-    {
-      type: "text",
-      title: "Project lead full name",
-      bindValue: "projectLeadFullName",
-      placeHolder: "first name last name",
-      wrong: false,
-      required: true,
-    },
-    {
-      type: "text",
-      title: "Project lead email",
-      bindValue: "projectLeadEmail",
-      placeHolder: "example@example.com",
-      wrong: false,
-      required: true,
-    },
-    {
-      type: "text",
-      title: "Country of Residence",
-      bindValue: "countryOfResidence",
-      placeHolder: "USA",
-      wrong: false,
-      required: true,
-    },
-    {
-      type: "text",
-      title: "Team Website",
-      bindValue: "teamWebsite",
-      placeHolder: "URL",
-      wrong: false,
-    },
-    {
-      type: "text",
-      title: "Twitter Website",
-      bindValue: "twitterLink",
-      placeHolder: "URL",
-      wrong: false,
-    },
-    {
-      type: "text",
-      title: "Discord Website",
-      bindValue: "discordLink",
-      placeHolder: "URL",
-      wrong: false,
-    },
-  ];
-
-  let fieldsPart1 = [
-    {
-      type: "largeText",
-      title: "Core Team",
-      bindValue: "coreTeam",
-      rows: 15,
-      placeHolder: `John Doe
-Role: developer, UX/UI designer
-Relevant Credentials (e.g.):
-GitHub: https://github.com/johndoe
-LinkedIn: https://linkedin.com/in/johndoe
-Background/Experience:
-Co-founder at xxx`,
-    },
-    {
-      type: "largeText",
-      title: "Advisors",
-      bindValue: "advisors",
-      rows: 15,
-      placeHolder: `For each Advisor, give their name, role and background. Use the same format as in "Core Team"`,
-    },
-  ];
-
   let fields = [fieldsPart0, fieldsPart1];
 
   // Add required fields
@@ -166,49 +43,42 @@ Co-founder at xxx`,
   fields.map((fieldPart) => {
     fieldPart.map((field) => {
       requiredFields(field);
+      if(field.disabledOnUpdate && isUpdating){
+        field.disabled = true;
+      }
     });
   });
 
-  function next() {
-    if (part == 1) {
-      fieldsPart1.map((field) => {
-        if (field.required) {
-          if (
-            $projectStore[field.bindValue] == null ||
-            $projectStore[field.bindValue] == ""
-          ) {
-            field.wrong = true;
-            field.wrongText = "This field is required";
-          } else {
-            field.wrong = false;
-          }
-        }
-      });
-      fields = [fieldsPart0, fieldsPart1];
+  const { form, errors, handleChange, handleSubmit, values, changeValue } = createForm({
+    initialValues: initialValues,
+    validationSchema: validationSchema,
+    onSubmit: values => {
+      next()
+    }
+  })
 
-      if (fieldsPart1.filter((field) => field.wrong).length == 0) {
-        createProject();
-      }
+  const getProjectInfo = async () => {
+    let response = await fetch(`${SERVER_URI}/app/project/info/${projectId}`)
+    response = await response.json()
+    project = response.project;
+    for(const value in $form){
+      $form[value] = project[value]
+    }
+    loaded = true;
+  }
+
+  if (isUpdating) {
+    getProjectInfo()
+  }
+
+  async function next() {
+    if (part == 1) {
+      fields = [fieldsPart0, fieldsPart1];
+      createProject();
     }
     if (part < 1) {
-      fieldsPart0.map((field) => {
-        if (field.required) {
-          if (
-            $projectStore[field.bindValue] == null ||
-            $projectStore[field.bindValue] == ""
-          ) {
-            field.wrong = true;
-            field.wrongText = "This field is required";
-          } else {
-            field.wrong = false;
-          }
-        }
-      });
       fields = [fieldsPart0, fieldsPart1];
-
-      if (fieldsPart0.filter((field) => field.wrong).length == 0) {
-        part++;
-      }
+      part++;
     }
   }
   function back() {
@@ -222,18 +92,18 @@ Co-founder at xxx`,
     loading = true;
 
     let projectObject = {
-      projectName: $projectStore.projectName,
-      projectCategory: $projectStore.projectCategory,
-      projectDescription: $projectStore.projectDescription,
-      finalProduct: $projectStore.finalProduct,
-      projectLeadFullName: $projectStore.projectLeadFullName,
-      projectLeadEmail: $projectStore.projectLeadEmail,
-      countryOfResidence: $projectStore.countryOfResidence,
-      teamWebsite: $projectStore.teamWebsite,
-      twitterLink: $projectStore.twitterLink,
-      discordLink: $projectStore.discordLink,
-      coreTeam: $projectStore.coreTeam,
-      advisors: $projectStore.advisors,
+      projectName: $form.projectName,
+      projectCategory: $form.projectCategory,
+      projectDescription: $form.projectDescription,
+      finalProduct: $form.finalProduct,
+      projectLeadFullName: $form.projectLeadFullName,
+      projectLeadEmail: $form.projectLeadEmail,
+      countryOfResidence: $form.countryOfResidence,
+      teamWebsite: $form.teamWebsite,
+      twitterLink: $form.twitterLink,
+      discordLink: $form.discordLink,
+      coreTeam: $form.coreTeam,
+      advisors: $form.advisors,
       nonce: await getNonce($userAddress),
       projectId: projectId,
     };
@@ -281,8 +151,6 @@ Co-founder at xxx`,
         })
         .then((data) => {
           if (data !== undefined) {
-            console.log("Project updated");
-            console.log(data);
             alert("Project updated");
             window.location.href = "/";
             errorMessage = null;
@@ -311,7 +179,6 @@ Co-founder at xxx`,
             return res.json();
             loading = false;
           } else if (res.status === 400) {
-            console.log("Couldn't create project: ", res);
             res = await res.text();
             try {
               res = JSON.parse(res);
@@ -326,8 +193,6 @@ Co-founder at xxx`,
         })
         .then((data) => {
           if (data !== undefined) {
-            console.log("Project created");
-            console.log(data);
             alert("Project created");
             window.location.href = "/";
             errorMessage = null;
@@ -340,12 +205,20 @@ Co-founder at xxx`,
         });
     }
   }
+
 </script>
 
 <Recaptcha bind:this={recaptcha} />
 
 <div class="flex h-screen mt-10 justify-center w-full">
   <div class="w-full max-w-3xl m-auto">
+  {#if loaded == false}
+      <div class="text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+  {:else}
     <p class="text-lg font-bold text-center">
       Projects must meet the
       <a
@@ -356,8 +229,7 @@ Co-founder at xxx`,
         Project Submission Criteria
       </a> .
     </p>
-    {#if loaded}
-      <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+      <form on:submit={handleSubmit} class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 ">
         <p class="text-xl font-bold mb-2 opacity-90">{partTitles[part]}</p>
         {#each fields[part] as field}
           {#if field.type === "title"}
@@ -369,36 +241,39 @@ Co-founder at xxx`,
 
           {#if field.type === "text"}
             <TextField
-              bind:value={$projectStore[field.bindValue]}
+              name={field.bindValue}
+              value={$form[field.bindValue]}
               title={field.title}
               placeHolder={field.placeHolder}
               disabled={field.disabled}
-              bind:wrong={field.wrong}
+              error={$errors[field.bindValue]}
               wrongText={field.wrongText ?? "Please enter a valid value"}
               textFormat={field.textFormat}
               importantText={field.importantText}
+              handleChange={handleChange}
             />
           {/if}
           {#if field.type === "largeText"}
             <LargeTextField
-              bind:value={$projectStore[field.bindValue]}
+              bind:value={$form[field.bindValue]}
+              name={field.bindValue}
               title={field.title}
               placeHolder={field.placeHolder}
               disabled={field.disabled}
-              bind:wrong={field.wrong}
-              wrongText={field.wrongText ?? "Please enter a valid value"}
+              error={$errors[field.bindValue]}
+              handleChange={handleChange}
               rows={field.rows}
             />
           {/if}
           {#if field.type === "optionSelect"}
             <OptionSelect
-              bind:value={$projectStore[field.bindValue]}
+              bind:value={$form[field.bindValue]}
               title={field.title}
               placeHolder={field.placeHolder}
               disabled={field.disabled}
-              bind:wrong={field.wrong}
-              wrongText={field.wrongText ?? "Please enter a valid value"}
+              error={$errors[field.bindValue]}
               options={field.options}
+              handleChange={handleChange}
             />
           {/if}
         {/each}
@@ -425,12 +300,12 @@ Co-founder at xxx`,
               <Button text="Back" onclick={() => back()} disabled={loading}/>
             {/if}
             <Button
+              type="submit"
               text={part < 1
                 ? "Next"
                 : isUpdating
                 ? "Update project"
                 : "Create Project"}
-              onclick={() => next()}
               loading={loading}
               disabled={loading}
             />
