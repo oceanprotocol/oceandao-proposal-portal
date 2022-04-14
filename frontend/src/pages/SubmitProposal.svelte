@@ -17,6 +17,8 @@
   let part = 0;
   let recaptcha;
   let errortext;
+  let roundNumber;
+  let loading = false;
 
   if (isUpdating) {
     fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`)
@@ -24,6 +26,12 @@
       .then((res) => {
         proposalStore.update(() => res);
         loaded = true;
+      });
+  } else {
+    fetch(`${SERVER_URI}/app/round/number`)
+      .then((res) => res.json())
+      .then((res) => {
+        roundNumber = res.roundNumber;
       });
   }
 
@@ -146,6 +154,7 @@ Community Value — How does the project add value to the overall Ocean Communit
 
   async function submitProposal() {
     errortext = null;
+    loading = true;
     const recaptchaToken = await recaptcha.getCaptcha();
     fieldsPart0.map((field) => {
       if (field.required) {
@@ -176,10 +185,18 @@ Community Value — How does the project add value to the overall Ocean Communit
       projectId: projectId,
       proposalId: proposalId,
       nonce: nonce,
+      minUsdRequested: $proposalStore.minUsdRequested,
     };
 
     const proposalJson = JSON.stringify(proposalObject);
-    const signedMessage = await signMessage(proposalJson, $networkSigner);
+    let signedMessage
+    try{
+      signedMessage = await signMessage(proposalJson, $networkSigner);
+    }catch(error){
+      loading = false;
+      errortext = error.message;
+      return
+    }
     const signer = $userAddress;
 
     if (isUpdating) {
@@ -197,13 +214,16 @@ Community Value — How does the project add value to the overall Ocean Communit
       })
         .then((response) => {
           if (response.ok) {
+            loading = false;
             return response.json();
           }
+          loading = false;
           return response.text();
         })
         .then((data) => {
           if (data.success) {
             alert("Proposal updated successfully");
+            loading = false;
             window.location.href = `/proposal/view/${proposalId}`;
           } else {
             alert("Error updating proposal");
@@ -213,11 +233,13 @@ Community Value — How does the project add value to the overall Ocean Communit
             } catch (e) {
               errortext = data;
             }
+            loading = false;
             console.error(data);
           }
         })
         .catch((error) => {
           console.log(error);
+          loading = false;
         });
     } else {
       fetch(`${SERVER_URI}/app/project/createProposal`, {
@@ -234,13 +256,16 @@ Community Value — How does the project add value to the overall Ocean Communit
       })
         .then((response) => {
           if (response.ok) {
+            loading = false;
             return response.json();
           }
+          loading = false;
           return response.text();
         })
         .then((data) => {
           if (data.success) {
             alert("Proposal created successfully");
+            loading = false;
             window.location.href = `/project/${projectId}`;
           } else {
             alert("Error creating proposal");
@@ -251,10 +276,12 @@ Community Value — How does the project add value to the overall Ocean Communit
               errortext = data;
             }
             console.error(data);
+            loading = false;
           }
         })
         .catch((error) => {
           console.log(error);
+          loading = false;
         });
     }
   }
@@ -275,6 +302,10 @@ Community Value — How does the project add value to the overall Ocean Communit
       </a>
       .
     </p>
+
+    <h3 style="text-align: center;">
+      Submitting for <b>Round {roundNumber}</b>
+    </h3>
 
     {#if loaded == false}
       <div class="text-center">
@@ -361,8 +392,12 @@ Community Value — How does the project add value to the overall Ocean Communit
               </button>
             {/if}
             <Button
-              text={isUpdating ? "Update project" : "Submit Proposal"}
+              text={isUpdating
+                ? "Update project"
+                : `Submit Proposal for Round ${roundNumber}`}
               onclick={() => submitProposal()}
+              loading={loading}
+              disabled={loading}
             />
           </div>
         </div>

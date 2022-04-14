@@ -8,6 +8,9 @@
   import Swal from "sweetalert2";
   import Section from "../components/Section.svelte";
 
+  let loading=false;
+  let errorMessage=undefined;
+
   async function submitDeliverables() {
     Swal.fire({
       title: "Are you sure?",
@@ -19,6 +22,7 @@
     }).then(async (result) => {
       if (result.value) {
         if (value) {
+          loading=true;
           const signer = $userAddress;
           const nonce = await getNonce(signer);
           const message = JSON.stringify({
@@ -26,7 +30,14 @@
             description: value,
             nonce,
           });
-          const signedMessage = await signMessage(message, $networkSigner);
+          let signedMessage
+          try{
+            signedMessage = await signMessage(message, $networkSigner);
+          }catch(error){
+            loading = false;
+            errorMessage = error.message;
+            return
+          }
           const res = await fetch(`${SERVER_URI}/app/proposal/deliver`, {
             method: "POST",
             headers: {
@@ -45,10 +56,12 @@
               "Your submission has been sent, it will be visible once it is confirmed by one of the moderators", //TODO CHANGE THIS TEXT
               "success"
             ).then(() => {
+              loading=false;
               window.location.href = "/";
             });
           } else {
             Swal.fire("Error!", "Something went wrong", "error");
+            loading=false;
           }
         }
       }
@@ -89,6 +102,8 @@
       {
         text: "Submit",
         onClick: submitDeliverables,
+        loading: loading,
+        disabled: loading
       },
     ]}
   >
@@ -100,6 +115,9 @@
       </div>
     {:else}
       <LargeTextField placeHolder="Description" bind:value />
+    {/if}
+    {#if errorMessage}
+      <p class="text-red-500">{errorMessage}</p>
     {/if}
   </Section>
 </div>

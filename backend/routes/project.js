@@ -15,8 +15,7 @@ const { createDiscoursePost } = require("../utils/discourse/utils");
 const {
   getProjectUsdLimit,
   createAirtableEntry,
-  getFormerProposals,
-  getCurrentDiscourseCategoryId,
+  getFormerFundedProposals,
   getCurrentRound,
 } = require("../utils/airtable/utils");
 
@@ -50,6 +49,7 @@ router.post("/list", async (req, res) => {
   res.send(projects);
 });
 
+const processing = [];
 router.post(
   "/createProposal",
   recaptchaCheck(0.5),
@@ -77,7 +77,7 @@ router.post(
     ];
 
     // TODO - Please fix. New projects can apply for coretech.
-    const formerProposals = await getFormerProposals(projectName);
+    const formerProposals = await getFormerFundedProposals(projectName);
     if (formerProposals.length == 0) {
       // ? triple === no?
       if (project.projectCategory === "outreach") {
@@ -104,6 +104,11 @@ router.post(
     }
 
     const minUsdRequested = parseFloat(proposal.minUsdRequested);
+    if (!minUsdRequested) {
+      return res.status(400).json({
+        error: "Please enter a minimum USD amount",
+      });
+    }
     if (minUsdRequested > proposalFundingRequested) {
       return res.status(400).json({
         error: "Your minimum funding request exceeds your funding request",
@@ -111,15 +116,13 @@ router.post(
     }
 
     const currentRound = await getCurrentRound();
-    const currentRoundNumber = currentRound.fields["Round"];
+    let currentRoundNumber = parseInt(currentRound.fields["Round"]);
     const currentRoundSubmissionDeadline =
       currentRound.fields["Proposals Due By"];
 
     // if submission deadline has passed, return error
     if (Date.now() > new Date(currentRoundSubmissionDeadline).getTime()) {
-      return res.status(400).json({
-        error: "Submission deadline for this round has passed",
-      });
+      currentRoundNumber = parseInt(currentRoundNumber) + 1; // submit proposal for next round
     }
 
     Proposal.findOne(
@@ -135,17 +138,19 @@ router.post(
           return res.status(400).send("Proposal already exists for this round");
         }
 
-        const categoryId =
-          process.env.DEVELOPMENT_CATEGORY_ID ??
-          (await getCurrentDiscourseCategoryId());
-        if (categoryId == null || categoryId == undefined) {
-          return res.status(400).send("No category id found");
+        if (processing.includes(proposal.signer)) {
+          res.status(400).send("Please try again later");
+          return;
         }
+        processing.push(proposal.signer);
 
-        newProposal.save(async (err, createdProposal) => {
-          if (err) {
-            console.error(err);
-            return res.status(400).send(err);
+        try {
+          const categoryId =
+            process.env.DEVELOPMENT_CATEGORY_ID ??
+            currentRound.fields["Discourse Category"];
+          if (categoryId == null || categoryId == undefined) {
+            processing.splice(processing.indexOf(proposal.signer), 1);
+            return res.status(400).send("No category id found");
           }
 
           const discoursePostLink = await createDiscoursePost(
@@ -156,13 +161,16 @@ router.post(
           ); // create a new post in the discourse forum
           const postId = discoursePostLink.id;
           if (postId === undefined) {
-            console.error(
-              "Error creating post in discourse",
-              discoursePostLink
+            console.error(discoursePostLink);
+            if (
+              discoursePostLink.errors &&
+              discoursePostLink.errors.length > 0
+            ) {
+              throw new Error(discoursePostLink.errors[0]);
+            }
+            throw new Error(
+              "Could not create a new post in the discourse forum"
             );
-            return res.status(400).json({
-              error: "Could not create a new post in the discourse forum",
-            });
           }
           const slug = discoursePostLink.topic_slug;
           const URL = `${process.env.DISCOURSE_BASE_URI}/t/${slug}/${discoursePostLink.topic_id}`;
@@ -183,7 +191,8 @@ router.post(
             proposalUrl: proposal.discourseLink,
             oneLiner: proposal.oneLiner,
             proposalTitle: proposal.proposalTitle,
-            minUsdRequested: proposal.minUsdRequested,
+            minUsdRequested: minUsdRequested,
+            roundNumber: currentRoundNumber.toString(),
           }); // create airtable entry
 
           proposal.airtableRecordId = airtableRecordId; // TODO MAKE SURE RECORD ID IS CORRECT
@@ -192,19 +201,21 @@ router.post(
           proposal.round = currentRoundNumber;
 
           // update saved proposal
-          Proposal.findByIdAndUpdate(
-            createdProposal._id,
-            proposal,
-            { runValidators: true },
-            (err, proposal) => {
-              if (err) {
-                console.error(err);
-                return res.status(400).send(err);
-              }
-              res.send({ success: true, proposal });
+
+          new Proposal(proposal).save((err, proposal) => {
+            if (err) {
+              console.error(err);
+              processing.splice(processing.indexOf(res.locals.signer), 1);
+              return res.status(400).send(err);
             }
-          );
-        });
+            res.send({ success: true, proposal });
+            processing.splice(processing.indexOf(res.locals.signer), 1);
+          });
+        } catch (err) {
+          console.error(err);
+          processing.splice(processing.indexOf(res.locals.signer), 1);
+          return res.status(400).send(err.message);
+        }
       }
     );
   }
@@ -278,19 +289,25 @@ router.get("/info/:projectId", async (req, res) => {
   const projectId = req.params.projectId;
   Proposal.find(
     { projectId: projectId },
-    "proposalFundingRequested proposalTitle round proposalEarmark",
-    (err, proposals) => {
+    "proposalFundingRequested proposalTitle round proposalEarmark"
+  )
+    .sort({ round: -1 })
+    .exec((err, proposals) => {
       Project.findById(projectId, (err, project) => {
+        const lastProposal = proposals[proposals.length - 1];
+        const canCreateProposals = lastProposal
+          ? lastProposal.delivered.status == 2
+          : true;
         if (err) {
           res.status(400).send(err);
         }
         res.status(200).send({
           project,
           proposals,
+          canCreateProposals,
         });
       });
-    }
-  );
+    });
 });
 
 module.exports = router;

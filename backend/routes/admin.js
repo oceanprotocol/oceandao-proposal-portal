@@ -55,8 +55,7 @@ router.get("/getProposalEarmarkRequest", (req, res) => {
 router.post(
   "/completeProposal",
   checkSigner,
-  requirePriv(5),
-
+  requirePriv(4),
   async (req, res) => {
     const data = JSON.parse(req.body.message);
     let proposalId = data.proposalId;
@@ -97,7 +96,7 @@ router.post(
 router.post(
   "/setProposalEarmark",
   checkSigner,
-  requirePriv(5),
+  requirePriv(4),
   async (req, res) => {
     const data = JSON.parse(req.body.message);
     let proposalId = data.proposalId;
