@@ -85,6 +85,7 @@ router.post(
         if (status === 2) {
           await updateAirtableEntry(data.airtableRecordId, {
             deliverableChecklist: data.delivered.description,
+            proposalStanding: "Completed",
           });
         }
         return res.send({ success: true });
