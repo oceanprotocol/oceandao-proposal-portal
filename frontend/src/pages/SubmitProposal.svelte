@@ -9,6 +9,7 @@
   import { getNonce } from "../utils/helpers";
   import Recaptcha from "../components/Recaptcha.svelte";
   import Button from "../components/Button.svelte";
+  import Swal from "sweetalert2";
 
   export let projectId;
   export let proposalId;
@@ -18,6 +19,7 @@
   let recaptcha;
   let errortext;
   let roundNumber;
+  let showMinUsdRequestedWarning = true;
   let loading = false;
 
   if (isUpdating) {
@@ -117,7 +119,7 @@ Community Value — How does the project add value to the overall Ocean Communit
       required: true,
       textFormat: "number",
       importantText:
-        "The amount of minimum funding requested is in USD, but the amount paid is in OCEAN token. The conversion rate is calculated at Vote End, so payment is completed as quickly as possible. This determines how many OCEAN will be awarded if a proposal is voted to receive a grant.",
+        "To win a grant, this is the minimum USD amount you are willing to accept. If after voting you end up with less USD than the minimum amount, you will not receive any funds.",
     },
     {
       type: "text",
@@ -285,6 +287,29 @@ Community Value — How does the project add value to the overall Ocean Communit
         });
     }
   }
+
+  async function showMinUsdWarning() {
+    if($proposalStore['minUsdRequested'] > 0){
+      Swal.fire({
+      title: "Are you sure?",
+      text: `To win and receive any funds, you have to reach the Minimum Funding Requested amount.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Proceed!",
+      cancelButtonText: "Cancel",
+    }).then(async (result) => {
+      if (result.value) {
+        showMinUsdRequestedWarning = false
+        return
+      }else{
+        $proposalStore['minUsdRequested'] = 0
+      }
+    })
+  }
+  }
+
+  $: if($proposalStore['minUsdRequested'] && showMinUsdRequestedWarning){showMinUsdWarning()}
+
 </script>
 
 <Recaptcha bind:this={recaptcha} />
