@@ -53,6 +53,28 @@ const _getProjectSummarySelectQuery = async (selectQuery) => {
   }
 };
 
+async function getAllProposalRecords() {
+  return base("Proposals")
+    .select({
+      view: "All Proposals",
+    })
+    .all();
+}
+
+async function getCurrentRoundProposals() {
+  const currentRound = await getCurrentRound();
+  const currentRoundNumber = currentRound.fields["Round"];
+  const currentRoundProposals = await base("Proposals")
+    .select({
+      view: "All Proposals",
+      filterByFormula: `OR({Round} = ${currentRoundNumber},{Round} = ${
+        currentRoundNumber + 1
+      },{Round} = ${currentRoundNumber - 1})`,
+    })
+    .all();
+  return currentRoundProposals;
+}
+
 /**
  * @param {String} projectName
  * @return {Number} projectUsdLimit
@@ -204,4 +226,6 @@ module.exports = {
   getCurrentDiscourseCategoryId,
   getCurrentRound,
   getProposalByRecordId,
+  getAllProposalRecords,
+  getCurrentRoundProposals,
 };
