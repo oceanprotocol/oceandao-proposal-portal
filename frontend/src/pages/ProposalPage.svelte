@@ -35,10 +35,6 @@
         ];
       }
     }
-
-    console.log(proposal);
-    console.log(proposal.delivered);
-    console.log(proposal.delivered.adminDescription);
   }
   loadData();
 
