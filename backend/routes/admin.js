@@ -157,11 +157,15 @@ router.post("/create", checkSigner, requirePriv(5), (req, res) => {
         address: walletAddress,
       },
       {
-        privLevel: privLevel,
+        $set: { privilege: privLevel },
       },
-      (err) => {
+      {
+        upsert: true,
+        new: true,
+      },
+      (err, data) => {
         if (err) return res.status(400).send(err);
-        return res.send({ success: true });
+        return res.send({ success: true, data });
       }
     );
   } else {
