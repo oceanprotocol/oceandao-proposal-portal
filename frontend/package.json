@@ -5,7 +5,7 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "start": "sirv public"
+    "start": "sirv public --single --port 5555"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
@@ -30,6 +30,7 @@
     "quill": "^1.3.7",
     "rollup-plugin-postcss": "^4.0.2",
     "sirv-cli": "^2.0.0",
+    "svelte-loading-spinners": "^0.1.7",
     "svelte-navigator": "^3.1.5",
     "svelte-quill": "^1.2.0",
     "svelte-web3": "^3.3.7",

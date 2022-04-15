@@ -55,8 +55,7 @@ router.get("/getProposalEarmarkRequest", (req, res) => {
 router.post(
   "/completeProposal",
   checkSigner,
-  requirePriv(5),
-
+  requirePriv(4),
   async (req, res) => {
     const data = JSON.parse(req.body.message);
     let proposalId = data.proposalId;
@@ -86,6 +85,7 @@ router.post(
         if (status === 2) {
           await updateAirtableEntry(data.airtableRecordId, {
             deliverableChecklist: data.delivered.description,
+            proposalStanding: "Completed",
           });
         }
         return res.send({ success: true });
@@ -97,7 +97,7 @@ router.post(
 router.post(
   "/setProposalEarmark",
   checkSigner,
-  requirePriv(5),
+  requirePriv(4),
   async (req, res) => {
     const data = JSON.parse(req.body.message);
     let proposalId = data.proposalId;

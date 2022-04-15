@@ -87,11 +87,9 @@ async function getCurrentRound() {
 }
 
 async function getCurrentDiscourseCategoryId() {
-  const nowDateString = new Date().toISOString();
-  const roundParameters = await _getFundingRoundsSelectQuery(
-    `AND({Voting Starts} > "${nowDateString}", "true")`
-  );
-  return roundParameters ? roundParameters[0].fields["Discourse Category"] : -1;
+  // NOT USED
+  const roundParameters = await getCurrentRound();
+  return roundParameters ? roundParameters.fields["Discourse Category"] : -1;
 }
 
 /**
@@ -104,6 +102,10 @@ async function updateAirtableEntry(recordId, proposal, grantCompleted = false) {
 
   if (proposal.proposalWalletAddress)
     update["Wallet Address"] = proposal.proposalWalletAddress;
+
+  if (proposal.proposalStanding) {
+    update["Proposal Standing"] = proposal.proposalStanding;
+  }
 
   if (proposal.deliverableChecklist)
     update["Deliverable Checklist"] =
@@ -128,9 +130,9 @@ async function updateAirtableEntry(recordId, proposal, grantCompleted = false) {
   return true;
 }
 
-async function getFormerProposals(projectName) {
+async function getFormerFundedProposals(projectName) {
   const formerProposals = await _getProposalsSelectQuery(
-    `{Project Name} = "${projectName}"`
+    `AND({Project Name} = "${projectName}",{Proposal State} = "Funded")`
   );
   return formerProposals;
 }
@@ -156,8 +158,9 @@ async function createAirtableEntry({
   proposalUrl,
   proposalTitle,
   minUsdRequested,
+
+  roundNumber,
 }) {
-  const roundNumber = await getCurrentRoundNumber();
   const proposal = {
     "Project Name": projectName,
     "One Liner": oneLiner,
@@ -185,7 +188,7 @@ module.exports = {
   getCurrentRoundNumber,
   createAirtableEntry,
   updateAirtableEntry,
-  getFormerProposals,
+  getFormerFundedProposals,
   getCurrentDiscourseCategoryId,
   getCurrentRound,
   getProposalByRecordId,
