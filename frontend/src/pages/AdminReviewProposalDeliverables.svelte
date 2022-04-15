@@ -16,6 +16,9 @@
   let proposal;
   let deliverableActions = []
   let adminDescription;
+  let loading = false;
+  let errorMessage = undefined;
+  let selectedAction = undefined;
 
   async function loadData() {
     let res = await fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`);
@@ -34,6 +37,8 @@
       cancelButtonText: "Cancel",
     }).then(async (result) => {
       if (result.value) {
+        selectedAction = proposalStatus;
+        loading = true;
         const signer = $userAddress;
         const nonce = await getNonce(signer);
         const message = JSON.stringify({
@@ -42,7 +47,14 @@
           nonce,
           status: proposalStatus,
         });
-        const signedMessage = await signMessage(message, $networkSigner);
+         let signedMessage
+          try{
+            signedMessage = await signMessage(message, $networkSigner);
+          }catch(error){
+            loading = false;
+            errorMessage = error.message;
+            return
+          }
         const res = await fetch(`${SERVER_URI}/app/admin/completeProposal`, {
           method: "POST",
           headers: {
@@ -56,6 +68,7 @@
         });
         const json = await res.json();
         if (json.success === true) {
+          loading = false;
           Swal.fire(
                   "Success!",
                   `You've ${proposalStatus===2 ? 'accepted' : 'rejected'} this proposal.`,
@@ -64,6 +77,7 @@
             location.href = "/admin/home"
           }); // ? Popup flashes & goes away without user interaction. Looks broken. Proposal view does not render.
         } else {
+          loading = false;
           Swal.fire("Error!", "Something went wrong", "error");
         }
       }
@@ -115,10 +129,14 @@
             actions={[
             {
               "text": "Reject",
-              "onClick":  rejectProposalDeliverables
+              "onClick":  rejectProposalDeliverables,
+              loading: loading && selectedAction===3,
+              disabled: loading
             },{
               "text": "Accept",
-              "onClick":  acceptProposalDeliverables
+              "onClick":  acceptProposalDeliverables,
+              loading: loading && selectedAction===2,
+              disabled: loading
             }]}>
       <div class="details py-5 px-5">
         <div class="col-start-4 col-span-2 ...">
@@ -139,6 +157,9 @@
               placeholder="Describe your review"
               bind:inputValue={adminDescription}
       />
+      {#if errorMessage}
+        <p class="text-red-500">{errorMessage}</p>
+      {/if}
     </Section>
   {/if}
 </div>

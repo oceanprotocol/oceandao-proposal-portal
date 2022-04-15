@@ -12,6 +12,7 @@ const projectSchema = new Schema({
     type: String,
     required: true,
     unique: true,
+    set: (value) => value.trim(),
   },
   projectCategory: {
     type: String,
@@ -33,6 +34,7 @@ const projectSchema = new Schema({
   projectLeadEmail: {
     type: String,
     trim: true,
+    set: (value) => value.trim(),
     lowercase: true,
     required: "Email address is required",
     validate: [validator.default.isEmail, "Please fill a valid email address"],
