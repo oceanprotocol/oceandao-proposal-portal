@@ -19,6 +19,7 @@ const {
   getCurrentRound,
 } = require("../utils/airtable/utils");
 const { getProposalRedisMultiple } = require("../utils/redis/proposal");
+const { hasEnoughOceans } = require("../utils/ethers/balance");
 
 router.post("/create", recaptchaCheck(0.5), checkSigner, async (req, res) => {
   // create a project
@@ -95,6 +96,16 @@ router.post(
     let error = newProposal.validateSync();
     if (error) {
       return res.status(400).json({ error: error.toString() });
+    }
+
+    // check 500 Ocean tokens
+    const hasEnoughTokens = await hasEnoughOceans(
+      proposal.proposalWalletAddress,
+      500
+    );
+
+    if (!hasEnoughTokens) {
+      return res.status(400).json({ error: "Not enough Ocean tokens" });
     }
 
     const projectUsdLimit = await getProjectUsdLimit(projectName);

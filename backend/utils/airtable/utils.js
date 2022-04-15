@@ -125,6 +125,10 @@ async function updateAirtableEntry(recordId, proposal, grantCompleted = false) {
   if (proposal.proposalWalletAddress)
     update["Wallet Address"] = proposal.proposalWalletAddress;
 
+  if (proposal.proposalStanding) {
+    update["Proposal Standing"] = proposal.proposalStanding;
+  }
+
   if (proposal.deliverableChecklist)
     update["Deliverable Checklist"] =
       `[x] Completed! ` +
@@ -144,7 +148,12 @@ async function updateAirtableEntry(recordId, proposal, grantCompleted = false) {
     update["Minimum USD Requested"] = proposal.minUsdRequested;
 
   if (proposal.oneLiner) update["One Liner"] = proposal.oneLiner;
-  await base("Proposals").update(recordId, update);
+  try {
+    await base("Proposals").update(recordId, update);
+  } catch (err) {
+    console.error(err);
+    throw new Error("An error occurred while updating the Airtable entry");
+  }
   return true;
 }
 
@@ -197,7 +206,14 @@ async function createAirtableEntry({
       "[ ] " + NodeHtmlMarkdown.NodeHtmlMarkdown.translate(grantDeliverables),
   };
 
-  const id = await base("Proposals").create(proposal);
+  let id;
+  try {
+    id = await base("Proposals").create(proposal);
+  } catch (err) {
+    console.error(err);
+    throw new Error("An error occurred while creating the Airtable entry");
+  }
+
   return id.id;
 }
 
