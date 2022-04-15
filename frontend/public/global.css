@@ -26,4 +26,6 @@
   --spacer: 4rem;
 
   --border-radius: 0.2rem;
+
+  --button-disabled-color: #ff409280;
 }

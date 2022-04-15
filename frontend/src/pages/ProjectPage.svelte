@@ -1,17 +1,16 @@
 <script>
-  import { Link } from "svelte-navigator";
   import moment from "moment";
   import grantCategory from "../utils/types/grant_category.json";
-
-  import Button from "../components/Button.svelte";
   import Section from "../components/Section.svelte";
   import ProposalItemsList from "../components/ProposalItemsList.svelte";
-
+  import { userAddress } from "../stores/ethers";
   import { SERVER_URI } from "../utils/config";
 
   export let projectId;
   let project;
   let proposals;
+  let canSubmitProposal;
+  let isOwner = false;
 
   function onCreateProposalClick() {
     location.href = "/proposal/create/" + projectId;
@@ -26,7 +25,8 @@
     res = await res.json();
     project = res.project;
     proposals = res.proposals;
-    console.log(project, proposals);
+    canSubmitProposal = res.canCreateProposals;
+    isOwner = true; // TODO FIX ME
   }
   loadProject();
 </script>
@@ -37,12 +37,14 @@
       title={project.projectName}
       description={project.projectDescription}
       descriptionBottom
-      actions={[
-        {
-          text: "Update Project",
-          onClick: onUpdateProjectClick,
-        },
-      ]}
+      actions={isOwner
+        ? [
+            {
+              text: "Update Project",
+              onClick: onUpdateProjectClick,
+            },
+          ]
+        : []}
     >
       <div class="details py-5 px-5">
         <div class="col-start-4 col-span-2 ...">
@@ -63,12 +65,14 @@
   <Section
     title={"Proposals"}
     description={"Create and manage proposals below in order to submit them to OceanDAO Seed Grants. You can only have 1 proposal per project, for each funding round."}
-    actions={[
-      {
-        text: "Create Proposal",
-        onClick: onCreateProposalClick,
-      },
-    ]}
+    actions={canSubmitProposal && isOwner
+      ? [
+          {
+            text: "Create Proposal",
+            onClick: onCreateProposalClick,
+          },
+        ]
+      : []}
   >
     {#if proposals}
       <ProposalItemsList {proposals} />

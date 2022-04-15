@@ -9,6 +9,7 @@
   import { getNonce } from "../utils/helpers";
   import Recaptcha from "../components/Recaptcha.svelte";
   import Button from "../components/Button.svelte";
+  import Swal from "sweetalert2";
 
   export let projectId;
   export let proposalId;
@@ -17,6 +18,9 @@
   let part = 0;
   let recaptcha;
   let errortext;
+  let roundNumber;
+  let showMinUsdRequestedWarning = true;
+  let loading = false;
 
   if (isUpdating) {
     fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`)
@@ -24,6 +28,12 @@
       .then((res) => {
         proposalStore.update(() => res);
         loaded = true;
+      });
+  } else {
+    fetch(`${SERVER_URI}/app/round/number`)
+      .then((res) => res.json())
+      .then((res) => {
+        roundNumber = res.roundNumber;
       });
   }
 
@@ -109,7 +119,7 @@ Community Value — How does the project add value to the overall Ocean Communit
       required: true,
       textFormat: "number",
       importantText:
-        "The amount of minimum funding requested is in USD, but the amount paid is in OCEAN token. The conversion rate is calculated at Vote End, so payment is completed as quickly as possible. This determines how many OCEAN will be awarded if a proposal is voted to receive a grant.",
+        "To win a grant, this is the minimum USD amount you are willing to accept. If after voting you end up with less USD than the minimum amount, you will not receive any funds.",
     },
     {
       type: "text",
@@ -146,6 +156,7 @@ Community Value — How does the project add value to the overall Ocean Communit
 
   async function submitProposal() {
     errortext = null;
+    loading = true;
     const recaptchaToken = await recaptcha.getCaptcha();
     fieldsPart0.map((field) => {
       if (field.required) {
@@ -180,7 +191,14 @@ Community Value — How does the project add value to the overall Ocean Communit
     };
 
     const proposalJson = JSON.stringify(proposalObject);
-    const signedMessage = await signMessage(proposalJson, $networkSigner);
+    let signedMessage
+    try{
+      signedMessage = await signMessage(proposalJson, $networkSigner);
+    }catch(error){
+      loading = false;
+      errortext = error.message;
+      return
+    }
     const signer = $userAddress;
 
     if (isUpdating) {
@@ -198,13 +216,16 @@ Community Value — How does the project add value to the overall Ocean Communit
       })
         .then((response) => {
           if (response.ok) {
+            loading = false;
             return response.json();
           }
+          loading = false;
           return response.text();
         })
         .then((data) => {
           if (data.success) {
             alert("Proposal updated successfully");
+            loading = false;
             window.location.href = `/proposal/view/${proposalId}`;
           } else {
             alert("Error updating proposal");
@@ -214,11 +235,13 @@ Community Value — How does the project add value to the overall Ocean Communit
             } catch (e) {
               errortext = data;
             }
+            loading = false;
             console.error(data);
           }
         })
         .catch((error) => {
           console.log(error);
+          loading = false;
         });
     } else {
       fetch(`${SERVER_URI}/app/project/createProposal`, {
@@ -235,13 +258,16 @@ Community Value — How does the project add value to the overall Ocean Communit
       })
         .then((response) => {
           if (response.ok) {
+            loading = false;
             return response.json();
           }
+          loading = false;
           return response.text();
         })
         .then((data) => {
           if (data.success) {
             alert("Proposal created successfully");
+            loading = false;
             window.location.href = `/project/${projectId}`;
           } else {
             alert("Error creating proposal");
@@ -252,13 +278,38 @@ Community Value — How does the project add value to the overall Ocean Communit
               errortext = data;
             }
             console.error(data);
+            loading = false;
           }
         })
         .catch((error) => {
           console.log(error);
+          loading = false;
         });
     }
   }
+
+  async function showMinUsdWarning() {
+    if($proposalStore['minUsdRequested'] > 0){
+      Swal.fire({
+      title: "Are you sure?",
+      text: `To win and receive any funds, you have to reach the Minimum Funding Requested amount.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Proceed!",
+      cancelButtonText: "Cancel",
+    }).then(async (result) => {
+      if (result.value) {
+        showMinUsdRequestedWarning = false
+        return
+      }else{
+        $proposalStore['minUsdRequested'] = 0
+      }
+    })
+  }
+  }
+
+  $: if($proposalStore['minUsdRequested'] && showMinUsdRequestedWarning){showMinUsdWarning()}
+
 </script>
 
 <Recaptcha bind:this={recaptcha} />
@@ -276,6 +327,10 @@ Community Value — How does the project add value to the overall Ocean Communit
       </a>
       .
     </p>
+
+    <h3 style="text-align: center;">
+      Submitting for <b>Round {roundNumber}</b>
+    </h3>
 
     {#if loaded == false}
       <div class="text-center">
@@ -362,8 +417,12 @@ Community Value — How does the project add value to the overall Ocean Communit
               </button>
             {/if}
             <Button
-              text={isUpdating ? "Update project" : "Submit Proposal"}
+              text={isUpdating
+                ? "Update project"
+                : `Submit Proposal for Round ${roundNumber}`}
               onclick={() => submitProposal()}
+              loading={loading}
+              disabled={loading}
             />
           </div>
         </div>
