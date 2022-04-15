@@ -7,6 +7,13 @@ const logger = require("morgan");
 const indexRouter = require("./routes");
 const cors = require("cors");
 const app = express();
+const redis = require("./utils/redis");
+const cacher = require("./utils/redis/cacher");
+redis.connect();
+redis.on("connect", function () {
+  console.log("Redis connected");
+  cacher.cacheAllProposals();
+});
 
 app.use(cors());
 require("./utils/mongodb/connection");
@@ -26,15 +33,14 @@ app.use(function (req, res, next) {
 });
 
 // error handler
-app.use(function (err, req, res) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
-  res.locals.error = req.app.get("env") === "development" ? err : {};
   console.error(err.message);
 
   // render the error page
   res.status(err.status || 500);
-  res.send("error");
+  res.json({ error: err.message });
 });
 
 app.listen(process.env.PORT, () =>

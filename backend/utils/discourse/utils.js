@@ -5,70 +5,72 @@ const apiUsername = process.env.DISCOURSE_USERNAME;
 const baseUrl = process.env.DISCOURSE_BASE_URI;
 const fetch = require("node-fetch");
 
-function getProjectMd(project) {
-  // TODO include value add criteria
-  const projectMd = [];
-  projectMd.push({
-    title: "Project Name",
-    body: project.projectName,
+function getMarkdown(project, proposal) {
+  const md = [];
+
+  md.push({
+    title: "# " + proposal.proposalTitle,
   });
-  projectMd.push({
-    title: "Project Description",
+  md.push({
+    title: "## One Liner",
+    body: proposal.oneLiner,
+  });
+
+  md.push({
+    title: "## Description",
+    body: proposal.proposalDescription,
+    type: "md",
+  });
+
+  md.push({
+    title: `# ${project.projectName}`,
+    body: "",
+  });
+
+  md.push({
+    title: "## Description",
     body: project.projectDescription,
     type: "md",
   });
-  projectMd.push({
-    title: "Final Product",
+  md.push({
+    title: "## Grant Deliverables",
+    body: proposal.grantDeliverables,
+    type: "md",
+  });
+  md.push({
+    title: "## Value Add Criteria",
+    body: proposal.valueAddCriteria,
+  });
+
+  md.push({
+    title: "## Final Product",
     body: project.finalProduct,
     type: "md",
   });
   if (project.coreTeam)
-    projectMd.push({
-      title: "Core Team",
+    md.push({
+      title: "## Core Team",
       body: project.coreTeam,
       type: "md",
     });
 
   if (project.advisors)
-    projectMd.push({
-      title: "Advisors",
+    md.push({
+      title: "## Advisors",
       body: project.advisors,
       type: "md",
     });
 
-  return projectMd;
-}
-
-function getProposalMd(proposal) {
-  const proposalMd = [];
-  proposalMd.push({
-    title: "Proposal One Liner",
-    body: proposal.oneLiner,
-  });
-  proposalMd.push({
-    title: "Proposal Description",
-    body: proposal.proposalDescription,
-    type: "md",
-  });
-  proposalMd.push({
-    title: "Grant Deliverables",
-    body: proposal.grantDeliverables,
-    type: "md",
-  });
-  proposalMd.push({
-    title: "Value Add Criteria",
-    body: proposal.valueAddCriteria,
-  });
-  proposalMd.push({
-    title: "Funding Requested",
+  md.push({
+    title: "*Funding Requested*",
     body: proposal.proposalFundingRequested,
   });
-  proposalMd.push({
-    title: "Wallet Address",
+  md.push({
+    title: "*Wallet Address*",
     body: proposal.proposalWalletAddress,
   });
 
-  return proposalMd;
+  return md;
 }
 
 function getMarkdownProposal(md) {
@@ -79,8 +81,10 @@ function getMarkdownProposal(md) {
     if (obj.type === "md") {
       obj.body = NodeHtmlMarkdown.NodeHtmlMarkdown.translate(obj.body);
     }
-    post += `## ${obj.title}`;
-    post += `\n${obj.body}\n\n`;
+    post += `${obj.title}`;
+    if (obj.body) {
+      post += `\n${obj.body}\n\n`;
+    } else post += `\n`;
   }
   return post;
 }
@@ -111,9 +115,8 @@ async function createDiscoursePost(
   project,
   categoryId
 ) {
-  const projectMd = getProjectMd(project);
-  const proposalMd = getProposalMd(proposal);
-  const post = getMarkdownProposal([...projectMd, ...proposalMd]);
+  const md = getMarkdown(project, proposal);
+  const post = getMarkdownProposal(md);
 
   const res = await fetch(`${baseUrl}/posts.json`, {
     method: "POST",

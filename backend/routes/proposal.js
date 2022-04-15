@@ -15,6 +15,7 @@ const {
   getProposalByRecordId,
   getCurrentRound,
 } = require("../utils/airtable/utils");
+const { getProposalRedis } = require("../utils/redis/proposal");
 
 router.post("/withdraw", checkSigner, (req, res) => {
   const data = JSON.parse(req.body.message);
@@ -226,11 +227,12 @@ router.post("/deliver", checkSigner, async (req, res) => {
 
 router.get("/info/:proposalId", async (req, res) => {
   const proposalId = req.params.proposalId;
-  Proposal.findById(proposalId, (err, proposal) => {
+  Proposal.findById(proposalId, async (err, proposal) => {
     if (err) {
       res.status(400).send(err);
     }
-    res.status(200).send(proposal);
+    const airtableInfo = await getProposalRedis(proposal.airtableRecordId, ".");
+    res.status(200).send({ proposal, airtableInfo });
   });
 });
 

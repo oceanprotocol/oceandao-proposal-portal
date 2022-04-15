@@ -53,6 +53,28 @@ const _getProjectSummarySelectQuery = async (selectQuery) => {
   }
 };
 
+async function getAllProposalRecords() {
+  return base("Proposals")
+    .select({
+      view: "All Proposals",
+    })
+    .all();
+}
+
+async function getCurrentRoundProposals() {
+  const currentRound = await getCurrentRound();
+  const currentRoundNumber = currentRound.fields["Round"];
+  const currentRoundProposals = await base("Proposals")
+    .select({
+      view: "All Proposals",
+      filterByFormula: `OR({Round} = ${currentRoundNumber},{Round} = ${
+        currentRoundNumber + 1
+      },{Round} = ${currentRoundNumber - 1})`,
+    })
+    .all();
+  return currentRoundProposals;
+}
+
 /**
  * @param {String} projectName
  * @return {Number} projectUsdLimit
@@ -126,7 +148,12 @@ async function updateAirtableEntry(recordId, proposal, grantCompleted = false) {
     update["Minimum USD Requested"] = proposal.minUsdRequested;
 
   if (proposal.oneLiner) update["One Liner"] = proposal.oneLiner;
-  await base("Proposals").update(recordId, update);
+  try {
+    await base("Proposals").update(recordId, update);
+  } catch (err) {
+    console.error(err);
+    throw new Error("An error occurred while updating the Airtable entry");
+  }
   return true;
 }
 
@@ -179,7 +206,14 @@ async function createAirtableEntry({
       "[ ] " + NodeHtmlMarkdown.NodeHtmlMarkdown.translate(grantDeliverables),
   };
 
-  const id = await base("Proposals").create(proposal);
+  let id;
+  try {
+    id = await base("Proposals").create(proposal);
+  } catch (err) {
+    console.error(err);
+    throw new Error("An error occurred while creating the Airtable entry");
+  }
+
   return id.id;
 }
 
@@ -192,4 +226,6 @@ module.exports = {
   getCurrentDiscourseCategoryId,
   getCurrentRound,
   getProposalByRecordId,
+  getAllProposalRecords,
+  getCurrentRoundProposals,
 };

@@ -18,6 +18,8 @@ const {
   getFormerFundedProposals,
   getCurrentRound,
 } = require("../utils/airtable/utils");
+const { getProposalRedisMultiple } = require("../utils/redis/proposal");
+const { hasEnoughOceans } = require("../utils/ethers/balance");
 
 router.post("/create", recaptchaCheck(0.5), checkSigner, async (req, res) => {
   // create a project
@@ -94,6 +96,16 @@ router.post(
     let error = newProposal.validateSync();
     if (error) {
       return res.status(400).json({ error: error.toString() });
+    }
+
+    // check 500 Ocean tokens
+    const hasEnoughTokens = await hasEnoughOceans(
+      proposal.proposalWalletAddress,
+      500
+    );
+
+    if (!hasEnoughTokens) {
+      return res.status(400).json({ error: "Not enough Ocean tokens" });
     }
 
     const projectUsdLimit = await getProjectUsdLimit(projectName);
@@ -289,11 +301,11 @@ router.get("/info/:projectId", async (req, res) => {
   const projectId = req.params.projectId;
   Proposal.find(
     { projectId: projectId },
-    "proposalFundingRequested proposalTitle round proposalEarmark"
+    "proposalFundingRequested proposalTitle round proposalEarmark airtableRecordId"
   )
     .sort({ round: -1 })
     .exec((err, proposals) => {
-      Project.findById(projectId, (err, project) => {
+      Project.findById(projectId, async (err, project) => {
         const lastProposal = proposals[proposals.length - 1];
         const canCreateProposals = lastProposal
           ? lastProposal.delivered.status == 2
@@ -301,10 +313,15 @@ router.get("/info/:projectId", async (req, res) => {
         if (err) {
           res.status(400).send(err);
         }
+        const airtableInfos = await getProposalRedisMultiple(
+          proposals.map((x) => x.airtableRecordId),
+          "."
+        );
         res.status(200).send({
           project,
           proposals,
           canCreateProposals,
+          airtableInfos,
         });
       });
     });
