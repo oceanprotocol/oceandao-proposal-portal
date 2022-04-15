@@ -80,8 +80,12 @@ router.post(
       { runValidators: true },
       async (err, data) => {
         if (err) return res.status(400).send(err);
-        const md = "### Admin:\n" + description;
-        await replyToDiscoursePost(md, true, getTopicId(data.discourseLink));
+        const md = "<h3>Admin:</h3><br/>" + description;
+        await replyToDiscoursePost(
+          description,
+          true,
+          getTopicId(data.discourseLink)
+        );
         if (status === 2) {
           await updateAirtableEntry(data.airtableRecordId, {
             deliverableChecklist: data.delivered.description,
