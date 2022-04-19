@@ -8,7 +8,7 @@ async function getCurrentRoundNumber() {
   if (!roundObject) {
     const currentRound = await getCurrentRound();
     if (!currentRound) throw new Error("No current round found");
-    roundNumber = currentRound.fields["Round"];
+    roundNumber = parseInt(currentRound.fields["Round"]);
     const currentRoundSubmissionDeadline =
       currentRound.fields["Proposals Due By"];
     if (Date.now() > new Date(currentRoundSubmissionDeadline).getTime()) {
@@ -21,7 +21,7 @@ async function getCurrentRoundNumber() {
     const todayEnd = new Date().setHours(23, 59, 59, 999);
     redis.expireAt("currentRoundObj", parseInt(todayEnd / 1000));
   } else {
-    roundNumber = roundObject["Round"];
+    roundNumber = parseInt(roundObject["Round"]);
     const currentRoundSubmissionDeadline = roundObject["Proposals Due By"];
     if (Date.now() > new Date(currentRoundSubmissionDeadline).getTime()) {
       roundNumber += 1; // will submit proposal for next round
