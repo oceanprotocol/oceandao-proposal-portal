@@ -24,13 +24,17 @@ const hasEnoughOceans = async (wallet_address, required) => {
   if (!wallet_address) return false;
   const balances = [];
   for (const network of networks) {
-    const abi = ["function balanceOf(address owner) view returns (uint256)"];
-    const provider = new ethers.providers.JsonRpcProvider(network.provider);
-    const contract = new ethers.Contract(network.address, abi, provider);
-    const balance = await contract.balanceOf(wallet_address);
-    balances.push(parseInt(ethers.utils.formatEther(balance)));
-    if (balances.reduce((a, b) => a + b, 0) >= required) {
-      return true;
+    try {
+      const abi = ["function balanceOf(address owner) view returns (uint256)"];
+      const provider = new ethers.providers.JsonRpcProvider(network.provider);
+      const contract = new ethers.Contract(network.address, abi, provider);
+      const balance = await contract.balanceOf(wallet_address);
+      balances.push(parseInt(ethers.utils.formatEther(balance)));
+      if (balances.reduce((a, b) => a + b, 0) >= required) {
+        return true;
+      }
+    } catch (err) {
+      console.error(err, network, networks);
     }
   }
   return false;
