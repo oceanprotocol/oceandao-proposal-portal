@@ -6,7 +6,7 @@ function getProposalRedis(id, path) {
   });
 }
 function getProposalRedisMultiple(ids, path) {
-  console.log(ids);
+  if (ids.length == 0) return [];
   return redis.json.mGet(ids, path);
 }
 
