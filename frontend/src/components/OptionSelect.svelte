@@ -1,14 +1,11 @@
 <script>
   export let title;
-  export let value = null;
+  export let value;
   export let disabled = false;
   export let wrong = false;
   export let wrongText = "";
   export let importantText;
   export let options;
-
-  value = options[0].value;
-  console.log(importantText)
 </script>
 
 <div class="mb-4">

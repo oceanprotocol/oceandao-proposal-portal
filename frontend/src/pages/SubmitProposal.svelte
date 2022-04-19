@@ -26,7 +26,9 @@
     fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`)
       .then((res) => res.json())
       .then((res) => {
-        proposalStore.update(() => res);
+        //res.proposal.proposalEarmark = "coretech"
+        showMinUsdRequestedWarning = false
+        proposalStore.update(() => res.proposal);
         loaded = true;
       });
   } else {
@@ -438,8 +440,8 @@ Community Value — How does the project add value to the overall Ocean Communit
               disabled={loading}
             />
           </div>
+          {console.log($proposalStore)}
         </div>
-        {console.log(fields)}
       </form>
     {/if}
   </div>

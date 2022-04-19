@@ -301,7 +301,7 @@ router.get("/info/:projectId", async (req, res) => {
   const projectId = req.params.projectId;
   Proposal.find(
     { projectId: projectId },
-    "proposalFundingRequested proposalTitle round proposalEarmark airtableRecordId"
+    "proposalFundingRequested proposalTitle round proposalEarmark airtableRecordId proposalState"
   )
     .sort({ round: -1 })
     .exec((err, proposals) => {
