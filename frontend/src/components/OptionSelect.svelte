@@ -4,9 +4,11 @@
   export let disabled = false;
   export let wrong = false;
   export let wrongText = "";
+  export let importantText;
   export let options;
 
   value = options[0].value;
+  console.log(importantText)
 </script>
 
 <div class="mb-4">
@@ -25,5 +27,10 @@
   </select>
   {#if wrong}
     <p class="text-red-500 text-xs italic">{wrongText}</p>
+  {/if}
+  {#if importantText !== "" || importantText !== null}
+    <p class="text-gray opacity-60 text-xs italic text-left mt-1">
+      {importantText ?? ""}
+    </p>
   {/if}
 </div>

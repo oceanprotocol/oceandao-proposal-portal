@@ -56,14 +56,14 @@
       required: true,
       options: [
         {
-          value: "coretech",
-          text: "Core-Tech",
-        },
-        {
           value: "general",
           text: "General",
         },
-      ],
+        {
+          value: "coretech",
+          text: "Core-Tech",
+        }
+      ]
     },
     {
       type: "text",
@@ -118,8 +118,7 @@ Community Value — How does the project add value to the overall Ocean Communit
       wrong: false,
       required: true,
       textFormat: "number",
-      importantText:
-        "To win a grant, this is the minimum USD amount you are willing to accept. If after voting you end up with less USD than the minimum amount, you will not receive any funds.",
+      importantText: "To win a grant, this is the minimum USD amount you are willing to accept. If after voting you end up with less USD than the minimum amount, you will not receive any funds.",
     },
     {
       type: "text",
@@ -288,6 +287,18 @@ Community Value — How does the project add value to the overall Ocean Communit
     }
   }
 
+  function onProposalEarmarkChange() {
+    if($proposalStore['proposalEarmark'] === "coretech"){
+      fields[part].forEach((field, index) => {
+        if(field.bindValue==='proposalEarmark') fields[0][index].importantText="If you select Core Tech earmark, you have to seek approval in https://discord.com/channels/612953348487905282/908016816029319178 in order for the proposal to be accepted."
+      })
+    }else{
+      fields[part].forEach((field, index) => {
+        if(field.bindValue==='proposalEarmark') fields[0][index].importantText=undefined
+      })
+    }
+  }
+
   async function showMinUsdWarning() {
     if($proposalStore['minUsdRequested'] > 0){
       Swal.fire({
@@ -309,6 +320,7 @@ Community Value — How does the project add value to the overall Ocean Communit
   }
 
   $: if($proposalStore['minUsdRequested'] && showMinUsdRequestedWarning){showMinUsdWarning()}
+  $: if($proposalStore['proposalEarmark']){onProposalEarmarkChange()}
 
 </script>
 
@@ -383,6 +395,7 @@ Community Value — How does the project add value to the overall Ocean Communit
               disabled={field.disabled}
               wrong={field.wrong}
               wrongText={field.wrongText}
+              importantText={field.importantText}
               options={field.options}
             />
           {/if}
@@ -426,6 +439,7 @@ Community Value — How does the project add value to the overall Ocean Communit
             />
           </div>
         </div>
+        {console.log(fields)}
       </form>
     {/if}
   </div>
