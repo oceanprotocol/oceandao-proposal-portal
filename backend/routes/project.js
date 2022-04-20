@@ -297,6 +297,71 @@ router.post("/proposal/list", function (req, res) {
   );
 });
 
+router.get("/state/:projectId", async (req, res) => {
+  const levels = (completed) => {
+    // NOTE: Reference: https://github.com/oceanprotocol/oceandao/wiki#r12-update-funding-tiers
+    if (completed === 0) return { level: "New Project", ceiling: 3000 };
+    if (completed === 1) return { level: "Existing Project", ceiling: 10000 };
+    if (completed >= 2 && completed < 5)
+      return { level: "Experienced Project", ceiling: 20000 };
+    if (completed >= 5) return { level: "Veteran Project", ceiling: 20000 };
+  };
+
+  const projectId = req.params.projectId;
+  Proposal.find(
+    { projectId: projectId },
+    "proposalFundingRequested proposalTitle round proposalEarmark airtableRecordId"
+  )
+    .sort({ round: -1 })
+    .exec((err, proposals) => {
+      Project.findById(projectId, async (err, project) => {
+        if (err) {
+          res.status(400).send(err);
+        }
+        const airtableInfos = await getProposalRedisMultiple(
+          proposals.map((x) => x.airtableRecordId),
+          "."
+        );
+
+        const grantsProposed = proposals.length;
+        const grantsReceived = airtableInfos.filter(
+          (x) =>
+            x["Proposal State"] === "Granted" ||
+            x["Proposal State"] === "Funded"
+        ).length;
+        const grantsCompleted = proposals.filter(
+          (x) => x.delivered.status == 2
+        ).length;
+
+        const projectCategory = project.projectCategory;
+
+        const level = levels(grantsCompleted);
+
+        const availableEarmaks = [];
+
+        if (grantsCompleted == 0) {
+          if (projectCategory == "outreach")
+            availableEarmaks.push("newprojectoutreach");
+          else availableEarmaks.push("newproject");
+        }
+
+        availableEarmaks.push("coretech");
+        availableEarmaks.push("general");
+        availableEarmaks.push("outreach");
+
+        return res.json({
+          level: level.level,
+          ceiling: level.ceiling,
+          projectCategory,
+          grantsProposed,
+          grantsReceived,
+          grantsCompleted,
+          availableEarmaks,
+        });
+      });
+    });
+});
+
 router.get("/info/:projectId", async (req, res) => {
   const projectId = req.params.projectId;
   Proposal.find(
