@@ -343,11 +343,12 @@ router.get("/state/:projectId", async (req, res) => {
           if (projectCategory == "outreach")
             availableEarmaks.push("newprojectoutreach");
           else availableEarmaks.push("newproject");
+        } else {
+          availableEarmaks.push("general");
+          availableEarmaks.push("outreach");
         }
 
         availableEarmaks.push("coretech");
-        availableEarmaks.push("general");
-        availableEarmaks.push("outreach");
 
         return res.json({
           level: level.level,
