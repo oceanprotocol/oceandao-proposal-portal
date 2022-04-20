@@ -23,16 +23,14 @@
   let showMinUsdRequestedWarning = true;
   let loading = false;
 
-  async function loadProjectInfo() {
+  async function loadProjectInfo(projectId) {
     let res = await fetch(`${SERVER_URI}/app/project/state/${projectId}`);
     res = await res.json();
-    console.log(res)
     projectInfo.update(() => res);
   }
 
   if(!$projectInfo){
-    loadProjectInfo()
-    if(isUpdating) window.location.href = "/";
+    projectId && loadProjectInfo(projectId)
   }
 
   if (isUpdating) {
@@ -332,6 +330,10 @@ Community Value — How does the project add value to the overall Ocean Communit
 
   $: if($proposalStore['minUsdRequested'] && showMinUsdRequestedWarning){showMinUsdWarning()}
   $: if($proposalStore['proposalEarmark']){onProposalEarmarkChange()}
+  $: if($proposalStore.projectId && !projectId){
+    projectId = $proposalStore.projectId
+    loadProjectInfo($proposalStore.projectId)
+  }
   $: if($projectInfo){
     fields[part].forEach((field, index) => {
       if(field.bindValue==='proposalEarmark'){

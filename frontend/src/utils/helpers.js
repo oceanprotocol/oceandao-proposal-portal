@@ -9,7 +9,6 @@ export const getNonce = async (address) => {
 };
 
 export const getEarmarkOptions = (project) => {
-  console.log(earmarks)
   let earmarkOptions = []
   project.availableEarmarks.forEach((earmark) => {
     earmarkOptions.push({
