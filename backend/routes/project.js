@@ -348,6 +348,10 @@ router.get("/state/:projectId", async (req, res) => {
           availableEarmaks.push("outreach");
         }
 
+        if (grantsCompleted == 1 || grantsCompleted == 2) {
+          availableEarmaks.push("2nd3rd");
+        }
+
         availableEarmaks.push("coretech");
 
         return res.json({
