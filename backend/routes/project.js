@@ -18,7 +18,6 @@ const {
   getFormerFundedProposals,
   getCurrentRound,
 } = require("../utils/airtable/utils");
-const { getProposalRedisMultiple } = require("../utils/redis/proposal");
 const { hasEnoughOceans } = require("../utils/ethers/balance");
 
 router.post("/create", recaptchaCheck(0.5), checkSigner, async (req, res) => {
@@ -77,20 +76,6 @@ router.post(
         message: req.body.message,
       },
     ];
-
-    // TODO - Please fix. New projects can apply for coretech.
-    const formerProposals = await getFormerFundedProposals(projectName);
-    if (formerProposals.length == 0) {
-      // ? triple === no?
-      if (project.projectCategory === "outreach") {
-        proposal.proposalEarmark = "newprojectoutreach";
-      } else {
-        proposal.proposalEarmark = "newproject";
-      }
-    } else if (proposal.proposalEarmark === "coretech") {
-      proposal.proposalEarmarkRequest = "coretech";
-      proposal.proposalEarmark = "general";
-    }
 
     const newProposal = new Proposal(proposal); // ? maybe change this
     let error = newProposal.validateSync();
@@ -301,11 +286,11 @@ router.get("/info/:projectId", async (req, res) => {
   const projectId = req.params.projectId;
   Proposal.find(
     { projectId: projectId },
-    "proposalFundingRequested proposalTitle round proposalEarmark airtableRecordId proposalState"
+    "proposalFundingRequested proposalTitle round proposalEarmark"
   )
     .sort({ round: -1 })
     .exec((err, proposals) => {
-      Project.findById(projectId, async (err, project) => {
+      Project.findById(projectId, (err, project) => {
         const lastProposal = proposals[proposals.length - 1];
         const canCreateProposals = lastProposal
           ? lastProposal.delivered.status == 2
@@ -313,15 +298,10 @@ router.get("/info/:projectId", async (req, res) => {
         if (err) {
           res.status(400).send(err);
         }
-        const airtableInfos = await getProposalRedisMultiple(
-          proposals.map((x) => x.airtableRecordId),
-          "."
-        );
         res.status(200).send({
           project,
           proposals,
           canCreateProposals,
-          airtableInfos,
         });
       });
     });

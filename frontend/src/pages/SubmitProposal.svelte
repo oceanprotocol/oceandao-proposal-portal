@@ -3,10 +3,11 @@
   import LargeTextField from "../components/LargeTextField.svelte";
   import OptionSelect from "../components/OptionSelect.svelte";
   import { proposal as proposalStore } from "../stores/proposal";
+  import { project as projectStore, projectInfo } from "../stores/project";
   import { SERVER_URI, RECAPTCHA_KEY } from "../utils/config";
   import { signMessage } from "../utils/signatures";
   import { networkSigner, userAddress } from "../stores/ethers";
-  import { getNonce } from "../utils/helpers";
+  import { getNonce, getEarmarkOptions } from "../utils/helpers";
   import Recaptcha from "../components/Recaptcha.svelte";
   import Button from "../components/Button.svelte";
   import Swal from "sweetalert2";
@@ -21,6 +22,17 @@
   let roundNumber;
   let showMinUsdRequestedWarning = true;
   let loading = false;
+
+  async function loadProject() {
+    let res = await fetch(`${SERVER_URI}/app/project/info/${projectId}`);
+    res = await res.json();
+    projectInfo.update(() => res.project);
+  }
+
+  if(!$projectInfo){
+    loadProject()
+    if(isUpdating) window.location.href = "/";
+  }
 
   if (isUpdating) {
     fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`)
@@ -58,12 +70,8 @@
       required: true,
       options: [
         {
-          value: "general",
-          text: "General",
-        },
-        {
-          value: "coretech",
-          text: "Core-Tech",
+          value: "newproject",
+          text: "New Project",
         }
       ]
     },
@@ -323,6 +331,15 @@ Community Value — How does the project add value to the overall Ocean Communit
 
   $: if($proposalStore['minUsdRequested'] && showMinUsdRequestedWarning){showMinUsdWarning()}
   $: if($proposalStore['proposalEarmark']){onProposalEarmarkChange()}
+  $: if($projectInfo){
+    fields[part].forEach((field, index) => {
+      if(field.bindValue==='proposalEarmark'){
+        const earmarkOptions = getEarmarkOptions($projectInfo)
+        fields[part][index].options=earmarkOptions
+        $proposalStore.proposalEarmark = earmarkOptions[0].value
+      }
+    })
+  }
 
 </script>
 
@@ -365,7 +382,6 @@ Community Value — How does the project add value to the overall Ocean Communit
           {#if field.type === "line"}
             <hr />
           {/if}
-
           {#if field.type === "text"}
             <TextField
               bind:value={$proposalStore[field.bindValue]}
