@@ -3,6 +3,7 @@
   import grantCategory from "../utils/types/grant_category.json";
   import Section from "../components/Section.svelte";
   import ProposalItemsList from "../components/ProposalItemsList.svelte";
+  import { projectInfo } from "../stores/project";
   import { userAddress } from "../stores/ethers";
   import { SERVER_URI } from "../utils/config";
 
@@ -28,6 +29,13 @@
     canSubmitProposal = res.canCreateProposals;
     isOwner = true; // TODO FIX ME
   }
+
+  async function loadProjectInfo() {
+    let res = await fetch(`${SERVER_URI}/app/project/state/${projectId}`);
+    res = await res.json();
+    projectInfo.update(() => res.project);
+  }
+  loadProjectInfo();
   loadProject();
 </script>
 

@@ -23,14 +23,15 @@
   let showMinUsdRequestedWarning = true;
   let loading = false;
 
-  async function loadProject() {
-    let res = await fetch(`${SERVER_URI}/app/project/info/${projectId}`);
+  async function loadProjectInfo() {
+    let res = await fetch(`${SERVER_URI}/app/project/state/${projectId}`);
     res = await res.json();
-    projectInfo.update(() => res.project);
+    console.log(res)
+    projectInfo.update(() => res);
   }
 
   if(!$projectInfo){
-    loadProject()
+    loadProjectInfo()
     if(isUpdating) window.location.href = "/";
   }
 
@@ -456,7 +457,6 @@ Community Value — How does the project add value to the overall Ocean Communit
               disabled={loading}
             />
           </div>
-          {console.log($proposalStore)}
         </div>
       </form>
     {/if}

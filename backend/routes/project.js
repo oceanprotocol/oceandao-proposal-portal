@@ -5,6 +5,7 @@ const express = require("express");
 const router = express.Router();
 const Proposal = require("../models/Proposal");
 const Project = require("../models/Project");
+const {getProposalRedisMultiple} = require("../utils/redis/proposal")
 const {
   checkSigner,
   recaptchaCheck,
@@ -361,7 +362,7 @@ router.get("/state/:projectId", async (req, res) => {
 
         const level = levels(grantsCompleted);
 
-        const availableEarmaks = getAvailableEarmarks({
+        const availableEarmarks = getAvailableEarmarks({
           grantsCompleted,
           projectCategory,
         });
@@ -373,7 +374,7 @@ router.get("/state/:projectId", async (req, res) => {
           grantsProposed,
           grantsReceived,
           grantsCompleted,
-          availableEarmaks,
+          availableEarmarks,
         });
       });
     });
