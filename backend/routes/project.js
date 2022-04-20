@@ -80,14 +80,18 @@ router.post(
 
     // TODO - Please fix. New projects can apply for coretech.
     const formerProposals = await getFormerFundedProposals(projectName);
-    if (formerProposals.length == 0) {
-      // ? triple === no?
-      if (project.projectCategory === "outreach") {
-        proposal.proposalEarmark = "newprojectoutreach";
-      } else {
-        proposal.proposalEarmark = "newproject";
-      }
-    } else if (proposal.proposalEarmark === "coretech") {
+    const availableEarmaks = getAvailableEarmarks({
+      grantsCompleted: formerProposals.length,
+      projectCategory: project.projectCategory,
+    });
+
+    if (!availableEarmaks.includes(proposal.proposalEarmark)) {
+      return res
+        .status(400)
+        .json({ error: "Earmark is not allowed for the project" });
+    }
+
+    if (proposal.proposalEarmark === "coretech") {
       proposal.proposalEarmarkRequest = "coretech";
       proposal.proposalEarmark = "general";
     }
@@ -295,6 +299,85 @@ router.post("/proposal/list", function (req, res) {
       res.status(200).send(proposals);
     }
   );
+});
+
+// TODO Modularize this
+function getAvailableEarmarks({ grantsCompleted, projectCategory }) {
+  const availableEarmaks = [];
+  if (grantsCompleted == 0) {
+    if (projectCategory == "outreach")
+      availableEarmaks.push("newprojectoutreach");
+    else availableEarmaks.push("newproject");
+  } else {
+    availableEarmaks.push("general");
+    if (projectCategory == "outreach") availableEarmaks.push("outreach");
+  }
+
+  if (grantsCompleted == 1 || grantsCompleted == 2) {
+    availableEarmaks.push("2nd3rd");
+  }
+
+  availableEarmaks.push("coretech");
+
+  return availableEarmaks;
+}
+
+router.get("/state/:projectId", async (req, res) => {
+  const levels = (completed) => {
+    // NOTE: Reference: https://github.com/oceanprotocol/oceandao/wiki#r12-update-funding-tiers
+    if (completed === 0) return { level: "New Project", ceiling: 3000 };
+    if (completed === 1) return { level: "Existing Project", ceiling: 10000 };
+    if (completed >= 2 && completed < 5)
+      return { level: "Experienced Project", ceiling: 20000 };
+    if (completed >= 5) return { level: "Veteran Project", ceiling: 20000 };
+  };
+
+  const projectId = req.params.projectId;
+  Proposal.find(
+    { projectId: projectId },
+    "proposalFundingRequested proposalTitle round proposalEarmark airtableRecordId"
+  )
+    .sort({ round: -1 })
+    .exec((err, proposals) => {
+      Project.findById(projectId, async (err, project) => {
+        if (err) {
+          res.status(400).send(err);
+        }
+        const airtableInfos = await getProposalRedisMultiple(
+          proposals.map((x) => x.airtableRecordId),
+          "."
+        );
+
+        const grantsProposed = proposals.length;
+        const grantsReceived = airtableInfos.filter(
+          (x) =>
+            x["Proposal State"] === "Granted" ||
+            x["Proposal State"] === "Funded"
+        ).length;
+        const grantsCompleted = proposals.filter(
+          (x) => x.delivered.status == 2
+        ).length;
+
+        const projectCategory = project.projectCategory;
+
+        const level = levels(grantsCompleted);
+
+        const availableEarmaks = getAvailableEarmarks({
+          grantsCompleted,
+          projectCategory,
+        });
+
+        return res.json({
+          level: level.level,
+          ceiling: level.ceiling,
+          projectCategory,
+          grantsProposed,
+          grantsReceived,
+          grantsCompleted,
+          availableEarmaks,
+        });
+      });
+    });
 });
 
 router.get("/info/:projectId", async (req, res) => {
