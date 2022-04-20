@@ -134,10 +134,8 @@ async function createDiscoursePost(
   return await res.json();
 }
 async function updateDiscoursePost(id, proposal, project) {
-  const projectMd = getProjectMd(project);
-  const proposalMd = getProposalMd(proposal);
-
-  const post = getMarkdownProposal([...projectMd, ...proposalMd]);
+  const markDown = getMarkdown(project, proposal);
+  const post = getMarkdownProposal(markDown);
   const res = await fetch(`${baseUrl}/posts/${id}.json`, {
     method: "PUT",
     headers: {
