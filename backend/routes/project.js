@@ -20,6 +20,7 @@ const {
 } = require("../utils/airtable/utils");
 const { getProposalRedisMultiple } = require("../utils/redis/proposal");
 const { hasEnoughOceans } = require("../utils/ethers/balance");
+const { cacheSpecificProposal } = require("../utils/redis/cacher");
 
 router.post("/create", recaptchaCheck(0.5), checkSigner, async (req, res) => {
   // create a project
@@ -216,6 +217,7 @@ router.post(
           proposal.signature = req.body.signedMessage;
           proposal.round = currentRoundNumber;
 
+          cacheSpecificProposal(airtableRecordId);
           // update saved proposal
 
           new Proposal(proposal).save((err, proposal) => {

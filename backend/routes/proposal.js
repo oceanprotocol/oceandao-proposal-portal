@@ -16,6 +16,7 @@ const {
   getCurrentRound,
 } = require("../utils/airtable/utils");
 const { getProposalRedis } = require("../utils/redis/proposal");
+const { cacheSpecificProposal } = require("../utils/redis/cacher");
 
 router.post("/withdraw", checkSigner, (req, res) => {
   const data = JSON.parse(req.body.message);
@@ -162,6 +163,7 @@ router.post("/update", recaptchaCheck(0.5), checkSigner, function (req, res) {
             { ...data, ...update },
             project
           ); // update the post in the discourse forum
+          cacheSpecificProposal(airtableId);
           return res.send({ success: true });
         }
       );
