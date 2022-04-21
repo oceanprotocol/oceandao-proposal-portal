@@ -20,11 +20,13 @@
 
   async function loadData() {
     let res = await fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`);
-    proposal = await res.json();
+    const responseJson = await res.json();
+    proposal = responseJson.proposal
   }
   loadData();
 
   async function setProposalEarmark(newEarmark) {
+    console.log(newEarmark)
     Swal.fire({
       title: "Are you sure?",
       text: `You will ${newEarmark==='coretech' ? 'Accept' : 'Reject'} this proposal as Core Tech`,

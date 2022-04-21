@@ -16,6 +16,7 @@
   export let proposalId;
   const isUpdating = proposalId !== undefined;
   let loaded = !isUpdating;
+  let earmarkOptionsLoaded = false;
   let part = 0;
   let recaptcha;
   let errortext;
@@ -27,10 +28,6 @@
     let res = await fetch(`${SERVER_URI}/app/project/state/${projectId}`);
     res = await res.json();
     projectInfo.update(() => res);
-  }
-
-  if(!$projectInfo){
-    projectId && loadProjectInfo(projectId)
   }
 
   if (isUpdating) {
@@ -185,7 +182,7 @@ Community Value — How does the project add value to the overall Ocean Communit
     const nonce = await getNonce($userAddress);
     const proposalObject = {
       proposalTitle: $proposalStore.proposalTitle,
-      proposalEarmark: 'coretech',
+      proposalEarmark: $proposalStore.proposalEarmark,
       oneLiner: $proposalStore.oneLiner,
       proposalDescription: $proposalStore.proposalDescription,
       grantDeliverables: $proposalStore.grantDeliverables,
@@ -332,17 +329,21 @@ Community Value — How does the project add value to the overall Ocean Communit
 
   $: if($proposalStore['minUsdRequested'] && showMinUsdRequestedWarning){showMinUsdWarning()}
   $: if($proposalStore['proposalEarmark']){onProposalEarmarkChange()}
-  $: if($proposalStore.projectId && !projectId){
-    projectId = $proposalStore.projectId
-    loadProjectInfo($proposalStore.projectId)
+  $: if(!$projectInfo){
+    if(isUpdating && !$proposalStore.projectId){
+    }else if(isUpdating){
+      loadProjectInfo($proposalStore.projectId)
+    }else{
+      loadProjectInfo(projectId)
+    }
   }
-  $: if($projectInfo){
+  $: if($projectInfo && !earmarkOptionsLoaded){
     fields[part].forEach((field, index) => {
       if(field.bindValue==='proposalEarmark'){
         const earmarkOptions = getEarmarkOptions($projectInfo)
-        console.log($proposalStore)
-        fields[part][index].options=earmarkOptions
+        fields[part][index].options=JSON.parse(JSON.stringify(earmarkOptions))
         $proposalStore.proposalEarmark = isUpdating ? $proposalStore.proposalEarmark : earmarkOptions[0].value
+        earmarkOptionsLoaded = true
       }
     })
   }

@@ -22,8 +22,8 @@
 
   async function loadData() {
     let res = await fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`);
-    proposal = await res.json();
-    console.log(proposal)
+    const responseJson = await res.json();
+    proposal = responseJson.proposal
   }
   loadData();
 
