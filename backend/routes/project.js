@@ -93,7 +93,11 @@ router.post(
 
     if (proposal.proposalEarmark === "coretech") {
       proposal.proposalEarmarkRequest = "coretech";
-      proposal.proposalEarmark = "general";
+      if(project.projectCategory === "outreach"){
+        proposal.proposalEarmark = formerProposals.length < 1 ? "newprojectoutreach" : "general";
+      }else{
+        proposal.proposalEarmark = formerProposals.length < 1 ? "newproject" : "general";
+      }
     }
 
     const newProposal = new Proposal(proposal); // ? maybe change this
@@ -120,7 +124,7 @@ router.post(
     }
 
     const minUsdRequested = parseFloat(proposal.minUsdRequested);
-    if (!minUsdRequested) {
+    if (minUsdRequested<0) {
       return res.status(400).json({
         error: "Please enter a minimum USD amount",
       });

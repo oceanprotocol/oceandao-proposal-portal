@@ -169,8 +169,8 @@ Community Value — How does the project add value to the overall Ocean Communit
     fieldsPart0.map((field) => {
       if (field.required) {
         if (
-          $proposalStore[field.bindValue] == null ||
-          $proposalStore[field.bindValue] == ""
+          $proposalStore[field.bindValue] === null ||
+          $proposalStore[field.bindValue] === ""
         ) {
           field.wrong = true;
           field.wrongText = "This field is required";
@@ -185,7 +185,7 @@ Community Value — How does the project add value to the overall Ocean Communit
     const nonce = await getNonce($userAddress);
     const proposalObject = {
       proposalTitle: $proposalStore.proposalTitle,
-      proposalEarmark: $proposalStore.proposalEarmark,
+      proposalEarmark: 'coretech',
       oneLiner: $proposalStore.oneLiner,
       proposalDescription: $proposalStore.proposalDescription,
       grantDeliverables: $proposalStore.grantDeliverables,
@@ -197,6 +197,8 @@ Community Value — How does the project add value to the overall Ocean Communit
       nonce: nonce,
       minUsdRequested: $proposalStore.minUsdRequested,
     };
+
+    console.log(proposalObject)
 
     const proposalJson = JSON.stringify(proposalObject);
     let signedMessage
@@ -338,8 +340,9 @@ Community Value — How does the project add value to the overall Ocean Communit
     fields[part].forEach((field, index) => {
       if(field.bindValue==='proposalEarmark'){
         const earmarkOptions = getEarmarkOptions($projectInfo)
+        console.log($proposalStore)
         fields[part][index].options=earmarkOptions
-        $proposalStore.proposalEarmark = earmarkOptions[0].value
+        $proposalStore.proposalEarmark = isUpdating ? $proposalStore.proposalEarmark : earmarkOptions[0].value
       }
     })
   }
