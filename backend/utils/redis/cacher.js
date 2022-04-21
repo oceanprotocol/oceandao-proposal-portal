@@ -2,6 +2,7 @@ const croner = require("croner");
 const {
   getAllProposalRecords,
   getCurrentRoundProposals,
+  getProposalByRecordId,
 } = require("../airtable/utils");
 const redis = require("./index");
 
@@ -18,6 +19,14 @@ async function cacheAllProposals() {
     await cacheProposal(proposal.id, proposal.fields);
   }
   console.log("Cached all proposal records");
+}
+
+async function cacheSpecificProposal(airtableId) {
+  let proposal = await getProposalByRecordId(airtableId);
+  delete proposal.fields["Grant Deliverables"];
+  delete proposal.fields["Deliverable Checklist"];
+  delete proposal.fields["Proposal Title"];
+  await cacheProposal(airtableId, proposal.fields);
 }
 
 async function cacheCurrentRoundProposals() {
@@ -37,4 +46,5 @@ croner.Cron("0 */7 * * * *", async () => {
 
 module.exports = {
   cacheAllProposals,
+  cacheSpecificProposal,
 };
