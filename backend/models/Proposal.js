@@ -30,6 +30,7 @@ const proposalSchema = new Schema({
       "coretech",
       "general",
       "outreach",
+      "2nd3rd",
     ],
   },
   proposalEarmarkRequest: String,
