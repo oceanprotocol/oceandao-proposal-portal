@@ -10,12 +10,19 @@ async function cacheProposal(recordId, fields) {
   await redis.json.set(recordId, ".", fields);
 }
 
+function _deleteReduntantFields(proposal) {
+  // remove fields that are not needed
+  delete proposal.fields["Grant Deliverables"];
+  delete proposal.fields["Deliverable Checklist"];
+  delete proposal.fields["Proposal Title"];
+  delete proposal.fields["Wallet Address"];
+  delete proposal.fields["One Liner"];
+}
+
 async function cacheAllProposals() {
   const allProposals = await getAllProposalRecords();
   for (let proposal of allProposals) {
-    delete proposal.fields["Grant Deliverables"];
-    delete proposal.fields["Deliverable Checklist"];
-    delete proposal.fields["Proposal Title"];
+    _deleteReduntantFields(proposal);
     await cacheProposal(proposal.id, proposal.fields);
   }
   console.log("Cached all proposal records");
@@ -23,18 +30,14 @@ async function cacheAllProposals() {
 
 async function cacheSpecificProposal(airtableId) {
   let proposal = await getProposalByRecordId(airtableId);
-  delete proposal.fields["Grant Deliverables"];
-  delete proposal.fields["Deliverable Checklist"];
-  delete proposal.fields["Proposal Title"];
+  _deleteReduntantFields(proposal);
   await cacheProposal(airtableId, proposal.fields);
 }
 
 async function cacheCurrentRoundProposals() {
   const activeProposals = await getCurrentRoundProposals();
   for (let proposal of activeProposals) {
-    delete proposal.fields["Grant Deliverables"];
-    delete proposal.fields["Deliverable Checklist"];
-    delete proposal.fields["Proposal Title"];
+    _deleteReduntantFields(proposal);
     cacheProposal(proposal.id, proposal.fields);
   }
   console.log("Cached current round proposal records");
