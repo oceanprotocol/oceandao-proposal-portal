@@ -178,7 +178,10 @@ Community Value — How does the project add value to the overall Ocean Communit
       }
     });
     fields = [fieldsPart0];
-    if (fieldsPart0.filter((field) => field.wrong).length !== 0) return;
+    if (fieldsPart0.filter((field) => field.wrong).length !== 0){
+      loading = false;
+      return;
+    } 
 
     const nonce = await getNonce($userAddress);
     const proposalObject = {
