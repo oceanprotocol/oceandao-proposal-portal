@@ -196,8 +196,6 @@ Community Value — How does the project add value to the overall Ocean Communit
       minUsdRequested: $proposalStore.minUsdRequested,
     };
 
-    console.log(proposalObject)
-
     const proposalJson = JSON.stringify(proposalObject);
     let signedMessage
     try{

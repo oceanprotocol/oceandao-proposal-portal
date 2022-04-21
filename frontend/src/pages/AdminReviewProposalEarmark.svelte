@@ -26,7 +26,6 @@
   loadData();
 
   async function setProposalEarmark(newEarmark) {
-    console.log(newEarmark)
     Swal.fire({
       title: "Are you sure?",
       text: `You will ${newEarmark==='coretech' ? 'Accept' : 'Reject'} this proposal as Core Tech`,
