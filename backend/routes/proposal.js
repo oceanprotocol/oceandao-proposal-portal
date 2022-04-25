@@ -17,6 +17,7 @@ const {
 } = require("../utils/airtable/utils");
 const { getProposalRedis } = require("../utils/redis/proposal");
 const { cacheSpecificProposal } = require("../utils/redis/cacher");
+const { getAvailableEarmarks } = require("./utils/proposal-utils");
 
 router.post("/withdraw", checkSigner, (req, res) => {
   const data = JSON.parse(req.body.message);
@@ -124,6 +125,37 @@ router.post("/update", recaptchaCheck(0.5), checkSigner, function (req, res) {
           });
         }
         update.minUsdRequested = proposal.minUsdRequested;
+      }
+
+      if (
+        proposal.proposalEarmark &&
+        proposal.proposalEarmark != data.proposalEarmark
+      ) {
+        const formerProposals = await Proposal.find({
+          projectId: data.projectId.id,
+          _id: { $ne: { proposalId } },
+        });
+        const deliveredProposals = formerProposals.filter(
+          (x) => x.delivered.status == 2
+        ).length;
+        const projectCategory = data.projectId.projectCategory;
+
+        const availableEarmaks = getAvailableEarmarks({
+          grantsCompleted: deliveredProposals,
+          projectCategory: projectCategory,
+        });
+
+        if (!availableEarmaks.includes(proposal.proposalEarmark)) {
+          return res.status(400).json({
+            error: "Proposal is not eligible for this earmark",
+          });
+        }
+
+        if (proposal.proposalEarmark == "coretech") {
+          update.proposalEarmarkRequest = "coretech";
+        } else {
+          update.proposalEarmark = proposal.proposalEarmark;
+        }
       }
 
       if (proposal.valueAddCriteria)
