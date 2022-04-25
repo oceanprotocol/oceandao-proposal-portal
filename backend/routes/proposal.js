@@ -155,6 +155,7 @@ router.post("/update", recaptchaCheck(0.5), checkSigner, function (req, res) {
           update.proposalEarmarkRequest = "coretech";
         } else {
           update.proposalEarmark = proposal.proposalEarmark;
+          update.proposalEarmarkRequest = ""; // remove earmark request if coretech => general
         }
       }
 
