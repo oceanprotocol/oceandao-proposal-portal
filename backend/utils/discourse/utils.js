@@ -16,11 +16,12 @@ function getMarkdown(project, proposal) {
     body: proposal.oneLiner,
   });
 
-  md.push({
-    title: "## Description",
-    body: proposal.proposalDescription,
-    type: "md",
-  });
+  if (proposal.proposalDescription)
+    md.push({
+      title: "## Description",
+      body: proposal.proposalDescription,
+      type: "md",
+    });
 
   md.push({
     title: `# ${project.projectName}`,
