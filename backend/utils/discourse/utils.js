@@ -88,8 +88,9 @@ function getMarkdownProposal(md) {
     }
     post += `${obj.title}`;
     if (obj.body) {
-      post += `\n${obj.body}\n\n`;
-    } else post += `\n`;
+      post += `\n${obj.body}\n`;
+    }
+    post += `\n---------------------------\n`;
   }
   return post;
 }
