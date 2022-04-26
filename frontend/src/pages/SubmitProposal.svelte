@@ -34,8 +34,6 @@
     fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`)
       .then((res) => res.json())
       .then((res) => {
-        //res.proposal.proposalEarmark = "coretech"
-        showMinUsdRequestedWarning = false
         proposalStore.update(() => res.proposal);
         loaded = true;
       });
@@ -68,9 +66,9 @@
         {
           value: "newproject",
           text: "New Project",
-        }
+        },
       ],
-      disabled: isUpdating
+      disabled: isUpdating,
     },
     {
       type: "text",
@@ -125,7 +123,8 @@ Community Value — How does the project add value to the overall Ocean Communit
       wrong: false,
       required: true,
       textFormat: "number",
-      importantText: "To win a grant, this is the minimum USD amount you are willing to accept. If after voting you end up with less USD than the minimum amount, you will not receive any funds.",
+      importantText:
+        "To win a grant, this is the minimum USD amount you are willing to accept. If after voting you end up with less USD than the minimum amount, you will not receive any funds.",
     },
     {
       type: "text",
@@ -178,10 +177,10 @@ Community Value — How does the project add value to the overall Ocean Communit
       }
     });
     fields = [fieldsPart0];
-    if (fieldsPart0.filter((field) => field.wrong).length !== 0){
+    if (fieldsPart0.filter((field) => field.wrong).length !== 0) {
       loading = false;
       return;
-    } 
+    }
 
     const nonce = await getNonce($userAddress);
     const proposalObject = {
@@ -200,13 +199,13 @@ Community Value — How does the project add value to the overall Ocean Communit
     };
 
     const proposalJson = JSON.stringify(proposalObject);
-    let signedMessage
-    try{
+    let signedMessage;
+    try {
       signedMessage = await signMessage(proposalJson, $networkSigner);
-    }catch(error){
+    } catch (error) {
       loading = false;
       errortext = error.message;
-      return
+      return;
     }
     const signer = $userAddress;
 
@@ -297,59 +296,29 @@ Community Value — How does the project add value to the overall Ocean Communit
     }
   }
 
-  function onProposalEarmarkChange() {
-    if($proposalStore['proposalEarmark'] === "coretech"){
-      fields[part].forEach((field, index) => {
-        if(field.bindValue==='proposalEarmark') fields[0][index].importantText="If you select Core Tech earmark, you have to seek approval in https://discord.com/channels/612953348487905282/908016816029319178 in order for the proposal to be accepted."
-      })
-    }else{
-      fields[part].forEach((field, index) => {
-        if(field.bindValue==='proposalEarmark') fields[0][index].importantText=undefined
-      })
-    }
-  }
-
   async function showMinUsdWarning() {
-    if($proposalStore['minUsdRequested'] > 0){
+    if ($proposalStore["minUsdRequested"] > 0) {
       Swal.fire({
-      title: "Are you sure?",
-      text: `To win and receive any funds, you have to reach the Minimum Funding Requested amount.`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Proceed!",
-      cancelButtonText: "Cancel",
-    }).then(async (result) => {
-      if (result.value) {
-        showMinUsdRequestedWarning = false
-        return
-      }else{
-        $proposalStore['minUsdRequested'] = 0
-      }
-    })
-  }
-  }
-
-  $: if($proposalStore['minUsdRequested'] && showMinUsdRequestedWarning){showMinUsdWarning()}
-  $: if($proposalStore['proposalEarmark']){onProposalEarmarkChange()}
-  $: if(!$projectInfo){
-    if(isUpdating && !$proposalStore.projectId){
-    }else if(isUpdating){
-      loadProjectInfo($proposalStore.projectId)
-    }else{
-      loadProjectInfo(projectId)
+        title: "Are you sure?",
+        text: `To win and receive any funds, you have to reach the Minimum Funding Requested amount.`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Proceed!",
+        cancelButtonText: "Cancel",
+      }).then(async (result) => {
+        if (result.value) {
+          showMinUsdRequestedWarning = false;
+          return;
+        } else {
+          $proposalStore["minUsdRequested"] = 0;
+        }
+      });
     }
   }
-  $: if($projectInfo && !earmarkOptionsLoaded){
-    fields[part].forEach((field, index) => {
-      if(field.bindValue==='proposalEarmark'){
-        const earmarkOptions = getEarmarkOptions($projectInfo)
-        fields[part][index].options=JSON.parse(JSON.stringify(earmarkOptions))
-        $proposalStore.proposalEarmark = isUpdating ? $proposalStore.proposalEarmark : earmarkOptions[0].value
-        earmarkOptionsLoaded = true
-      }
-    })
-  }
 
+  $: if ($proposalStore["minUsdRequested"] && showMinUsdRequestedWarning) {
+    showMinUsdWarning();
+  }
 </script>
 
 <Recaptcha bind:this={recaptcha} />
@@ -461,7 +430,7 @@ Community Value — How does the project add value to the overall Ocean Communit
                 ? "Update project"
                 : `Submit Proposal for Round ${roundNumber}`}
               onclick={() => submitProposal()}
-              loading={loading}
+              {loading}
               disabled={loading}
             />
           </div>
