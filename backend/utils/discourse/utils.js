@@ -17,11 +17,6 @@ function getMarkdown(project, proposal) {
     title: "# Project Category",
     body: categoryJson[project.projectCategory],
   });
-  console.log(
-    proposal.proposalEarmark,
-    earmarkJson,
-    earmarkJson[proposal.proposalEarmark]
-  );
   md.push({
     title: "# Proposal Earmark",
     body: earmarkJson[proposal.proposalEarmark],
