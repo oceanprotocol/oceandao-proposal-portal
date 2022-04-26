@@ -26,7 +26,7 @@
     fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`)
       .then((res) => res.json())
       .then((res) => {
-        proposalStore.update(() => res);
+        proposalStore.update(() => res.proposal);
         loaded = true;
       });
   } else {
@@ -172,10 +172,10 @@ Community Value — How does the project add value to the overall Ocean Communit
       }
     });
     fields = [fieldsPart0];
-    if (fieldsPart0.filter((field) => field.wrong).length !== 0){
+    if (fieldsPart0.filter((field) => field.wrong).length !== 0) {
       loading = false;
       return;
-    } 
+    }
 
     const nonce = await getNonce($userAddress);
     const proposalObject = {
@@ -194,13 +194,13 @@ Community Value — How does the project add value to the overall Ocean Communit
     };
 
     const proposalJson = JSON.stringify(proposalObject);
-    let signedMessage
-    try{
+    let signedMessage;
+    try {
       signedMessage = await signMessage(proposalJson, $networkSigner);
-    }catch(error){
+    } catch (error) {
       loading = false;
       errortext = error.message;
-      return
+      return;
     }
     const signer = $userAddress;
 
@@ -292,27 +292,28 @@ Community Value — How does the project add value to the overall Ocean Communit
   }
 
   async function showMinUsdWarning() {
-    if($proposalStore['minUsdRequested'] > 0){
+    if ($proposalStore["minUsdRequested"] > 0) {
       Swal.fire({
-      title: "Are you sure?",
-      text: `To win and receive any funds, you have to reach the Minimum Funding Requested amount.`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Proceed!",
-      cancelButtonText: "Cancel",
-    }).then(async (result) => {
-      if (result.value) {
-        showMinUsdRequestedWarning = false
-        return
-      }else{
-        $proposalStore['minUsdRequested'] = 0
-      }
-    })
-  }
+        title: "Are you sure?",
+        text: `To win and receive any funds, you have to reach the Minimum Funding Requested amount.`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Proceed!",
+        cancelButtonText: "Cancel",
+      }).then(async (result) => {
+        if (result.value) {
+          showMinUsdRequestedWarning = false;
+          return;
+        } else {
+          $proposalStore["minUsdRequested"] = 0;
+        }
+      });
+    }
   }
 
-  $: if($proposalStore['minUsdRequested'] && showMinUsdRequestedWarning){showMinUsdWarning()}
-
+  $: if ($proposalStore["minUsdRequested"] && showMinUsdRequestedWarning) {
+    showMinUsdWarning();
+  }
 </script>
 
 <Recaptcha bind:this={recaptcha} />
@@ -424,7 +425,7 @@ Community Value — How does the project add value to the overall Ocean Communit
                 ? "Update project"
                 : `Submit Proposal for Round ${roundNumber}`}
               onclick={() => submitProposal()}
-              loading={loading}
+              {loading}
               disabled={loading}
             />
           </div>
