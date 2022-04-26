@@ -27,8 +27,8 @@ async function getNonce(address) {
 
 async function createProposal(wallet, projectId) {
   const proposalObject = {
-    proposalTitle: `${genName()} ${makeid(8)}`,
-    proposalEarmark: "general",
+    proposalTitle: `${genName()} ${makeid(2)}`,
+    proposalEarmark: "newproject",
     oneLiner: LOREM_TEXT.substring(0, 40),
     proposalDescription: LOREM_TEXT,
     grantDeliverables: LOREM_TEXT,
@@ -61,7 +61,7 @@ async function createProposal(wallet, projectId) {
 
 async function createProject(wallet) {
   const projectObject = {
-    projectName: `${genName()} ${makeid(8)}`,
+    projectName: `${genName()} ${makeid(2)}`,
     projectCategory: "build",
     projectDescription: LOREM_TEXT,
     finalProduct: LOREM_TEXT,
