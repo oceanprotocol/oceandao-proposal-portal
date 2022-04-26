@@ -160,7 +160,7 @@ router.post("/update", recaptchaCheck(0.5), checkSigner, function (req, res) {
           await updateAirtableEntry(airtableId, update); // update airtable entry
           await updateDiscoursePost(
             proposalDiscourseId,
-            { ...data, ...update },
+            { ...data.toObject(), ...update },
             project
           ); // update the post in the discourse forum
           cacheSpecificProposal(airtableId);
