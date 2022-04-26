@@ -26,18 +26,12 @@ function getMarkdown(project, proposal) {
     title: "# Proposal Earmark",
     body: earmarkJson[proposal.proposalEarmark],
   });
-  md.push({
-    title: "# Proposal Title",
-    body: proposal.oneLiner,
-  });
-
   if (proposal.proposalDescription)
     md.push({
-      title: "# Description",
+      title: "# Proposal Description",
       body: proposal.proposalDescription,
       type: "md",
     });
-
   md.push({
     title: "# Grant Deliverables",
     body: proposal.grantDeliverables,
