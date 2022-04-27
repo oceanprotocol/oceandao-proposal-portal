@@ -5,6 +5,7 @@ const express = require("express");
 const router = express.Router();
 const Proposal = require("../models/Proposal");
 const Project = require("../models/Project");
+const {getProposalRedisMultiple} = require("../utils/redis/proposal")
 const {
   checkSigner,
   recaptchaCheck,
@@ -18,7 +19,6 @@ const {
   getFormerFundedProposals,
   getCurrentRound,
 } = require("../utils/airtable/utils");
-const { getProposalRedisMultiple } = require("../utils/redis/proposal");
 const { hasEnoughOceans } = require("../utils/ethers/balance");
 const { cacheSpecificProposal } = require("../utils/redis/cacher");
 const { getAvailableEarmarks } = require("./utils/proposal-utils");
@@ -95,7 +95,11 @@ router.post(
 
     if (proposal.proposalEarmark === "coretech") {
       proposal.proposalEarmarkRequest = "coretech";
-      proposal.proposalEarmark = "general";
+      if(project.projectCategory === "outreach"){
+        proposal.proposalEarmark = formerProposals.length < 1 ? "newprojectoutreach" : "general";
+      }else{
+        proposal.proposalEarmark = formerProposals.length < 1 ? "newproject" : "general";
+      }
     }
 
     const newProposal = new Proposal(proposal); // ? maybe change this
@@ -122,7 +126,7 @@ router.post(
     }
 
     const minUsdRequested = parseFloat(proposal.minUsdRequested);
-    if (!minUsdRequested) {
+    if (minUsdRequested<0) {
       return res.status(400).json({
         error: "Please enter a minimum USD amount",
       });
@@ -344,7 +348,7 @@ router.get("/state/:projectId", async (req, res) => {
 
         const level = levels(grantsCompleted);
 
-        const availableEarmaks = getAvailableEarmarks({
+        const availableEarmarks = getAvailableEarmarks({
           grantsCompleted,
           projectCategory,
         });
@@ -356,7 +360,7 @@ router.get("/state/:projectId", async (req, res) => {
           grantsProposed,
           grantsReceived,
           grantsCompleted,
-          availableEarmaks,
+          availableEarmarks,
         });
       });
     });
@@ -386,7 +390,7 @@ router.get("/info/:projectId", async (req, res) => {
           project,
           proposals,
           canCreateProposals,
-          airtableInfos,
+          airtableInfos
         });
       });
     });

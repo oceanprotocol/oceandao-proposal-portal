@@ -3,10 +3,11 @@
   import LargeTextField from "../components/LargeTextField.svelte";
   import OptionSelect from "../components/OptionSelect.svelte";
   import { proposal as proposalStore } from "../stores/proposal";
+  import { project as projectStore, projectInfo } from "../stores/project";
   import { SERVER_URI, RECAPTCHA_KEY } from "../utils/config";
   import { signMessage } from "../utils/signatures";
   import { networkSigner, userAddress } from "../stores/ethers";
-  import { getNonce } from "../utils/helpers";
+  import { getNonce, getEarmarkOptions } from "../utils/helpers";
   import Recaptcha from "../components/Recaptcha.svelte";
   import Button from "../components/Button.svelte";
   import Swal from "sweetalert2";
@@ -15,12 +16,19 @@
   export let proposalId;
   const isUpdating = proposalId !== undefined;
   let loaded = !isUpdating;
+  let earmarkOptionsLoaded = false;
   let part = 0;
   let recaptcha;
   let errortext;
   let roundNumber;
   let showMinUsdRequestedWarning = true;
   let loading = false;
+
+  async function loadProjectInfo(projectId) {
+    let res = await fetch(`${SERVER_URI}/app/project/state/${projectId}`);
+    res = await res.json();
+    projectInfo.update(() => res);
+  }
 
   if (isUpdating) {
     fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`)
@@ -56,14 +64,11 @@
       required: true,
       options: [
         {
-          value: "coretech",
-          text: "Core-Tech",
-        },
-        {
-          value: "general",
-          text: "General",
+          value: "newproject",
+          text: "New Project",
         },
       ],
+      disabled: isUpdating,
     },
     {
       type: "text",
@@ -161,8 +166,8 @@ Community Value — How does the project add value to the overall Ocean Communit
     fieldsPart0.map((field) => {
       if (field.required) {
         if (
-          $proposalStore[field.bindValue] == null ||
-          $proposalStore[field.bindValue] == ""
+          $proposalStore[field.bindValue] === null ||
+          $proposalStore[field.bindValue] === ""
         ) {
           field.wrong = true;
           field.wrongText = "This field is required";
@@ -172,10 +177,10 @@ Community Value — How does the project add value to the overall Ocean Communit
       }
     });
     fields = [fieldsPart0];
-    if (fieldsPart0.filter((field) => field.wrong).length !== 0){
+    if (fieldsPart0.filter((field) => field.wrong).length !== 0) {
       loading = false;
       return;
-    } 
+    }
 
     const nonce = await getNonce($userAddress);
     const proposalObject = {
@@ -194,13 +199,13 @@ Community Value — How does the project add value to the overall Ocean Communit
     };
 
     const proposalJson = JSON.stringify(proposalObject);
-    let signedMessage
-    try{
+    let signedMessage;
+    try {
       signedMessage = await signMessage(proposalJson, $networkSigner);
-    }catch(error){
+    } catch (error) {
       loading = false;
       errortext = error.message;
-      return
+      return;
     }
     const signer = $userAddress;
 
@@ -292,27 +297,28 @@ Community Value — How does the project add value to the overall Ocean Communit
   }
 
   async function showMinUsdWarning() {
-    if($proposalStore['minUsdRequested'] > 0){
+    if ($proposalStore["minUsdRequested"] > 0) {
       Swal.fire({
-      title: "Are you sure?",
-      text: `To win and receive any funds, you have to reach the Minimum Funding Requested amount.`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Proceed!",
-      cancelButtonText: "Cancel",
-    }).then(async (result) => {
-      if (result.value) {
-        showMinUsdRequestedWarning = false
-        return
-      }else{
-        $proposalStore['minUsdRequested'] = 0
-      }
-    })
-  }
+        title: "Are you sure?",
+        text: `To win and receive any funds, you have to reach the Minimum Funding Requested amount.`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Proceed!",
+        cancelButtonText: "Cancel",
+      }).then(async (result) => {
+        if (result.value) {
+          showMinUsdRequestedWarning = false;
+          return;
+        } else {
+          $proposalStore["minUsdRequested"] = 0;
+        }
+      });
+    }
   }
 
-  $: if($proposalStore['minUsdRequested'] && showMinUsdRequestedWarning){showMinUsdWarning()}
-
+  $: if ($proposalStore["minUsdRequested"] && showMinUsdRequestedWarning) {
+    showMinUsdWarning();
+  }
 </script>
 
 <Recaptcha bind:this={recaptcha} />
@@ -354,7 +360,6 @@ Community Value — How does the project add value to the overall Ocean Communit
           {#if field.type === "line"}
             <hr />
           {/if}
-
           {#if field.type === "text"}
             <TextField
               bind:value={$proposalStore[field.bindValue]}
@@ -386,6 +391,7 @@ Community Value — How does the project add value to the overall Ocean Communit
               disabled={field.disabled}
               wrong={field.wrong}
               wrongText={field.wrongText}
+              importantText={field.importantText}
               options={field.options}
             />
           {/if}
@@ -424,7 +430,7 @@ Community Value — How does the project add value to the overall Ocean Communit
                 ? "Update project"
                 : `Submit Proposal for Round ${roundNumber}`}
               onclick={() => submitProposal()}
-              loading={loading}
+              {loading}
               disabled={loading}
             />
           </div>
