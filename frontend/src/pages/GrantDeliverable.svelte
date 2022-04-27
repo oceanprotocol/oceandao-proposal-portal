@@ -61,6 +61,7 @@
             });
           } else {
             Swal.fire("Error!", "Something went wrong", "error");
+            errorMessage=json.error
             loading=false;
           }
         }
