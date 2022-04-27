@@ -17,27 +17,16 @@ function getMarkdown(project, proposal) {
     title: "# Project Category",
     body: categoryJson[project.projectCategory],
   });
-  console.log(
-    proposal.proposalEarmark,
-    earmarkJson,
-    earmarkJson[proposal.proposalEarmark]
-  );
   md.push({
     title: "# Proposal Earmark",
     body: earmarkJson[proposal.proposalEarmark],
   });
-  md.push({
-    title: "# Proposal Title",
-    body: proposal.oneLiner,
-  });
-
   if (proposal.proposalDescription)
     md.push({
-      title: "# Description",
+      title: "# Proposal Description",
       body: proposal.proposalDescription,
       type: "md",
     });
-
   md.push({
     title: "# Grant Deliverables",
     body: proposal.grantDeliverables,
@@ -99,8 +88,9 @@ function getMarkdownProposal(md) {
     }
     post += `${obj.title}`;
     if (obj.body) {
-      post += `\n${obj.body}\n\n`;
-    } else post += `\n`;
+      post += `\n${obj.body}\n`;
+    }
+    post += `\n---------------------------\n`;
   }
   return post;
 }
