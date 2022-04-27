@@ -37,13 +37,13 @@
         proposalStore.update(() => res.proposal);
         loaded = true;
       });
-  } else {
-    fetch(`${SERVER_URI}/app/round/number`)
-      .then((res) => res.json())
-      .then((res) => {
-        roundNumber = res.roundNumber;
-      });
   }
+  
+  fetch(`${SERVER_URI}/app/round/number`)
+    .then((res) => res.json())
+    .then((res) => {
+      roundNumber = res.roundNumber;
+  });
 
   const partTitles = ["Part 1 - Proposal Details"];
 
