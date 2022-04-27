@@ -132,8 +132,10 @@ router.post("/update", recaptchaCheck(0.5), checkSigner, function (req, res) {
         proposal.proposalEarmark != data.proposalEarmark
       ) {
         const formerProposals = await Proposal.find({
-          projectId: data.projectId.id,
-          _id: { $ne: { proposalId } },
+          $and: [
+            { projectId: data.projectId.id },
+            { _id: { $ne: proposalId } },
+          ],
         });
         const deliveredProposals = formerProposals.filter(
           (x) => x.delivered.status == 2
