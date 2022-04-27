@@ -21,6 +21,7 @@ const {
 const { getProposalRedisMultiple } = require("../utils/redis/proposal");
 const { hasEnoughOceans } = require("../utils/ethers/balance");
 const { cacheSpecificProposal } = require("../utils/redis/cacher");
+const { getAvailableEarmarks } = require("./utils/proposal-utils");
 
 router.post("/create", recaptchaCheck(0.5), checkSigner, async (req, res) => {
   // create a project
@@ -302,27 +303,6 @@ router.post("/proposal/list", function (req, res) {
     }
   );
 });
-
-// TODO Modularize this
-function getAvailableEarmarks({ grantsCompleted, projectCategory }) {
-  const availableEarmaks = [];
-  if (grantsCompleted == 0) {
-    if (projectCategory == "outreach")
-      availableEarmaks.push("newprojectoutreach");
-    else availableEarmaks.push("newproject");
-  } else {
-    availableEarmaks.push("general");
-    if (projectCategory == "outreach") availableEarmaks.push("outreach");
-  }
-
-  if (grantsCompleted == 1 || grantsCompleted == 2) {
-    availableEarmaks.push("2nd3rd");
-  }
-
-  availableEarmaks.push("coretech");
-
-  return availableEarmaks;
-}
 
 router.get("/state/:projectId", async (req, res) => {
   const levels = (completed) => {

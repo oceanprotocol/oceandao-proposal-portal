@@ -129,6 +129,10 @@ async function updateAirtableEntry(recordId, proposal, grantCompleted = false) {
     update["Proposal Standing"] = proposal.proposalStanding;
   }
 
+  if (proposal.proposalEarmark) {
+    update["Earmarks"] = earmarkJson[proposal.proposalEarmark];
+  }
+
   if (proposal.deliverableChecklist)
     update["Deliverable Checklist"] =
       `[x] Completed! ` +
