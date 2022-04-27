@@ -4,69 +4,74 @@ const userApiKey = process.env.DISCOURSE_API_KEY;
 const apiUsername = process.env.DISCOURSE_USERNAME;
 const baseUrl = process.env.DISCOURSE_BASE_URI;
 const fetch = require("node-fetch");
-
+const earmarkJson = require("../types/earmark.json");
+const categoryJson = require("../types/grant_category.json");
 function getMarkdown(project, proposal) {
   const md = [];
 
   md.push({
-    title: "# " + proposal.proposalTitle,
+    title: "# Project Name",
+    body: project.projectName,
   });
   md.push({
-    title: "## One Liner",
-    body: proposal.oneLiner,
-  });
-
-  md.push({
-    title: "## Description",
-    body: proposal.proposalDescription,
-    type: "md",
-  });
-
-  md.push({
-    title: `# ${project.projectName}`,
-    body: "",
-  });
-
-  md.push({
-    title: "## Description",
-    body: project.projectDescription,
-    type: "md",
+    title: "# Project Category",
+    body: categoryJson[project.projectCategory],
   });
   md.push({
-    title: "## Grant Deliverables",
+    title: "# Proposal Earmark",
+    body: earmarkJson[proposal.proposalEarmark],
+  });
+  if (proposal.proposalDescription)
+    md.push({
+      title: "# Proposal Description",
+      body: proposal.proposalDescription,
+      type: "md",
+    });
+  md.push({
+    title: "# Grant Deliverables",
     body: proposal.grantDeliverables,
     type: "md",
   });
   md.push({
-    title: "## Value Add Criteria",
-    body: proposal.valueAddCriteria,
+    title: "# Project Description",
+    body: project.projectDescription,
+    type: "md",
   });
-
   md.push({
-    title: "## Final Product",
+    title: "# Final Product",
     body: project.finalProduct,
     type: "md",
   });
+
+  md.push({
+    title: "# Value Add Criteria",
+    body: proposal.valueAddCriteria,
+  });
+
   if (project.coreTeam)
     md.push({
-      title: "## Core Team",
+      title: "# Core Team",
       body: project.coreTeam,
       type: "md",
     });
 
   if (project.advisors)
     md.push({
-      title: "## Advisors",
+      title: "# Advisors",
       body: project.advisors,
       type: "md",
     });
 
   md.push({
-    title: "*Funding Requested*",
+    title: "**Funding Requested**",
     body: proposal.proposalFundingRequested,
   });
   md.push({
-    title: "*Wallet Address*",
+    title: "**Minimum Funding Requested**",
+    body: proposal.minUsdRequested,
+  });
+  md.push({
+    title: "**Wallet Address**",
     body: proposal.proposalWalletAddress,
   });
 
@@ -83,8 +88,9 @@ function getMarkdownProposal(md) {
     }
     post += `${obj.title}`;
     if (obj.body) {
-      post += `\n${obj.body}\n\n`;
-    } else post += `\n`;
+      post += `\n${obj.body}\n`;
+    }
+    post += `\n---------------------------\n`;
   }
   return post;
 }
