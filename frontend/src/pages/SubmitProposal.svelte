@@ -68,8 +68,7 @@
           value: "newproject",
           text: "New Project",
         },
-      ],
-      disabled: isUpdating,
+      ]
     },
     {
       type: "text",
