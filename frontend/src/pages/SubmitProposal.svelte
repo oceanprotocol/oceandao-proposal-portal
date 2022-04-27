@@ -34,6 +34,7 @@
     fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`)
       .then((res) => res.json())
       .then((res) => {
+        showMinUsdRequestedWarning = false
         proposalStore.update(() => res.proposal);
         loaded = true;
       });
@@ -296,6 +297,18 @@ Community Value — How does the project add value to the overall Ocean Communit
     }
   }
 
+  function onProposalEarmarkChange() {
+    if($proposalStore['proposalEarmark'] === "coretech"){
+      fields[part].forEach((field, index) => {
+        if(field.bindValue==='proposalEarmark') fields[0][index].importantText="If you select Core Tech earmark, you havet to seek approval in https://discord.com/channels/612953348487905282/908016816029319178 in order for the proposal to be accepted"
+      })
+    }else{
+      fields[part].forEach((field, index) => {
+        if(field.bindValue==='proposalEarmark') fields[0][index].importantText=undefined
+      })
+    }
+  }
+
   async function showMinUsdWarning() {
     if ($proposalStore["minUsdRequested"] > 0) {
       Swal.fire({
@@ -316,8 +329,27 @@ Community Value — How does the project add value to the overall Ocean Communit
     }
   }
 
-  $: if ($proposalStore["minUsdRequested"] && showMinUsdRequestedWarning) {
+  $: if($proposalStore["minUsdRequested"] && showMinUsdRequestedWarning) {
     showMinUsdWarning();
+  }
+  $: if($proposalStore["proposalEarmark"]){onProposalEarmarkChange()}
+  $: if(!$projectInfo){
+    if(isUpdating && !$proposalStore.projectId){
+    }else if(isUpdating){
+      loadProjectInfo($proposalStore.projectId)
+    }else{
+      loadProjectInfo(projectId)
+    }
+  }
+  $: if($projectInfo && !earmarkOptionsLoaded){
+    fields[part].forEach((filed, index) => {
+      if(filed.bindValue==='proposalEarmark'){
+        const earmarkOptions = getEarmarkOptions($projectInfo)
+        fields[part][index].options = earmarkOptions
+        $proposalStore.proposalEarmark = isUpdating ? $proposalStore.proposalEarmark : earmarkOptions[0].value
+        earmarkOptionsLoaded = true
+      }
+    })
   }
 </script>
 
