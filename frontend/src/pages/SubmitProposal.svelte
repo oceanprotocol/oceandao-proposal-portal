@@ -26,7 +26,7 @@
     fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`)
       .then((res) => res.json())
       .then((res) => {
-        proposalStore.update(() => res);
+        proposalStore.update(() => res.proposal);
         loaded = true;
       });
   } else {
