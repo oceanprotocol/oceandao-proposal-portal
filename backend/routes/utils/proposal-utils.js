@@ -1,12 +1,11 @@
 function getAvailableEarmarks({ grantsCompleted, projectCategory }) {
   const availableEarmaks = [];
   if (grantsCompleted == 0) {
-    if (projectCategory == "outreach")
-      availableEarmaks.push("newprojectoutreach");
-    else availableEarmaks.push("newproject");
+    availableEarmaks.push("newprojectoutreach");
+    availableEarmaks.push("newproject");
   } else {
     availableEarmaks.push("general");
-    if (projectCategory == "outreach") availableEarmaks.push("outreach");
+    availableEarmaks.push("outreach");
   }
 
   if (grantsCompleted == 1 || grantsCompleted == 2) {
