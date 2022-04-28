@@ -18,6 +18,7 @@ const {
 const { getProposalRedis } = require("../utils/redis/proposal");
 const { cacheSpecificProposal } = require("../utils/redis/cacher");
 const { getAvailableEarmarks } = require("./utils/proposal-utils");
+const { hasEnoughOceans } = require("../utils/ethers/balance");
 
 router.post("/withdraw", checkSigner, (req, res) => {
   const data = JSON.parse(req.body.message);
@@ -164,8 +165,20 @@ router.post("/update", recaptchaCheck(0.5), checkSigner, function (req, res) {
       if (proposal.valueAddCriteria)
         update.valueAddCriteria = proposal.valueAddCriteria;
 
-      if (proposal.proposalWalletAddress)
+      if (
+        proposal.proposalWalletAddress &&
+        proposal.proposalWalletAddress != data.proposalWalletAddress
+      ) {
+        const hasEnoughTokens = await hasEnoughOceans(
+          proposal.proposalWalletAddress,
+          500
+        );
+
+        if (!hasEnoughTokens) {
+          return res.status(400).json({ error: "Not enough Ocean tokens" });
+        }
         update.proposalWalletAddress = proposal.proposalWalletAddress;
+      }
 
       if (proposal.proposalDescription)
         update.proposalDescription = proposal.proposalDescription;
