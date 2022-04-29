@@ -5,7 +5,7 @@ const express = require("express");
 const router = express.Router();
 const Proposal = require("../models/Proposal");
 const Project = require("../models/Project");
-const {getProposalRedisMultiple} = require("../utils/redis/proposal")
+const { getProposalRedisMultiple } = require("../utils/redis/proposal");
 const {
   checkSigner,
   recaptchaCheck,
@@ -95,10 +95,12 @@ router.post(
 
     if (proposal.proposalEarmark === "coretech") {
       proposal.proposalEarmarkRequest = "coretech";
-      if(project.projectCategory === "outreach"){
-        proposal.proposalEarmark = formerProposals.length < 1 ? "newprojectoutreach" : "general";
-      }else{
-        proposal.proposalEarmark = formerProposals.length < 1 ? "newproject" : "general";
+      if (project.projectCategory === "outreach") {
+        proposal.proposalEarmark =
+          formerProposals.length < 1 ? "newprojectoutreach" : "general";
+      } else {
+        proposal.proposalEarmark =
+          formerProposals.length < 1 ? "newproject" : "general";
       }
     }
 
@@ -126,7 +128,7 @@ router.post(
     }
 
     const minUsdRequested = parseFloat(proposal.minUsdRequested);
-    if (minUsdRequested<0) {
+    if (minUsdRequested < 0) {
       return res.status(400).json({
         error: "Please enter a minimum USD amount",
       });
