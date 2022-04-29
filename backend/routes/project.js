@@ -377,10 +377,6 @@ router.get("/info/:projectId", async (req, res) => {
     .sort({ round: -1 })
     .exec((err, proposals) => {
       Project.findById(projectId, async (err, project) => {
-        const lastProposal = proposals[proposals.length - 1];
-        const canCreateProposals = lastProposal
-          ? lastProposal.delivered.status == 2
-          : true;
         if (err) {
           res.status(400).send(err);
         }
@@ -388,11 +384,17 @@ router.get("/info/:projectId", async (req, res) => {
           proposals.map((x) => x.airtableRecordId),
           "."
         );
+        const canCreateProposals = !airtableInfos.some(
+          (x) =>
+            x["Proposal Standing"] === "Unreported" &&
+            x["Proposal State"] === "Funded"
+        );
+
         res.status(200).send({
           project,
           proposals,
           canCreateProposals,
-          airtableInfos
+          airtableInfos,
         });
       });
     });
