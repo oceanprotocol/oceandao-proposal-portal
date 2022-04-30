@@ -342,8 +342,10 @@ router.get("/state/:projectId", async (req, res) => {
             x["Proposal State"] === "Granted" ||
             x["Proposal State"] === "Funded"
         ).length;
-        const grantsCompleted = proposals.filter(
-          (x) => x.delivered.status == 2
+        const grantsCompleted = airtableInfos.filter(
+          (x) =>
+            x["Proposal State"] === "Completed" &&
+            x["Proposal State"] === "Funded"
         ).length;
 
         const projectCategory = project.projectCategory;
