@@ -323,13 +323,16 @@ router.get("/state/:projectId", async (req, res) => {
   const projectId = req.params.projectId;
   Proposal.find(
     { projectId: projectId },
-    "proposalFundingRequested proposalTitle round proposalEarmark airtableRecordId"
+    "proposalFundingRequested proposalTitle round proposalEarmark airtableRecordId delivered"
   )
     .sort({ round: -1 })
     .exec((err, proposals) => {
       Project.findById(projectId, async (err, project) => {
         if (err) {
-          res.status(400).send(err);
+          return res.status(400).send(err);
+        }
+        if (!project) {
+          return res.status(400).send("Project doesn't exist");
         }
         const airtableInfos = await getProposalRedisMultiple(
           proposals.map((x) => x.airtableRecordId),
@@ -339,13 +342,11 @@ router.get("/state/:projectId", async (req, res) => {
         const grantsProposed = proposals.length;
         const grantsReceived = airtableInfos.filter(
           (x) =>
-            x["Proposal State"] === "Granted" ||
+            x["Proposal Standing"] === "Granted" ||
             x["Proposal State"] === "Funded"
         ).length;
-        const grantsCompleted = airtableInfos.filter(
-          (x) =>
-            x["Proposal State"] === "Completed" &&
-            x["Proposal State"] === "Funded"
+        const grantsCompleted = proposals.filter(
+          (x) => x.delivered.status == 2
         ).length;
 
         const projectCategory = project.projectCategory;
