@@ -1,16 +1,14 @@
 function getAvailableEarmarks({ grantsCompleted, projectCategory }) {
   const availableEarmaks = [];
-  if (grantsCompleted == 0) {
-    if (projectCategory == "outreach") {
-      availableEarmaks.push("newprojectoutreach");
-      availableEarmaks.push("newproject");
-    } else availableEarmaks.push("newproject");
+  if (grantsCompleted === 0) {
+    availableEarmaks.push("newprojectoutreach");
+    availableEarmaks.push("newproject");
   } else {
     availableEarmaks.push("general");
-    if (projectCategory == "outreach") availableEarmaks.push("outreach");
+    availableEarmaks.push("outreach");
   }
 
-  if (grantsCompleted == 1 || grantsCompleted == 2) {
+  if (grantsCompleted === 1 || grantsCompleted === 2) {
     availableEarmaks.push("2nd3rd");
   }
 
