@@ -5,7 +5,7 @@ const express = require("express");
 const router = express.Router();
 const Proposal = require("../models/Proposal");
 const Project = require("../models/Project");
-const {getProposalRedisMultiple} = require("../utils/redis/proposal")
+const { getProposalRedisMultiple } = require("../utils/redis/proposal");
 const {
   checkSigner,
   recaptchaCheck,
@@ -95,10 +95,12 @@ router.post(
 
     if (proposal.proposalEarmark === "coretech") {
       proposal.proposalEarmarkRequest = "coretech";
-      if(project.projectCategory === "outreach"){
-        proposal.proposalEarmark = formerProposals.length < 1 ? "newprojectoutreach" : "general";
-      }else{
-        proposal.proposalEarmark = formerProposals.length < 1 ? "newproject" : "general";
+      if (project.projectCategory === "outreach") {
+        proposal.proposalEarmark =
+          formerProposals.length < 1 ? "newprojectoutreach" : "general";
+      } else {
+        proposal.proposalEarmark =
+          formerProposals.length < 1 ? "newproject" : "general";
       }
     }
 
@@ -126,7 +128,7 @@ router.post(
     }
 
     const minUsdRequested = parseFloat(proposal.minUsdRequested);
-    if (minUsdRequested<0) {
+    if (minUsdRequested < 0) {
       return res.status(400).json({
         error: "Please enter a minimum USD amount",
       });
@@ -321,13 +323,16 @@ router.get("/state/:projectId", async (req, res) => {
   const projectId = req.params.projectId;
   Proposal.find(
     { projectId: projectId },
-    "proposalFundingRequested proposalTitle round proposalEarmark airtableRecordId"
+    "proposalFundingRequested proposalTitle round proposalEarmark airtableRecordId delivered"
   )
     .sort({ round: -1 })
     .exec((err, proposals) => {
       Project.findById(projectId, async (err, project) => {
         if (err) {
-          res.status(400).send(err);
+          return res.status(400).send(err);
+        }
+        if (!project) {
+          return res.status(400).send("Project doesn't exist");
         }
         const airtableInfos = await getProposalRedisMultiple(
           proposals.map((x) => x.airtableRecordId),
@@ -337,7 +342,7 @@ router.get("/state/:projectId", async (req, res) => {
         const grantsProposed = proposals.length;
         const grantsReceived = airtableInfos.filter(
           (x) =>
-            x["Proposal State"] === "Granted" ||
+            x["Proposal Standing"] === "Granted" ||
             x["Proposal State"] === "Funded"
         ).length;
         const grantsCompleted = proposals.filter(
@@ -375,10 +380,6 @@ router.get("/info/:projectId", async (req, res) => {
     .sort({ round: -1 })
     .exec((err, proposals) => {
       Project.findById(projectId, async (err, project) => {
-        const lastProposal = proposals[proposals.length - 1];
-        const canCreateProposals = lastProposal
-          ? lastProposal.delivered.status == 2
-          : true;
         if (err) {
           res.status(400).send(err);
         }
@@ -386,11 +387,17 @@ router.get("/info/:projectId", async (req, res) => {
           proposals.map((x) => x.airtableRecordId),
           "."
         );
+        const canCreateProposals = !airtableInfos.some(
+          (x) =>
+            x["Proposal Standing"] === "Unreported" &&
+            x["Proposal State"] === "Funded"
+        );
+
         res.status(200).send({
           project,
           proposals,
           canCreateProposals,
-          airtableInfos
+          airtableInfos,
         });
       });
     });
