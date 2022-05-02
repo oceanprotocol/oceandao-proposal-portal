@@ -297,13 +297,18 @@ router.post(
           return res.status(400).send(err);
         }
         if (project.projectCategory != updateObject.projectCategory) {
-          let res = await batchUpdateProposals({
-            projectName: project.projectName,
-            update: {
-              "Grant Category": categoryJson[updateObject.projectCategory],
-            },
-          });
-          console.log(res);
+          try {
+            await batchUpdateProposals({
+              projectName: project.projectName,
+              update: {
+                "Grant Category": categoryJson[updateObject.projectCategory],
+              },
+            });
+          } catch (err) {
+            return res
+              .status(400)
+              .send("Error when updating project category on Airtable");
+          }
         }
         res.send({ data: project, success: true });
       }
