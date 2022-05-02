@@ -18,10 +18,12 @@ const {
   createAirtableEntry,
   getFormerFundedProposals,
   getCurrentRound,
+  batchUpdateProposals,
 } = require("../utils/airtable/utils");
 const { hasEnoughOceans } = require("../utils/ethers/balance");
 const { cacheSpecificProposal } = require("../utils/redis/cacher");
 const { getAvailableEarmarks } = require("./utils/proposal-utils");
+const categoryJson = require("../utils/types/grant_category.json");
 
 router.post("/create", recaptchaCheck(0.5), checkSigner, async (req, res) => {
   // create a project
@@ -267,6 +269,9 @@ router.post(
       updateObject.countryOfResidence = data.countryOfResidence;
     if (data.finalProduct) updateObject.finalProduct = data.finalProduct;
 
+    if (data.projectCategory)
+      updateObject.projectCategory = data.projectCategory;
+
     if (data.teamWebsite) updateObject.teamWebsite = data.teamWebsite;
     if (data.twitterLink) updateObject.twitterLink = data.twitterLink;
     if (data.discordLink) updateObject.discordLink = data.discordLink;
@@ -286,10 +291,19 @@ router.post(
       project._id,
       { $set: updateObject },
       { runValidators: true },
-      (err, project) => {
+      async (err, project) => {
         if (err) {
           console.log(err);
           return res.status(400).send(err);
+        }
+        if (project.projectCategory != updateObject.projectCategory) {
+          let res = await batchUpdateProposals({
+            projectName: project.projectName,
+            update: {
+              "Grant Category": categoryJson[updateObject.projectCategory],
+            },
+          });
+          console.log(res);
         }
         res.send({ data: project, success: true });
       }

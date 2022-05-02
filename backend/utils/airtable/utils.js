@@ -8,6 +8,36 @@ airtable.configure({
 });
 const base = airtable.base(process.env.AIRTABLE_BASE_ID);
 
+async function batchUpdate({ filter, update, table, view }) {
+  const records = await base(table)
+    .select({
+      view: view,
+      filterByFormula: filter,
+    })
+    .all();
+
+  // TODO Maybe use fetch here to batch update records
+  for (let record of records) {
+    try {
+      await record.updateFields(update);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+async function batchUpdateProposals({ projectName, update }) {
+  const table = "Proposals";
+  const view = "All Proposals";
+  const filter = `({Project Name} = "${projectName}")`;
+  return batchUpdate({
+    filter,
+    table,
+    view,
+    update,
+  });
+}
+
 const _getFundingRoundsSelectQuery = async (selectQuery) => {
   try {
     return await base("Funding Rounds")
@@ -232,4 +262,5 @@ module.exports = {
   getProposalByRecordId,
   getAllProposalRecords,
   getCurrentRoundProposals,
+  batchUpdateProposals,
 };
