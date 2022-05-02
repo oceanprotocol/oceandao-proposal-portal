@@ -89,7 +89,7 @@ router.post("/update", recaptchaCheck(0.5), checkSigner, function (req, res) {
 
       if (proposal.minUsdRequested)
         proposal.minUsdRequested = parseFloat(proposal.minUsdRequested);
-
+        
       const currentRound = await getCurrentRound();
       if (currentRound.fields["Round"] > data.round) {
         return res
@@ -119,7 +119,7 @@ router.post("/update", recaptchaCheck(0.5), checkSigner, function (req, res) {
         proposal.proposalFundingRequested = data.proposalFundingRequested;
       }
 
-      if (proposal.minUsdRequested) {
+      if (proposal.minUsdRequested >= 0) {
         if (proposal.minUsdRequested > proposal.proposalFundingRequested) {
           return res.status(400).json({
             error: "Your minimum funding request exceeds your funding request",
