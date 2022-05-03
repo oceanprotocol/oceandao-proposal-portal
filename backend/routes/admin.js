@@ -62,9 +62,9 @@ router.post(
     let description = data.description;
     let status = data.status;
     const obj = {
-      adminDescription: description,
-      status: status,
-      date: new Date(),
+      "delivered.adminDescription": description,
+      "delivered.status": status,
+      "delivered.date": new Date(),
     };
 
     const event = {
@@ -76,7 +76,7 @@ router.post(
 
     Proposal.findByIdAndUpdate(
       proposalId,
-      { $set: { delivered: obj }, $push: { events: event } },
+      { $set: obj, $push: { events: event } },
       { runValidators: true },
       async (err, data) => {
         if (err) return res.status(400).send(err);
