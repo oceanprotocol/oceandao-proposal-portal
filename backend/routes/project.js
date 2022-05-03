@@ -396,7 +396,7 @@ router.get("/info/:projectId", async (req, res) => {
     { projectId: projectId },
     "proposalFundingRequested proposalTitle round proposalEarmark airtableRecordId delivered"
   )
-    .sort({ round: -1 })
+    .sort({ round: -1 }) // descending
     .exec((err, proposals) => {
       Project.findById(projectId, async (err, project) => {
         if (err) {
@@ -406,7 +406,7 @@ router.get("/info/:projectId", async (req, res) => {
           proposals.map((x) => x.airtableRecordId),
           "."
         );
-        const lastProposal = proposals[proposals.length - 1];
+        const lastProposal = proposals[0];
         const canCreateProposals = lastProposal
           ? lastProposal.delivered.status == 2
           : true;
