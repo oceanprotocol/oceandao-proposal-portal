@@ -62,6 +62,11 @@ router.post(
     let proposalId = data.proposalId;
     let description = data.description;
     let status = data.status;
+
+    if (!proposalId || !description || !status || !(description.length > 5)) {
+      return res.json({ error: "Missing fields" });
+    }
+
     const obj = {
       adminDescription: description,
       status: status,
@@ -82,11 +87,7 @@ router.post(
       async (err, data) => {
         if (err) return res.status(400).send(err);
         const md = "<h3>Admin:</h3><br/>" + description;
-        await replyToDiscoursePost(
-          description,
-          true,
-          getTopicId(data.discourseLink)
-        );
+        await replyToDiscoursePost(md, true, getTopicId(data.discourseLink));
         if (status === 2) {
           await updateAirtableEntry(data.airtableRecordId, {
             deliverableChecklist: data.delivered.description,
