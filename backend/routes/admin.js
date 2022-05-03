@@ -8,6 +8,7 @@ const {
 } = require("../utils/discourse/utils");
 const { updateAirtableEntry } = require("../utils/airtable/utils");
 const Signer = require("../models/Signer");
+const { cacheSpecificProposal } = require("../utils/redis/cacher");
 
 router.get("/getCompletedProposals", (req, res) => {
   Proposal.find(
@@ -93,6 +94,7 @@ router.post(
             proposalStanding: "Completed",
           });
         }
+        cacheSpecificProposal(data.airtableRecordId);
         return res.send({ success: true });
       }
     );
