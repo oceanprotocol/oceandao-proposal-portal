@@ -406,10 +406,11 @@ router.get("/info/:projectId", async (req, res) => {
           proposals.map((x) => x.airtableRecordId),
           "."
         );
-        const canCreateProposals = !airtableInfos.some(
+
+        const canCreateProposals = !proposals.some(
           (x) =>
-            x["Proposal Standing"] === "Unreported" &&
-            x["Proposal State"] === "Funded"
+            x.delivered.status != 2 &&
+            airtableInfos[x.airtableRecordId]["Proposal State"] == "Funded"
         );
 
         res.status(200).send({
