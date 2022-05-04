@@ -17,8 +17,8 @@ const {
   getProjectUsdLimit,
   createAirtableEntry,
   getFormerFundedProposals,
-  getCurrentRound,
   batchUpdateProposals,
+  getCurrentSubmissionRound,
 } = require("../utils/airtable/utils");
 const { hasEnoughOceans } = require("../utils/ethers/balance");
 const { cacheSpecificProposal } = require("../utils/redis/cacher");
@@ -141,15 +141,8 @@ router.post(
       });
     }
 
-    const currentRound = await getCurrentRound();
-    let currentRoundNumber = parseInt(currentRound.fields["Round"]);
-    const currentRoundSubmissionDeadline =
-      currentRound.fields["Proposals Due By"];
-
-    // if submission deadline has passed, return error
-    if (Date.now() > new Date(currentRoundSubmissionDeadline).getTime()) {
-      currentRoundNumber = parseInt(currentRoundNumber) + 1; // submit proposal for next round
-    }
+    const currentRound = await getCurrentSubmissionRound();
+    const currentRoundNumber = parseInt(currentRound.fields["Round"]);
 
     Proposal.findOne(
       {
