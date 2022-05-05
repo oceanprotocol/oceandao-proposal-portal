@@ -126,6 +126,14 @@ async function getCurrentRoundNumber() {
   return roundParameters ? roundParameters.fields["Round"] : -1;
 }
 
+async function getCurrentSubmissionRound() {
+  const nowDateString = new Date().toISOString();
+  const roundParameters = await _getFundingRoundsSelectQuery(
+    `AND({Proposals Due By} > "${nowDateString}", "true")`
+  );
+  return roundParameters ? roundParameters.slice(-1) : null;
+}
+
 /**
  * Returns the current round
  * @return {object} current round
@@ -263,4 +271,5 @@ module.exports = {
   getAllProposalRecords,
   getCurrentRoundProposals,
   batchUpdateProposals,
+  getCurrentSubmissionRound,
 };
