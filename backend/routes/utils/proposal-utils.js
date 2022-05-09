@@ -10,7 +10,6 @@ function getAvailableEarmarks({ grantsCompleted, projectCategory }) {
     }
   } else {
     availableEarmaks.push("general");
-    availableEarmaks.push("outreach");
   }
 
   if (grantsCompleted === 1 || grantsCompleted === 2) {
