@@ -9,6 +9,7 @@ const {
 const { updateAirtableEntry } = require("../utils/airtable/utils");
 const Signer = require("../models/Signer");
 const { cacheSpecificProposal } = require("../utils/redis/cacher");
+const { updateDiscourse } = require("./utils/proposal-utils");
 
 router.get("/getCompletedProposals", (req, res) => {
   Proposal.find(
@@ -127,6 +128,10 @@ router.post(
       async (err, proposal) => {
         if (err) return res.status(400).send(err);
         await updateAirtableEntry(proposal.airtableRecordId, { earmark });
+        updateDiscourse({
+          proposalDiscourseId: proposal.discourseId,
+          proposal: proposal.toObject(),
+        });
         return res.send({ success: true });
       }
     );
