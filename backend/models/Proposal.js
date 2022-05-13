@@ -19,6 +19,7 @@ const proposalSchema = new Schema({
   proposalTitle: {
     type: String,
     required: true,
+    set: (value) => value.trim(),
   },
   proposalEarmark: {
     type: String,
@@ -29,6 +30,7 @@ const proposalSchema = new Schema({
       "coretech",
       "general",
       "outreach",
+      "2nd3rd",
     ],
   },
   proposalEarmarkRequest: String,

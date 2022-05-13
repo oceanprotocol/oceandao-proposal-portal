@@ -15,6 +15,10 @@ const {
   getProposalByRecordId,
   getCurrentRound,
 } = require("../utils/airtable/utils");
+const { getProposalRedis } = require("../utils/redis/proposal");
+const { cacheSpecificProposal } = require("../utils/redis/cacher");
+const { getAvailableEarmarks } = require("./utils/proposal-utils");
+const { hasEnoughOceans } = require("../utils/ethers/balance");
 
 router.post("/withdraw", checkSigner, (req, res) => {
   const data = JSON.parse(req.body.message);
@@ -85,7 +89,7 @@ router.post("/update", recaptchaCheck(0.5), checkSigner, function (req, res) {
 
       if (proposal.minUsdRequested)
         proposal.minUsdRequested = parseFloat(proposal.minUsdRequested);
-
+        
       const currentRound = await getCurrentRound();
       if (currentRound.fields["Round"] > data.round) {
         return res
@@ -115,7 +119,7 @@ router.post("/update", recaptchaCheck(0.5), checkSigner, function (req, res) {
         proposal.proposalFundingRequested = data.proposalFundingRequested;
       }
 
-      if (proposal.minUsdRequested) {
+      if (proposal.minUsdRequested >= 0) {
         if (proposal.minUsdRequested > proposal.proposalFundingRequested) {
           return res.status(400).json({
             error: "Your minimum funding request exceeds your funding request",
@@ -124,11 +128,57 @@ router.post("/update", recaptchaCheck(0.5), checkSigner, function (req, res) {
         update.minUsdRequested = proposal.minUsdRequested;
       }
 
+      if (
+        proposal.proposalEarmark &&
+        proposal.proposalEarmark != data.proposalEarmark
+      ) {
+        const formerProposals = await Proposal.find({
+          $and: [
+            { projectId: data.projectId.id },
+            { _id: { $ne: proposalId } },
+          ],
+        });
+        const deliveredProposals = formerProposals.filter(
+          (x) => x.delivered.status == 2
+        ).length;
+        const projectCategory = data.projectId.projectCategory;
+
+        const availableEarmaks = getAvailableEarmarks({
+          grantsCompleted: deliveredProposals,
+          projectCategory: projectCategory,
+        });
+
+        if (!availableEarmaks.includes(proposal.proposalEarmark)) {
+          return res.status(400).json({
+            error: "Proposal is not eligible for this earmark",
+          });
+        }
+
+        if (proposal.proposalEarmark == "coretech") {
+          update.proposalEarmarkRequest = "coretech";
+        } else {
+          update.proposalEarmark = proposal.proposalEarmark;
+          update.proposalEarmarkRequest = ""; // remove earmark request if coretech => general
+        }
+      }
+
       if (proposal.valueAddCriteria)
         update.valueAddCriteria = proposal.valueAddCriteria;
 
-      if (proposal.proposalWalletAddress)
+      if (
+        proposal.proposalWalletAddress &&
+        proposal.proposalWalletAddress != data.proposalWalletAddress
+      ) {
+        const hasEnoughTokens = await hasEnoughOceans(
+          proposal.proposalWalletAddress,
+          500
+        );
+
+        if (!hasEnoughTokens) {
+          return res.status(400).json({ error: "Not enough Ocean tokens" });
+        }
         update.proposalWalletAddress = proposal.proposalWalletAddress;
+      }
 
       if (proposal.proposalDescription)
         update.proposalDescription = proposal.proposalDescription;
@@ -158,9 +208,10 @@ router.post("/update", recaptchaCheck(0.5), checkSigner, function (req, res) {
           await updateAirtableEntry(airtableId, update); // update airtable entry
           await updateDiscoursePost(
             proposalDiscourseId,
-            { ...data, ...update },
+            { ...data.toObject(), ...update },
             project
           ); // update the post in the discourse forum
+          cacheSpecificProposal(airtableId);
           return res.send({ success: true });
         }
       );
@@ -226,11 +277,12 @@ router.post("/deliver", checkSigner, async (req, res) => {
 
 router.get("/info/:proposalId", async (req, res) => {
   const proposalId = req.params.proposalId;
-  Proposal.findById(proposalId, (err, proposal) => {
+  Proposal.findById(proposalId, async (err, proposal) => {
     if (err) {
       res.status(400).send(err);
     }
-    res.status(200).send(proposal);
+    const airtableInfo = await getProposalRedis(proposal.airtableRecordId, ".");
+    res.status(200).send({ proposal, airtableInfo });
   });
 });
 

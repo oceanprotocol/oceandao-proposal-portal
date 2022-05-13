@@ -20,6 +20,8 @@ function checkSigner(req, res, next) {
   const signer = req.body.signer;
   const message = req.body.message; // message is a valid JSON object
   const signedMessage = req.body.signedMessage;
+  if (!signer || !signedMessage || !message)
+    return res.status(400).send("Missing signer, signedMessage or message");
 
   const jsonMessage = JSON.parse(message);
 

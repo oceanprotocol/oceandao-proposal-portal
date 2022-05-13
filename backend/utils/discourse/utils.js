@@ -4,71 +4,78 @@ const userApiKey = process.env.DISCOURSE_API_KEY;
 const apiUsername = process.env.DISCOURSE_USERNAME;
 const baseUrl = process.env.DISCOURSE_BASE_URI;
 const fetch = require("node-fetch");
+const earmarkJson = require("../types/earmark.json");
+const categoryJson = require("../types/grant_category.json");
+function getMarkdown(project, proposal) {
+  const md = [];
 
-function getProjectMd(project) {
-  // TODO include value add criteria
-  const projectMd = [];
-  projectMd.push({
-    title: "Project Name",
+  md.push({
+    title: "# Project Name",
     body: project.projectName,
   });
-  projectMd.push({
-    title: "Project Description",
+  md.push({
+    title: "# Project Category",
+    body: categoryJson[project.projectCategory],
+  });
+  md.push({
+    title: "# Proposal Earmark",
+    body: earmarkJson[proposal.proposalEarmark],
+  });
+  if (proposal.proposalDescription)
+    md.push({
+      title: "# Proposal Description",
+      body: proposal.proposalDescription,
+      type: "md",
+    });
+  md.push({
+    title: "# Grant Deliverables",
+    body: proposal.grantDeliverables,
+    type: "md",
+  });
+  md.push({
+    title: "# Project Description",
     body: project.projectDescription,
     type: "md",
   });
-  projectMd.push({
-    title: "Final Product",
+  md.push({
+    title: "# Final Product",
     body: project.finalProduct,
     type: "md",
   });
+
+  md.push({
+    title: "# Value Add Criteria",
+    body: proposal.valueAddCriteria,
+  });
+
   if (project.coreTeam)
-    projectMd.push({
-      title: "Core Team",
+    md.push({
+      title: "# Core Team",
       body: project.coreTeam,
       type: "md",
     });
 
   if (project.advisors)
-    projectMd.push({
-      title: "Advisors",
+    md.push({
+      title: "# Advisors",
       body: project.advisors,
       type: "md",
     });
 
-  return projectMd;
-}
-
-function getProposalMd(proposal) {
-  const proposalMd = [];
-  proposalMd.push({
-    title: "Proposal One Liner",
-    body: proposal.oneLiner,
-  });
-  proposalMd.push({
-    title: "Proposal Description",
-    body: proposal.proposalDescription,
-    type: "md",
-  });
-  proposalMd.push({
-    title: "Grant Deliverables",
-    body: proposal.grantDeliverables,
-    type: "md",
-  });
-  proposalMd.push({
-    title: "Value Add Criteria",
-    body: proposal.valueAddCriteria,
-  });
-  proposalMd.push({
-    title: "Funding Requested",
+  md.push({
+    title: "**Funding Requested**",
     body: proposal.proposalFundingRequested,
   });
-  proposalMd.push({
-    title: "Wallet Address",
+  md.push({
+    title: "**Minimum Funding Requested**",
+    body: proposal.minUsdRequested,
+  });
+  md.push({
+    title: "**Wallet Address**",
     body: proposal.proposalWalletAddress,
   });
 
-  return proposalMd;
+  return md;
 }
 
 function getMarkdownProposal(md) {
@@ -79,8 +86,11 @@ function getMarkdownProposal(md) {
     if (obj.type === "md") {
       obj.body = NodeHtmlMarkdown.NodeHtmlMarkdown.translate(obj.body);
     }
-    post += `## ${obj.title}`;
-    post += `\n${obj.body}\n\n`;
+    post += `${obj.title}`;
+    if (obj.body) {
+      post += `\n${obj.body}\n`;
+    }
+    post += `\n---------------------------\n`;
   }
   return post;
 }
@@ -111,9 +121,8 @@ async function createDiscoursePost(
   project,
   categoryId
 ) {
-  const projectMd = getProjectMd(project);
-  const proposalMd = getProposalMd(proposal);
-  const post = getMarkdownProposal([...projectMd, ...proposalMd]);
+  const md = getMarkdown(project, proposal);
+  const post = getMarkdownProposal(md);
 
   const res = await fetch(`${baseUrl}/posts.json`, {
     method: "POST",
@@ -131,10 +140,8 @@ async function createDiscoursePost(
   return await res.json();
 }
 async function updateDiscoursePost(id, proposal, project) {
-  const projectMd = getProjectMd(project);
-  const proposalMd = getProposalMd(proposal);
-
-  const post = getMarkdownProposal([...projectMd, ...proposalMd]);
+  const markDown = getMarkdown(project, proposal);
+  const post = getMarkdownProposal(markDown);
   const res = await fetch(`${baseUrl}/posts/${id}.json`, {
     method: "PUT",
     headers: {

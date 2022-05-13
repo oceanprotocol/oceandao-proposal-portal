@@ -8,6 +8,7 @@ const {
 } = require("../utils/discourse/utils");
 const { updateAirtableEntry } = require("../utils/airtable/utils");
 const Signer = require("../models/Signer");
+const { cacheSpecificProposal } = require("../utils/redis/cacher");
 
 router.get("/getCompletedProposals", (req, res) => {
   Proposal.find(
@@ -55,13 +56,17 @@ router.get("/getProposalEarmarkRequest", (req, res) => {
 router.post(
   "/completeProposal",
   checkSigner,
-  requirePriv(5),
-
+  requirePriv(4),
   async (req, res) => {
     const data = JSON.parse(req.body.message);
     let proposalId = data.proposalId;
     let description = data.description;
     let status = data.status;
+
+    if (!proposalId || !description || !status || !(description.length > 5)) {
+      return res.json({ error: "Missing fields" });
+    }
+
     const obj = {
       adminDescription: description,
       status: status,
@@ -81,13 +86,15 @@ router.post(
       { runValidators: true },
       async (err, data) => {
         if (err) return res.status(400).send(err);
-        const md = "### Admin:\n" + description;
+        const md = "<h3>Admin:</h3><br/>" + description;
         await replyToDiscoursePost(md, true, getTopicId(data.discourseLink));
         if (status === 2) {
           await updateAirtableEntry(data.airtableRecordId, {
             deliverableChecklist: data.delivered.description,
+            proposalStanding: "Completed",
           });
         }
+        cacheSpecificProposal(data.airtableRecordId);
         return res.send({ success: true });
       }
     );
@@ -97,7 +104,7 @@ router.post(
 router.post(
   "/setProposalEarmark",
   checkSigner,
-  requirePriv(5),
+  requirePriv(4),
   async (req, res) => {
     const data = JSON.parse(req.body.message);
     let proposalId = data.proposalId;
@@ -157,11 +164,15 @@ router.post("/create", checkSigner, requirePriv(5), (req, res) => {
         address: walletAddress,
       },
       {
-        privLevel: privLevel,
+        $set: { privilege: privLevel },
       },
-      (err) => {
+      {
+        upsert: true,
+        new: true,
+      },
+      (err, data) => {
         if (err) return res.status(400).send(err);
-        return res.send({ success: true });
+        return res.send({ success: true, data });
       }
     );
   } else {

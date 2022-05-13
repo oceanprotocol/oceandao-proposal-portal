@@ -8,6 +8,36 @@ airtable.configure({
 });
 const base = airtable.base(process.env.AIRTABLE_BASE_ID);
 
+async function batchUpdate({ filter, update, table, view }) {
+  const records = await base(table)
+    .select({
+      view: view,
+      filterByFormula: filter,
+    })
+    .all();
+
+  // TODO Maybe use fetch here to batch update records
+  for (let record of records) {
+    try {
+      await record.updateFields(update);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+async function batchUpdateProposals({ projectName, update }) {
+  const table = "Proposals";
+  const view = "All Proposals";
+  const filter = `({Project Name} = "${projectName}")`;
+  return batchUpdate({
+    filter,
+    table,
+    view,
+    update,
+  });
+}
+
 const _getFundingRoundsSelectQuery = async (selectQuery) => {
   try {
     return await base("Funding Rounds")
@@ -53,6 +83,28 @@ const _getProjectSummarySelectQuery = async (selectQuery) => {
   }
 };
 
+async function getAllProposalRecords() {
+  return base("Proposals")
+    .select({
+      view: "All Proposals",
+    })
+    .all();
+}
+
+async function getCurrentRoundProposals() {
+  const currentRound = await getCurrentRound();
+  const currentRoundNumber = currentRound.fields["Round"];
+  const currentRoundProposals = await base("Proposals")
+    .select({
+      view: "All Proposals",
+      filterByFormula: `OR({Round} = ${currentRoundNumber},{Round} = ${
+        currentRoundNumber + 1
+      },{Round} = ${currentRoundNumber - 1})`,
+    })
+    .all();
+  return currentRoundProposals;
+}
+
 /**
  * @param {String} projectName
  * @return {Number} projectUsdLimit
@@ -72,6 +124,14 @@ async function getProjectUsdLimit(projectName) {
 async function getCurrentRoundNumber() {
   const roundParameters = await getCurrentRound();
   return roundParameters ? roundParameters.fields["Round"] : -1;
+}
+
+async function getCurrentSubmissionRound() {
+  const nowDateString = new Date().toISOString();
+  const roundParameters = await _getFundingRoundsSelectQuery(
+    `AND({Proposals Due By} > "${nowDateString}", "true")`
+  );
+  return roundParameters ? roundParameters[roundParameters.length - 1] : null;
 }
 
 /**
@@ -103,6 +163,14 @@ async function updateAirtableEntry(recordId, proposal, grantCompleted = false) {
   if (proposal.proposalWalletAddress)
     update["Wallet Address"] = proposal.proposalWalletAddress;
 
+  if (proposal.proposalStanding) {
+    update["Proposal Standing"] = proposal.proposalStanding;
+  }
+
+  if (proposal.proposalEarmark) {
+    update["Earmarks"] = earmarkJson[proposal.proposalEarmark];
+  }
+
   if (proposal.deliverableChecklist)
     update["Deliverable Checklist"] =
       `[x] Completed! ` +
@@ -122,13 +190,18 @@ async function updateAirtableEntry(recordId, proposal, grantCompleted = false) {
     update["Minimum USD Requested"] = proposal.minUsdRequested;
 
   if (proposal.oneLiner) update["One Liner"] = proposal.oneLiner;
-  await base("Proposals").update(recordId, update);
+  try {
+    await base("Proposals").update(recordId, update);
+  } catch (err) {
+    console.error(err);
+    throw new Error("An error occurred while updating the Airtable entry");
+  }
   return true;
 }
 
-async function getFormerProposals(projectName) {
+async function getFormerFundedProposals(projectName) {
   const formerProposals = await _getProposalsSelectQuery(
-    `{Project Name} = "${projectName}"`
+    `AND({Project Name} = "${projectName}",{Proposal State} = "Funded")`
   );
   return formerProposals;
 }
@@ -175,7 +248,14 @@ async function createAirtableEntry({
       "[ ] " + NodeHtmlMarkdown.NodeHtmlMarkdown.translate(grantDeliverables),
   };
 
-  const id = await base("Proposals").create(proposal);
+  let id;
+  try {
+    id = await base("Proposals").create(proposal);
+  } catch (err) {
+    console.error(err);
+    throw new Error("An error occurred while creating the Airtable entry");
+  }
+
   return id.id;
 }
 
@@ -184,8 +264,12 @@ module.exports = {
   getCurrentRoundNumber,
   createAirtableEntry,
   updateAirtableEntry,
-  getFormerProposals,
+  getFormerFundedProposals,
   getCurrentDiscourseCategoryId,
   getCurrentRound,
   getProposalByRecordId,
+  getAllProposalRecords,
+  getCurrentRoundProposals,
+  batchUpdateProposals,
+  getCurrentSubmissionRound,
 };

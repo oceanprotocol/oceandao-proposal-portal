@@ -5,6 +5,7 @@ const express = require("express");
 const router = express.Router();
 const Proposal = require("../models/Proposal");
 const Project = require("../models/Project");
+const { getProposalRedisMultiple } = require("../utils/redis/proposal");
 const {
   checkSigner,
   recaptchaCheck,
@@ -15,9 +16,14 @@ const { createDiscoursePost } = require("../utils/discourse/utils");
 const {
   getProjectUsdLimit,
   createAirtableEntry,
-  getFormerProposals,
-  getCurrentRound,
+  getFormerFundedProposals,
+  batchUpdateProposals,
+  getCurrentSubmissionRound,
 } = require("../utils/airtable/utils");
+const { hasEnoughOceans } = require("../utils/ethers/balance");
+const { cacheSpecificProposal } = require("../utils/redis/cacher");
+const { getAvailableEarmarks } = require("./utils/proposal-utils");
+const categoryJson = require("../utils/types/grant_category.json");
 
 router.post("/create", recaptchaCheck(0.5), checkSigner, async (req, res) => {
   // create a project
@@ -77,23 +83,43 @@ router.post(
     ];
 
     // TODO - Please fix. New projects can apply for coretech.
-    const formerProposals = await getFormerProposals(projectName);
-    if (formerProposals.length == 0) {
-      // ? triple === no?
-      if (project.projectCategory === "outreach") {
-        proposal.proposalEarmark = "newprojectoutreach";
-      } else {
-        proposal.proposalEarmark = "newproject";
-      }
-    } else if (proposal.proposalEarmark === "coretech") {
+    const formerProposals = await getFormerFundedProposals(projectName);
+    const availableEarmaks = getAvailableEarmarks({
+      grantsCompleted: formerProposals.length,
+      projectCategory: project.projectCategory,
+    });
+
+    if (!availableEarmaks.includes(proposal.proposalEarmark)) {
+      return res
+        .status(400)
+        .json({ error: "Earmark is not allowed for the project" });
+    }
+
+    if (proposal.proposalEarmark === "coretech") {
       proposal.proposalEarmarkRequest = "coretech";
-      proposal.proposalEarmark = "general";
+      if (project.projectCategory === "outreach") {
+        proposal.proposalEarmark =
+          formerProposals.length < 1 ? "newprojectoutreach" : "general";
+      } else {
+        proposal.proposalEarmark =
+          formerProposals.length < 1 ? "newproject" : "general";
+      }
     }
 
     const newProposal = new Proposal(proposal); // ? maybe change this
     let error = newProposal.validateSync();
     if (error) {
       return res.status(400).json({ error: error.toString() });
+    }
+
+    // check 500 Ocean tokens
+    const hasEnoughTokens = await hasEnoughOceans(
+      proposal.proposalWalletAddress,
+      500
+    );
+
+    if (!hasEnoughTokens) {
+      return res.status(400).json({ error: "Not enough Ocean tokens" });
     }
 
     const projectUsdLimit = await getProjectUsdLimit(projectName);
@@ -104,7 +130,7 @@ router.post(
     }
 
     const minUsdRequested = parseFloat(proposal.minUsdRequested);
-    if (!minUsdRequested) {
+    if (minUsdRequested < 0) {
       return res.status(400).json({
         error: "Please enter a minimum USD amount",
       });
@@ -115,15 +141,8 @@ router.post(
       });
     }
 
-    const currentRound = await getCurrentRound();
-    let currentRoundNumber = parseInt(currentRound.fields["Round"]);
-    const currentRoundSubmissionDeadline =
-      currentRound.fields["Proposals Due By"];
-
-    // if submission deadline has passed, return error
-    if (Date.now() > new Date(currentRoundSubmissionDeadline).getTime()) {
-      currentRoundNumber = parseInt(currentRoundNumber) + 1; // submit proposal for next round
-    }
+    const currentRound = await getCurrentSubmissionRound();
+    const currentRoundNumber = parseInt(currentRound.fields["Round"]);
 
     Proposal.findOne(
       {
@@ -200,6 +219,7 @@ router.post(
           proposal.signature = req.body.signedMessage;
           proposal.round = currentRoundNumber;
 
+          cacheSpecificProposal(airtableRecordId);
           // update saved proposal
 
           new Proposal(proposal).save((err, proposal) => {
@@ -242,6 +262,9 @@ router.post(
       updateObject.countryOfResidence = data.countryOfResidence;
     if (data.finalProduct) updateObject.finalProduct = data.finalProduct;
 
+    if (data.projectCategory)
+      updateObject.projectCategory = data.projectCategory;
+
     if (data.teamWebsite) updateObject.teamWebsite = data.teamWebsite;
     if (data.twitterLink) updateObject.twitterLink = data.twitterLink;
     if (data.discordLink) updateObject.discordLink = data.discordLink;
@@ -261,10 +284,24 @@ router.post(
       project._id,
       { $set: updateObject },
       { runValidators: true },
-      (err, project) => {
+      async (err, project) => {
         if (err) {
           console.log(err);
           return res.status(400).send(err);
+        }
+        if (project.projectCategory != updateObject.projectCategory) {
+          try {
+            await batchUpdateProposals({
+              projectName: project.projectName,
+              update: {
+                "Grant Category": categoryJson[updateObject.projectCategory],
+              },
+            });
+          } catch (err) {
+            return res
+              .status(400)
+              .send("Error when updating project category on Airtable");
+          }
         }
         res.send({ data: project, success: true });
       }
@@ -285,23 +322,102 @@ router.post("/proposal/list", function (req, res) {
   );
 });
 
+router.get("/state/:projectId", async (req, res) => {
+  const levels = (completed) => {
+    // NOTE: Reference: https://github.com/oceanprotocol/oceandao/wiki#r12-update-funding-tiers
+    if (completed === 0) return { level: "New Project", ceiling: 3000 };
+    if (completed === 1) return { level: "Existing Project", ceiling: 10000 };
+    if (completed >= 2 && completed < 5)
+      return { level: "Experienced Project", ceiling: 20000 };
+    if (completed >= 5) return { level: "Veteran Project", ceiling: 20000 };
+  };
+
+  const projectId = req.params.projectId;
+  Proposal.find(
+    { projectId: projectId },
+    "proposalFundingRequested proposalTitle round proposalEarmark airtableRecordId delivered"
+  )
+    .sort({ round: -1 })
+    .exec((err, proposals) => {
+      Project.findById(projectId, async (err, project) => {
+        if (err) {
+          return res.status(400).send(err);
+        }
+        if (!project) {
+          return res.status(400).send("Project doesn't exist");
+        }
+        const airtableInfos = await getProposalRedisMultiple(
+          proposals.map((x) => x.airtableRecordId),
+          "."
+        );
+
+        const grantsProposed = proposals.length;
+        const grantsReceived = airtableInfos.filter(
+          (x) =>
+            x["Proposal Standing"] === "Granted" ||
+            x["Proposal State"] === "Funded"
+        ).length;
+        const grantsCompleted = proposals.filter(
+          (x) => x.delivered.status == 2
+        ).length;
+
+        const projectCategory = project.projectCategory;
+
+        const level = levels(grantsCompleted);
+
+        const availableEarmarks = getAvailableEarmarks({
+          grantsCompleted,
+          projectCategory,
+        });
+
+        return res.json({
+          level: level.level,
+          ceiling: level.ceiling,
+          projectCategory,
+          grantsProposed,
+          grantsReceived,
+          grantsCompleted,
+          availableEarmarks,
+        });
+      });
+    });
+});
+
 router.get("/info/:projectId", async (req, res) => {
   const projectId = req.params.projectId;
   Proposal.find(
     { projectId: projectId },
-    "proposalFundingRequested proposalTitle round proposalEarmark",
-    (err, proposals) => {
-      Project.findById(projectId, (err, project) => {
+    "proposalFundingRequested proposalTitle round proposalEarmark airtableRecordId delivered"
+  )
+    .sort({ round: -1 }) // descending
+    .exec((err, proposals) => {
+      Project.findById(projectId, async (err, project) => {
         if (err) {
           res.status(400).send(err);
         }
+
+        const recordIdProposal = {};
+        const recordIds = proposals.map((x) => x.airtableRecordId);
+        const airtableInfos = await getProposalRedisMultiple(recordIds, ".");
+
+        for (let i = 0; i < recordIds.length; i++) {
+          recordIdProposal[recordIds[i]] = airtableInfos[i];
+        }
+
+        const canCreateProposals = !proposals.some(
+          (x) =>
+            x.delivered.status != 2 &&
+            recordIdProposal[x.airtableRecordId]["Proposal State"] == "Funded"
+        );
+
         res.status(200).send({
           project,
           proposals,
+          canCreateProposals,
+          airtableInfos,
         });
       });
-    }
-  );
+    });
 });
 
 module.exports = router;
