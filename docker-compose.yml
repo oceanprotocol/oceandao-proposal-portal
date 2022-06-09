@@ -8,6 +8,7 @@ services:
     ports:
       - 3005:3005
   mongo:
+    restart: always
     image: mongo
     ports:
       - 27017:27017
@@ -15,6 +16,7 @@ services:
       - mongodb:/data/db
       - mongobackup:/backup
   redis:
+    restart: always
     image: redislabs/redismod:latest
     ports:
       - 6379:6379
