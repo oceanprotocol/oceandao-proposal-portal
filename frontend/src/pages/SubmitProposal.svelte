@@ -357,28 +357,8 @@ Community Value — How does the project add value to the overall Ocean Communit
       }
     });
   }
-</script>
 
-<Recaptcha bind:this={recaptcha} />
-
-<div class="flex h-screen mt-10 justify-center w-full">
-  <div class="w-full max-w-3xl m-auto">
-    <p class="text-lg font-bold text-center">
-      Proposals must meet the
-      <a
-        class="link"
-        target="_blank"
-        href="https://github.com/oceanprotocol/oceandao/wiki/project-criteria"
-      >
-        Project Submission Criteria
-      </a>
-      .
-    </p>
-
-    <h3 style="text-align: center;">
-      Submitting for <b>Round {roundNumber}</b>
-    </h3>
-
+  /*const form = 
     {#if loaded == false}
       <div class="text-center">
         <div class="spinner-border text-primary" role="status">
@@ -475,6 +455,32 @@ Community Value — How does the project add value to the overall Ocean Communit
         </div>
       </form>
     {/if}
+    */
+</script>
+
+<Recaptcha bind:this={recaptcha} />
+
+<div class="flex h-screen mt-10 justify-center w-full">
+  <div class="w-full max-w-3xl m-auto flex flex-col justify-start h-screen">
+    <p class="text-lg font-bold text-center">
+      Proposals must meet the
+      <a
+        class="link"
+        target="_blank"
+        href="https://github.com/oceanprotocol/oceandao/wiki/project-criteria"
+      >
+        Project Submission Criteria
+      </a>
+      .
+    </p>
+    <h3 style="text-align: center;">
+      Submitting for <b>Round {roundNumber}</b>
+    </h3>
+
+    <p class="text-lg font-bold text-center message">
+      Proposal submission is temporarily closed for maintenance, please try
+      again later.
+    </p>
   </div>
 </div>
 
@@ -485,5 +491,10 @@ Community Value — How does the project add value to the overall Ocean Communit
 
   .link {
     color: var(--brand-color-primary);
+  }
+
+  .message {
+    margin-top: 100px;
+    color: var(--brand-alert-yellow);
   }
 </style>
