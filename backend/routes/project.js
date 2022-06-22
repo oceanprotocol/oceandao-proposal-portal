@@ -63,7 +63,6 @@ router.post(
   checkProject,
   checkBadState,
   async function (req, res) {
-    return res.json({ error: "Submissions are temporarily disabled." });
     const proposal = JSON.parse(req.body.message);
     // create a new proposal
     const proposalFundingRequested = parseFloat(
