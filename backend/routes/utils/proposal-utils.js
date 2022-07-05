@@ -5,7 +5,6 @@ function getAvailableEarmarks({ grantsCompleted, projectCategory }) {
       availableEarmaks.push("newprojectoutreach");
     }
     else {
-      availableEarmaks.push("newprojectoutreach");
       availableEarmaks.push("newproject");
     }
   } else {
