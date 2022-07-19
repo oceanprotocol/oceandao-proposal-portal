@@ -19,6 +19,7 @@ const {
   getFormerFundedProposals,
   batchUpdateProposals,
   getCurrentSubmissionRound,
+  hasProjectReceivedMoreThanAllowedTotalFunding
 } = require("../utils/airtable/utils");
 const { hasEnoughOceans } = require("../utils/ethers/balance");
 const { cacheSpecificProposal } = require("../utils/redis/cacher");
@@ -70,6 +71,7 @@ router.post(
     );
     const project = res.locals.project;
     const projectName = project.projectName;
+    const totalFundingAllowedAmount = 100000
 
     proposal.signer = res.locals.signer; // signer
     proposal.projectId = project._id; // add projectId to proposal
@@ -81,6 +83,18 @@ router.post(
         message: req.body.message,
       },
     ];
+
+    //If project total funding received trough the time together with funding requested inside current proposal exceeds the 100k allowed amount abort proposal creation
+    const hasProjectTotalFundingExceededAllowedAmount = await hasProjectReceivedMoreThanAllowedTotalFunding(
+      totalFundingAllowedAmount,
+      projectName,
+      parseInt(proposal.proposalFundingRequested)
+    )
+    if(hasProjectTotalFundingExceededAllowedAmount){
+      return res
+        .status(400)
+        .json({ error: "Project total fundings exceeded the $100k allowed amount" });
+    }
 
     // TODO - Please fix. New projects can apply for coretech.
     const formerProposals = await getFormerFundedProposals(projectName);

@@ -206,6 +206,22 @@ async function getFormerFundedProposals(projectName) {
   return formerProposals;
 }
 
+async function getProjectTotalFundings(projectName) {
+  let totalFundsReceived = 0
+  const fundedProposals = await getFormerFundedProposals(projectName)
+  fundedProposals.forEach((proposal) => {
+    if(proposal.fields['USD Granted']){
+     totalFundsReceived += proposal.fields['USD Granted']
+    }
+  })
+  return totalFundsReceived
+}
+
+async function hasProjectReceivedMoreThanAllowedTotalFunding(totalFundingAllowed, projectName, currentFundingRequested){
+  const totalFundingReceivedUntilNow = await getProjectTotalFundings(projectName)
+  return totalFundingReceivedUntilNow + currentFundingRequested > totalFundingAllowed
+}
+
 /**
  * Creates an entry in the proposals table
  */
@@ -272,4 +288,5 @@ module.exports = {
   getCurrentRoundProposals,
   batchUpdateProposals,
   getCurrentSubmissionRound,
+  hasProjectReceivedMoreThanAllowedTotalFunding
 };
