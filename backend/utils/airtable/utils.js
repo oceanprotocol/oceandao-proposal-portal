@@ -214,13 +214,11 @@ async function getProjectTotalFundings(projectName) {
      totalFundsReceived += proposal.fields['USD Granted']
     }
   })
-  console.log(totalFundsReceived)
   return totalFundsReceived
 }
 
 async function hasProjectReceivedMoreThanAllowedTotalFunding(totalFundingAllowed, projectName, currentFundingRequested){
   const totalFundingReceivedUntilNow = await getProjectTotalFundings(projectName)
-  console.log(totalFundingReceivedUntilNow + currentFundingRequested > totalFundingAllowed)
   return totalFundingReceivedUntilNow + currentFundingRequested > totalFundingAllowed
 }
 

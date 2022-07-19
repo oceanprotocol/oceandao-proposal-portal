@@ -88,12 +88,12 @@ router.post(
     const hasProjectTotalFundingExceededAllowedAmount = await hasProjectReceivedMoreThanAllowedTotalFunding(
       totalFundingAllowedAmount,
       projectName,
-      proposal.proposalFundingRequested
+      parseInt(proposal.proposalFundingRequested)
     )
     if(hasProjectTotalFundingExceededAllowedAmount){
       return res
         .status(400)
-        .json({ error: "Project total fundings exceeded the 100k allowed amount" });
+        .json({ error: "Project total fundings exceeded the $100k allowed amount" });
     }
 
     // TODO - Please fix. New projects can apply for coretech.
