@@ -218,7 +218,7 @@ async function getProjectTotalFundings(projectName) {
   return totalFundsReceived
 }
 
-async function hasProposalReceivedMoreThanAllowedTotalFunding(totalFundingAllowed, projectName, currentFundingRequested){
+async function hasProjectReceivedMoreThanAllowedTotalFunding(totalFundingAllowed, projectName, currentFundingRequested){
   const totalFundingReceivedUntilNow = await getProjectTotalFundings(projectName)
   console.log(totalFundingReceivedUntilNow + currentFundingRequested > totalFundingAllowed)
   return totalFundingReceivedUntilNow + currentFundingRequested > totalFundingAllowed
@@ -290,5 +290,5 @@ module.exports = {
   getCurrentRoundProposals,
   batchUpdateProposals,
   getCurrentSubmissionRound,
-  hasProposalReceivedMoreThanAllowedTotalFunding
+  hasProjectReceivedMoreThanAllowedTotalFunding
 };
