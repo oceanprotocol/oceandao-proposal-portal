@@ -34,17 +34,17 @@
     fetch(`${SERVER_URI}/app/proposal/info/${proposalId}`)
       .then((res) => res.json())
       .then((res) => {
-        showMinUsdRequestedWarning = false
+        showMinUsdRequestedWarning = false;
         proposalStore.update(() => res.proposal);
         loaded = true;
       });
   }
-  
+
   fetch(`${SERVER_URI}/app/round/number`)
     .then((res) => res.json())
     .then((res) => {
       roundNumber = res.roundNumber;
-  });
+    });
 
   const partTitles = ["Part 1 - Proposal Details"];
 
@@ -68,7 +68,7 @@
           value: "newproject",
           text: "New Project",
         },
-      ]
+      ],
     },
     {
       type: "text",
@@ -297,14 +297,17 @@ Community Value — How does the project add value to the overall Ocean Communit
   }
 
   function onProposalEarmarkChange() {
-    if($proposalStore['proposalEarmark'] === "coretech"){
+    if ($proposalStore["proposalEarmark"] === "coretech") {
       fields[part].forEach((field, index) => {
-        if(field.bindValue==='proposalEarmark') fields[0][index].importantText="If you select Core Tech earmark, you havet to seek approval in https://discord.com/channels/612953348487905282/908016816029319178 in order for the proposal to be accepted"
-      })
-    }else{
+        if (field.bindValue === "proposalEarmark")
+          fields[0][index].importantText =
+            "If you select Core Tech earmark, you havet to seek approval in https://discord.com/channels/612953348487905282/908016816029319178 in order for the proposal to be accepted";
+      });
+    } else {
       fields[part].forEach((field, index) => {
-        if(field.bindValue==='proposalEarmark') fields[0][index].importantText=undefined
-      })
+        if (field.bindValue === "proposalEarmark")
+          fields[0][index].importantText = undefined;
+      });
     }
   }
 
@@ -328,27 +331,31 @@ Community Value — How does the project add value to the overall Ocean Communit
     }
   }
 
-  $: if($proposalStore["minUsdRequested"] && showMinUsdRequestedWarning) {
+  $: if ($proposalStore["minUsdRequested"] && showMinUsdRequestedWarning) {
     showMinUsdWarning();
   }
-  $: if($proposalStore["proposalEarmark"]){onProposalEarmarkChange()}
-  $: if(!$projectInfo){
-    if(isUpdating && !$proposalStore.projectId){
-    }else if(isUpdating){
-      loadProjectInfo($proposalStore.projectId)
-    }else{
-      loadProjectInfo(projectId)
+  $: if ($proposalStore["proposalEarmark"]) {
+    onProposalEarmarkChange();
+  }
+  $: if (!$projectInfo) {
+    if (isUpdating && !$proposalStore.projectId) {
+    } else if (isUpdating) {
+      loadProjectInfo($proposalStore.projectId);
+    } else {
+      loadProjectInfo(projectId);
     }
   }
-  $: if($projectInfo && !earmarkOptionsLoaded){
+  $: if ($projectInfo && !earmarkOptionsLoaded) {
     fields[part].forEach((filed, index) => {
-      if(filed.bindValue==='proposalEarmark'){
-        const earmarkOptions = getEarmarkOptions($projectInfo)
-        fields[part][index].options = earmarkOptions
-        $proposalStore.proposalEarmark = isUpdating ? $proposalStore.proposalEarmark : earmarkOptions[0].value
-        earmarkOptionsLoaded = true
+      if (filed.bindValue === "proposalEarmark") {
+        const earmarkOptions = getEarmarkOptions($projectInfo);
+        fields[part][index].options = earmarkOptions;
+        $proposalStore.proposalEarmark = isUpdating
+          ? $proposalStore.proposalEarmark
+          : earmarkOptions[0].value;
+        earmarkOptionsLoaded = true;
       }
-    })
+    });
   }
 </script>
 

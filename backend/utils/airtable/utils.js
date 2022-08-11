@@ -131,7 +131,7 @@ async function getCurrentSubmissionRound() {
   const roundParameters = await _getFundingRoundsSelectQuery(
     `AND({Proposals Due By} > "${nowDateString}", "true")`
   );
-  return roundParameters ? roundParameters.slice(-1) : null;
+  return roundParameters ? roundParameters[roundParameters.length - 1] : null;
 }
 
 /**
