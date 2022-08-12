@@ -8,12 +8,10 @@ function getAvailableEarmarks({ grantsCompleted, projectCategory }) {
       availableEarmaks.push("newprojectoutreach");
       availableEarmaks.push("newproject");
     }
+  } else if (grantsCompleted === 1 || grantsCompleted === 2) {
+    availableEarmaks.push("2nd3rd");
   } else {
     availableEarmaks.push("general");
-  }
-
-  if (grantsCompleted === 1 || grantsCompleted === 2) {
-    availableEarmaks.push("2nd3rd");
   }
 
   availableEarmaks.push("coretech");
